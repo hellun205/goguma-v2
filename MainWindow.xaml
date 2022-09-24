@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:goguma"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
+  <Grid>
+    <local:Screen HorizontalAlignment="Left" Margin="173,65,0,0" VerticalAlignment="Top" Height="279" Width="516"/>
 
-    </Grid>
+  </Grid>
 </Window>
