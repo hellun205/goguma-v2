@@ -27,7 +27,14 @@ namespace goguma
 
     private void RTBMain_GotFocus(object sender, RoutedEventArgs e)
     {
-      TBInput.Focus();
+      //TBInput.Focus();
+    }
+
+    public void Print(string text)
+    {
+      TextRange tr = new TextRange(RTBMain.Document.ContentEnd, RTBMain.Document.ContentEnd);
+      tr.Text = text;
+      tr.ApplyPropertyValue(TextElement.FontFamilyProperty, FindResource("Galmuri11-Bold"));
     }
   }
 }
