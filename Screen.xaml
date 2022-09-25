@@ -8,10 +8,9 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
     <TextBox x:Name="TBInput" Focusable="True" Text=""/>
-    <RichTextBox x:Name="RTBMain" Background="#FF202030" BorderThickness="0" Focusable="True" SelectionTextBrush="#26DEDEDE" SelectionBrush="#26C7C7C7" Foreground="#FF474767" GotFocus="RTBMain_GotFocus">
+    <RichTextBox x:Name="RTBMain" Background="#FF202030" FontFamily="{StaticResource Galmuri14}" BorderThickness="0" Focusable="True" SelectionTextBrush="#26DEDEDE" SelectionBrush="#26C7C7C7" Foreground="#FF474767" GotFocus="RTBMain_GotFocus">
       <FlowDocument>
         <Paragraph>
-
         </Paragraph>
       </FlowDocument>
     </RichTextBox>

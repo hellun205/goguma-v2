@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:goguma"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+    <FontFamily x:Key="Galmuri14">application:,,,Font/#Galmuri14 Regular</FontFamily>
     </Application.Resources>
 </Application>
