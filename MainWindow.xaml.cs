@@ -31,6 +31,7 @@ namespace goguma
         Screen.Print("\nPress any key to continue!");
         Screen.ReadKey(() =>
         {
+          Screen.Clear();
           Screen.Print($"\nGood! you press \"{Screen.KeyOfRead}\"");
         });
       });

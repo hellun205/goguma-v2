@@ -90,6 +90,7 @@ namespace goguma
         TBInput.Clear();
         CallAfterReadingText = CallAfterReading;
         SaveRTF();
+        Print("  ", BGColor, BGColorWhenReadText);
       }
       else if (isReadingText)
         throw new Exception("이미 텍스트를 읽고 있습니다.");
@@ -108,6 +109,19 @@ namespace goguma
         throw new Exception("이미 키를 읽고 있습니다.");
       else if (isReadingText)
         throw new Exception("현재 텍스트를 읽고 있으므로 키를 읽을 수 없습니다.");
+    }
+
+    public void Clear()
+    {
+      if (!isReadingText && !isReadingKey)
+      {
+        RTBMain.Document.Blocks.Clear();
+      }
+      else if (isReadingText)
+        throw new Exception("텍스트를 읽는 중에는 모든 텍스트를 지울 수 없습니다.");
+      else if (isReadingKey)
+        throw new Exception("키를 읽는 중에는 모든 텍스트를 지울 수 없습니다.");
+
     }
 
     private void TBInput_KeyDown(object sender, KeyEventArgs e)
