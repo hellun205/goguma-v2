@@ -20,6 +20,9 @@ namespace goguma
   /// </summary>
   public partial class Screen : UserControl
   {
+    public object Font => FindResource("Galmuri11");
+    public Brush BGColor => RTBMain.Background;
+
     public Screen()
     {
       InitializeComponent();
@@ -27,14 +30,28 @@ namespace goguma
 
     private void RTBMain_GotFocus(object sender, RoutedEventArgs e)
     {
-      //TBInput.Focus();
+      TBInput.Focus();
     }
 
     public void Print(string text)
     {
+      Print(text, Brushes.White, BGColor);
+    }
+
+    public void Print(string text, Brush fgColor, Brush bgColor)
+    {
       TextRange tr = new TextRange(RTBMain.Document.ContentEnd, RTBMain.Document.ContentEnd);
       tr.Text = text;
-      tr.ApplyPropertyValue(TextElement.FontFamilyProperty, FindResource("Galmuri11-Bold"));
+      tr.ApplyPropertyValue(TextElement.FontFamilyProperty, Font);
+      tr.ApplyPropertyValue(TextElement.ForegroundProperty, fgColor);
+      tr.ApplyPropertyValue(TextElement.BackgroundProperty, bgColor);
     }
+
+    private void RTBMain_TextChanged(object sender, TextChangedEventArgs e)
+    {
+      RTBMain.ScrollToEnd();
+    }
+
+
   }
 }
