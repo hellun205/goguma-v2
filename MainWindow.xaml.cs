@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static goguma.ConsoleUtil;
 
 namespace goguma
 {
@@ -23,18 +24,9 @@ namespace goguma
     public MainWindow()
     {
       InitializeComponent();
+      MainScreen = Screen;
 
-      Screen.Print("READ: ");
-      Screen.ReadText(() =>
-      {
-        Screen.Print($"\n you inputted \"{Screen.TextOfRead}\"");
-        Screen.Print("\nPress any key to continue!");
-        Screen.ReadKey(() =>
-        {
-          Screen.Clear();
-          Screen.Print($"\nGood! you press \"{Screen.KeyOfRead}\"");
-        });
-      });
+      PrintF($"<fg='{Brushes.DeepSkyBlue}'>DeepSkyBlue <bg='{Brushes.Black}'>BlackBG <fg='{Brushes.Coral}' bg='{Brushes.Cyan}'>Coral And Cyan");
     }
   }
 }
