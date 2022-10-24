@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +23,13 @@ namespace goguma
   {
     public object Font => FindResource("Galmuri11");
     public Brush BGColor => RTBMain.Background;
+    public Brush FGColor => RTBMain.Foreground;
+    public Brush BGColorWhenReadText { get; set; } = Brushes.DimGray;
+    public string TextOfRead;
+
+    private bool isReadingText = false;
+    private Action CallAfterReadingText;
+    private string tempRTF;
 
     public Screen()
     {
@@ -35,7 +43,7 @@ namespace goguma
 
     public void Print(string text)
     {
-      Print(text, Brushes.White, BGColor);
+      Print(text, FGColor, BGColor);
     }
 
     public void Print(string text, Brush fgColor, Brush bgColor)
@@ -52,6 +60,66 @@ namespace goguma
       RTBMain.ScrollToEnd();
     }
 
+    private void SaveRTF()
+    {
+      using (MemoryStream ms = new MemoryStream())
+      {
+        TextRange range2 = new TextRange(RTBMain.Document.ContentStart, RTBMain.Document.ContentEnd);
+        range2.Save(ms, DataFormats.Rtf);
+        ms.Seek(0, SeekOrigin.Begin);
+        using (StreamReader sr = new StreamReader(ms))
+        {
+          tempRTF = sr.ReadToEnd();
+        }
+      }
+    }
 
+    private void LoadRTF()
+    {
+      MemoryStream stream = new MemoryStream(ASCIIEncoding.Default.GetBytes(tempRTF));
+      TextRange range = new TextRange(RTBMain.Document.ContentStart, RTBMain.Document.ContentEnd);
+      range.Load(stream, DataFormats.Rtf);
+      range.ApplyPropertyValue(TextElement.FontFamilyProperty, Font);
+    }
+
+    /// <summary>
+    /// 텍스트를 입력 받고, 받은 후 함수를 호출합니다.
+    /// </summary>
+    /// <param name="CallAfterReading">텍스트를 입력 받은 후 호출될 함수</param>
+    public void ReadText(Action CallAfterReading)
+    {
+      if (!isReadingText)
+      {
+        isReadingText = true;
+        TBInput.Clear();
+        CallAfterReadingText = CallAfterReading;
+        SaveRTF();
+      }
+      else throw new Exception("이미 텍스트를 읽고 있습니다.");
+    }
+
+    private void TBInput_KeyDown(object sender, KeyEventArgs e)
+    {
+      switch (e.Key)
+      {
+        case Key.Enter:
+          if (isReadingText)
+          {
+            isReadingText = false;
+            TextOfRead = TBInput.Text;
+            CallAfterReadingText();
+          }
+          break;
+      }
+    }
+
+    private void TBInput_TextChanged(object sender, TextChangedEventArgs e)
+    {
+      if (isReadingText)
+      {
+        LoadRTF();
+        Print($" {TBInput.Text} ", BGColor, BGColorWhenReadText);
+      }
+    }
   }
 }
