@@ -1,17 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using static goguma.ConsoleUtil;
 
 namespace goguma
@@ -26,7 +16,18 @@ namespace goguma
       InitializeComponent();
       MainScreen = Screen;
 
-      PrintF($"<fg='{Brushes.DeepSkyBlue}'>DeepSkyBlue <bg='{Brushes.Black}'>BlackBG <fg='{Brushes.Coral}' bg='{Brushes.Cyan}'>Coral And Cyan");
+      Select($"<bg='{Brushes.Black}'> 오늘 기분이 어떠신가요? ", new Dictionary<string, Action>() {
+        { "좋아용", () => { Print("\n그래용"); } },
+        { "시러용", () => { Print("\n시러용?"); } },
+        { "심심해용", () => { Print("\n놀아줄까용?"); } },
+        { "흐음", () => { Print("\n??"); } },
+        { "몰라용", () => { Print("\n잘생각해봐용~"); } },
+      });
+    }
+
+    private void Window_Loaded(object sender, RoutedEventArgs e)
+    {
+      Screen.RTBMain.Focus();
     }
   }
 }

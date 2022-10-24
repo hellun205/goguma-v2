@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Linq;
 
 namespace goguma
 {
@@ -10,6 +12,12 @@ namespace goguma
     public static Screen MainScreen { get; set; }
     public static string Text { get; private set; } = "";
     public static Key Key { get; private set; }
+    public static Brush SelectFGColor => MainScreen.BGColor;
+    public static Brush SelectBGColor => MainScreen.FGColor;
+    public static Brush SelectNormalFGColor => MainScreen.FGColor;
+    public static Brush SelectNormalBGColor => MainScreen.BGColor;
+
+    private static bool isSelecting = false;
 
     public static void ReadText(Action callBack)
     {
@@ -56,11 +64,11 @@ namespace goguma
 
             if (tagSplit[0].Contains("fg='"))
             {
-              fgColor = (SolidColorBrush)new BrushConverter().ConvertFromString(tagSplit[0].Split("fg='")[1].Split("'")[0]);
+              fgColor = (Brush)new BrushConverter().ConvertFromString(tagSplit[0].Split("fg='")[1].Split("'")[0]);
             }
             if (tagSplit[0].Contains("bg='"))
             {
-              bgColor = (SolidColorBrush)new BrushConverter().ConvertFromString(tagSplit[0].Split("bg='")[1].Split("'")[0]);
+              bgColor = (Brush)new BrushConverter().ConvertFromString(tagSplit[0].Split("bg='")[1].Split("'")[0]);
             }
             Print(tagSplit[1], fgColor, bgColor);
           }
@@ -72,6 +80,71 @@ namespace goguma
       }
       else
         Print(formattedText);
+    }
+
+    public static void Select(string title, Dictionary<string, Action> queue)
+    {
+      if (!isSelecting)
+      {
+        isSelecting = true;
+        int selectingIndex = 0;
+        int maxIndex = queue.Count - 2;
+        List<string> options = queue.Keys.ToList();
+        List<Action> actions = queue.Values.ToList();
+
+        void Refresh()
+        {
+          Clear();
+          PrintF(title);
+          Print("\n");
+
+          for (int i = 0; i < queue.Count - 1; i++)
+          {
+            Brush fg = SelectNormalFGColor;
+            Brush bg = SelectNormalBGColor;
+            if (i == selectingIndex)
+            {
+              fg = SelectFGColor;
+              bg = SelectBGColor;
+            }
+
+            Print($" [ {options[i]} ] ", fg, bg);
+            Print("\n");
+          }
+        }
+
+        void While()
+        {
+          Refresh();
+          ReadKey(() =>
+          {
+            if (Key == Key.Enter)
+            {
+              actions[selectingIndex]();
+            }
+            else if (Key == Key.Up)
+            {
+              if (selectingIndex == 0)
+                selectingIndex = maxIndex;
+              else
+                selectingIndex -= 1;
+              While();
+            }
+            else if (Key == Key.Down)
+            {
+              if (selectingIndex == maxIndex)
+                selectingIndex = 0;
+              else
+                selectingIndex += 1;
+              While();
+            }
+            else While();
+          });
+        }
+
+        While();
+      }
+      else throw new Exception("이미 선택중 입니다.");
     }
   }
 }
