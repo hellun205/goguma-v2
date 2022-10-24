@@ -28,6 +28,11 @@ namespace goguma
       Screen.ReadText(() =>
       {
         Screen.Print($"\n you inputted \"{Screen.TextOfRead}\"");
+        Screen.Print("\nPress any key to continue!");
+        Screen.ReadKey(() =>
+        {
+          Screen.Print($"\nGood! you press \"{Screen.KeyOfRead}\"");
+        });
       });
     }
   }

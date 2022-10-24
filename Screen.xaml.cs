@@ -1,18 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace goguma
 {
@@ -26,9 +19,12 @@ namespace goguma
     public Brush FGColor => RTBMain.Foreground;
     public Brush BGColorWhenReadText { get; set; } = Brushes.DimGray;
     public string TextOfRead;
+    public Key KeyOfRead;
 
     private bool isReadingText = false;
+    private bool isReadingKey = false;
     private Action CallAfterReadingText;
+    private Action CallAfterReadingKey;
     private string tempRTF;
 
     public Screen()
@@ -88,29 +84,50 @@ namespace goguma
     /// <param name="CallAfterReading">텍스트를 입력 받은 후 호출될 함수</param>
     public void ReadText(Action CallAfterReading)
     {
-      if (!isReadingText)
+      if (!isReadingText && !isReadingKey)
       {
         isReadingText = true;
         TBInput.Clear();
         CallAfterReadingText = CallAfterReading;
         SaveRTF();
       }
-      else throw new Exception("이미 텍스트를 읽고 있습니다.");
+      else if (isReadingText)
+        throw new Exception("이미 텍스트를 읽고 있습니다.");
+      else if (isReadingKey)
+        throw new Exception("현재 키를 읽고 있으므로 텍스트를 읽을 수 없습니다.");
+    }
+
+    public void ReadKey(Action CallAfterReading)
+    {
+      if (!isReadingText && !isReadingKey)
+      {
+        isReadingKey = true;
+        CallAfterReadingKey = CallAfterReading;
+      }
+      else if (isReadingKey)
+        throw new Exception("이미 키를 읽고 있습니다.");
+      else if (isReadingText)
+        throw new Exception("현재 텍스트를 읽고 있으므로 키를 읽을 수 없습니다.");
     }
 
     private void TBInput_KeyDown(object sender, KeyEventArgs e)
     {
-      switch (e.Key)
+      if (isReadingKey)
       {
-        case Key.Enter:
-          if (isReadingText)
-          {
-            isReadingText = false;
-            TextOfRead = TBInput.Text;
-            CallAfterReadingText();
-          }
-          break;
+        isReadingKey = false;
+        KeyOfRead = e.Key;
+        CallAfterReadingKey();
       }
+      else if (isReadingText)
+      {
+        if (e.Key == Key.Enter)
+        {
+          isReadingText = false;
+          TextOfRead = TBInput.Text;
+          CallAfterReadingText();
+        }
+      }
+
     }
 
     private void TBInput_TextChanged(object sender, TextChangedEventArgs e)
