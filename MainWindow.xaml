@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded">
   <Grid>
-    <local:Screen x:Name="Screen" HorizontalAlignment="Center" VerticalAlignment="Center" Height="414"/>
+    <local:Screen x:Name="Screen" HorizontalAlignment="Center"/>
 
   </Grid>
 </Window>
