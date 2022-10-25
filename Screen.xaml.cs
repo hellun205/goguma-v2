@@ -39,16 +39,16 @@ namespace goguma
 
     public void Print(string text)
     {
-      Print(text, FGColor, BGColor);
+      Print(text, new Pair<Brush>(FGColor, BGColor));
     }
 
-    public void Print(string text, Brush fgColor, Brush bgColor)
+    public void Print(string text, Pair<Brush> color)
     {
       TextRange tr = new TextRange(RTBMain.Document.ContentEnd, RTBMain.Document.ContentEnd);
       tr.Text = text;
       tr.ApplyPropertyValue(TextElement.FontFamilyProperty, Font);
-      tr.ApplyPropertyValue(TextElement.ForegroundProperty, fgColor);
-      tr.ApplyPropertyValue(TextElement.BackgroundProperty, bgColor);
+      tr.ApplyPropertyValue(TextElement.ForegroundProperty, color.X);
+      tr.ApplyPropertyValue(TextElement.BackgroundProperty, color.Y);
     }
 
     private void RTBMain_TextChanged(object sender, TextChangedEventArgs e)
@@ -90,7 +90,7 @@ namespace goguma
         TBInput.Clear();
         CallAfterReadingText = CallAfterReading;
         SaveRTF();
-        Print("  ", BGColor, BGColorWhenReadText);
+        Print("  ", new Pair<Brush>(BGColor, BGColorWhenReadText));
       }
       else if (isReadingText)
         throw new Exception("이미 텍스트를 읽고 있습니다.");
@@ -149,7 +149,7 @@ namespace goguma
       if (isReadingText)
       {
         LoadRTF();
-        Print($" {TBInput.Text} ", BGColor, BGColorWhenReadText);
+        Print($" {TBInput.Text} ", new Pair<Brush>(BGColor, BGColorWhenReadText));
       }
     }
   }
