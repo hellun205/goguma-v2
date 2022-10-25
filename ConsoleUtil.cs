@@ -164,5 +164,10 @@ namespace goguma
       }
       else throw new Exception("이미 선택중 입니다.");
     }
+
+    public static void Select2d(string title, Dictionary<string, List<string>> queue, Action callBack)
+    {
+
+    }
   }
 }
