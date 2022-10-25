@@ -12,6 +12,7 @@ namespace goguma
     public static Screen MainScreen { get; set; }
     public static string Text { get; private set; } = "";
     public static Key Key { get; private set; }
+    public static string Selection { get; private set; } = "";
     public static Brush SelectFGColor => MainScreen.BGColor;
     public static Brush SelectBGColor => MainScreen.FGColor;
     public static Brush SelectNormalFGColor => MainScreen.FGColor;
@@ -84,13 +85,29 @@ namespace goguma
 
     public static void Select(string title, Dictionary<string, Action> queue)
     {
+      List<string> options = queue.Keys.ToList();
+      List<Action> actions = queue.Values.ToList();
+      Dictionary<string, string> dict = new Dictionary<string, string>();
+      foreach(string option in options)
+      {
+        dict.Add(option, option);
+      }
+
+      Select(title, dict, () =>
+      {
+        queue[Selection]();
+      });
+    }
+
+    public static void Select(string title, Dictionary<string, string> queue, Action callBack)
+    {
       if (!isSelecting)
       {
         isSelecting = true;
         int selectingIndex = 0;
         int maxIndex = queue.Count - 2;
         List<string> options = queue.Keys.ToList();
-        List<Action> actions = queue.Values.ToList();
+        List<string> actions = queue.Values.ToList();
 
         void Refresh()
         {
@@ -120,7 +137,8 @@ namespace goguma
           {
             if (Key == Key.Enter)
             {
-              actions[selectingIndex]();
+              Selection = actions[selectingIndex];
+              callBack();
             }
             else if (Key == Key.Up)
             {
