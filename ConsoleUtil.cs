@@ -13,10 +13,9 @@ namespace goguma
     public static string Text { get; private set; } = "";
     public static Key Key { get; private set; }
     public static string Selection { get; private set; } = "";
-    public static Brush SelectFGColor => MainScreen.BGColor;
-    public static Brush SelectBGColor => MainScreen.FGColor;
-    public static Brush SelectNormalFGColor => MainScreen.FGColor;
-    public static Brush SelectNormalBGColor => MainScreen.BGColor;
+    public static Pair<int> Selection2d { get; private set; } = new(0, 0);
+    public static Pair<Brush> ColorOnSelect => new(MainScreen.BGColor, MainScreen.FGColor);
+    public static Pair<Brush> ColorOnNoSelect => new(MainScreen.FGColor, MainScreen.BGColor);
 
     private static bool isSelecting = false;
 
@@ -42,7 +41,7 @@ namespace goguma
 
     public static void Print(string text) => MainScreen.Print(text);
 
-    public static void Print(string text, Brush fgColor, Brush bgColor) => MainScreen.Print(text, fgColor, bgColor);
+    public static void Print(string text, Pair<Brush> color) => MainScreen.Print(text, color);
 
     public static void PrintF(string formattedText)
     {
@@ -60,18 +59,17 @@ namespace goguma
           string[] tagSplit = text.Split('>');
           try
           {
-            Brush fgColor = MainScreen.FGColor;
-            Brush bgColor = MainScreen.BGColor;
+            Pair<Brush> color = new(MainScreen.FGColor, MainScreen.BGColor);
 
             if (tagSplit[0].Contains("fg='"))
             {
-              fgColor = (Brush)new BrushConverter().ConvertFromString(tagSplit[0].Split("fg='")[1].Split("'")[0]);
+              color.X = (Brush)new BrushConverter().ConvertFromString(tagSplit[0].Split("fg='")[1].Split("'")[0]);
             }
             if (tagSplit[0].Contains("bg='"))
             {
-              bgColor = (Brush)new BrushConverter().ConvertFromString(tagSplit[0].Split("bg='")[1].Split("'")[0]);
+              color.Y = (Brush)new BrushConverter().ConvertFromString(tagSplit[0].Split("bg='")[1].Split("'")[0]);
             }
-            Print(tagSplit[1], fgColor, bgColor);
+            Print(tagSplit[1], color);
           }
           catch
           {
@@ -117,15 +115,13 @@ namespace goguma
 
           for (int i = 0; i < queue.Count - 1; i++)
           {
-            Brush fg = SelectNormalFGColor;
-            Brush bg = SelectNormalBGColor;
+            Pair<Brush> color = ColorOnNoSelect;
             if (i == selectingIndex)
             {
-              fg = SelectFGColor;
-              bg = SelectBGColor;
+              color = ColorOnSelect;
             }
 
-            Print($" [ {options[i]} ] ", fg, bg);
+            Print($" [ {options[i]} ] ", color);
             Print("\n");
           }
         }
