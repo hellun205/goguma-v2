@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Media;
+using goguma_v2.Engine.Player;
 using static goguma.ConsoleUtil;
 
 namespace goguma

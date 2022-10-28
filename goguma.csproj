@@ -14,9 +14,17 @@
 		<Content Include="Font\Galmuri14.ttf">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>  
   </Content>  
-		<Content Include="Font\Galmuri11-Bold.ttf" >
+		<Content Include="Font\Galmuri11-Bold.ttf">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>  
   </Content>  
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <Folder Include="Engine\Player\" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.2-beta2" />
 	</ItemGroup>
 
 </Project>
