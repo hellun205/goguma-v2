@@ -13,7 +13,7 @@ namespace goguma_v2.Engine.Player
     public string Class { get; set; }
     
     [JsonProperty("lv")]
-    public int Level { get; set; }
+    public ushort Level { get; set; }
 
     public static PlayerData Load(string path)
     {
