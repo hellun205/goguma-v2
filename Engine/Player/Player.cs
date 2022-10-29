@@ -47,7 +47,20 @@ namespace goguma_v2.Engine.Player
       else
         Hp -= amount;
     }
-    
+
+    public void GainMaxHp(uint amount) => MaxHp += amount;
+
+    public void LoseMaxHp(uint amount)
+    {
+      if (MaxHp < amount)
+      {
+        MaxHp = 1;
+        Hp = Math.Min(Hp, MaxHp);
+      }
+      else
+        MaxHp -= amount;
+    }
+
     public PlayerData GetData() => new PlayerData() {Name = this.Name, Class = this.Class, Level = this.Level};
 
 
