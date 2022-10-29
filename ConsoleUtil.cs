@@ -4,7 +4,7 @@ using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace goguma
+namespace goguma_v2
 {
   public static class ConsoleUtil
   {
@@ -104,8 +104,8 @@ namespace goguma
         int selectingIndex = 0;
         int maxIndex = queue.Count - 2;
         List<string> options = queue.Keys.ToList();
-
-        void Refresh()
+        
+        void While()
         {
           Clear();
           PrintF(title);
@@ -122,11 +122,6 @@ namespace goguma
             Print($" [ {options[i]} ] ", color);
             Print("\n");
           }
-        }
-
-        void While()
-        {
-          Refresh();
           ReadKey(() =>
           {
             if (Key == Key.Enter)
@@ -169,7 +164,7 @@ namespace goguma
         Pair<int> selectingIndexs = new();
         Pair<int> maxIndexs = new(rows.Count - (cancellable ? 0 : 1), 0);
 
-        void Refresh()
+        void While()
         {
           Clear();
           PrintF($"{title}\n\n");
@@ -203,11 +198,7 @@ namespace goguma
               Print($" [ {queue[rows[selectingIndexs.X]][i]} ] ", color);
               Print("\n");
             }
-        }
-
-        void While()
-        {
-          Refresh();
+          
           ReadKey(() =>
           {
             if (Key == Key.Enter)
