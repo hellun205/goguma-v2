@@ -15,6 +15,10 @@ namespace goguma_v2
     {
       InitializeComponent();
       MainScreen = Screen;
+      Player.Load(() =>
+      {
+        
+      });
     }
 
     private void Window_Loaded(object sender, RoutedEventArgs e)

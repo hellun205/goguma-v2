@@ -33,19 +33,25 @@ public partial class Player
     rs.Close();
     return obj;
   }
-
+  
+  [Obsolete]
   private static PlayerData LoadData(string name) => PlayerData.Load($"{SavePath}/{name}.json");
 
-  public static Player? Load()
+  public static void Load(Action callBack)
   {
-    Player While()
+    void load(Player? player)
+    {
+      Main.Player = player;
+      callBack();
+    } 
+    void While() 
     {
       Clear();
       Select("캐릭터를 선택하세요.", new Dictionary<string, string>()
       {
         {"새로 만들기", "new"},
         {"세이브 불러오기", "load"},
-        {"게임 종료", "cancel"}
+        {"뒤로 가기", "cancel"}
       }, () =>
       {
         switch (Selection)
@@ -54,9 +60,9 @@ public partial class Player
             Print("캐릭터의 이름을 정해주세요\n");
             ReadText(() =>
             {
-              // load(new Player(Text));
+              load(new Player(Text));
             });
-            break;
+            return;
           
           case "load":
             DirectoryInfo dInfo = new DirectoryInfo($"{SavePath}");
@@ -64,22 +70,22 @@ public partial class Player
             Dictionary<string, string> datas = new Dictionary<string, string>();
             foreach (var file in fInfos)
             {
-              PlayerData pData = LoadData(file.Name);
-              datas.Add($"{pData.Name} ( Lv. {pData.Level} / {pData.Class} )", file.Name);
+              PlayerData pData = PlayerData.Load(file.FullName);
+              datas.Add($"{pData.Name} ( Lv. {pData.Level} / {pData.Class} )", file.Name.Replace(".json", ""));
             }
             Select("불러올 캐릭터를 선택하세요.", datas, () =>
             {
-               // load(Load(Selection));
+               load(Load(Selection));
             });
-            break;
+            return;
           
           case "cancel":
-            Application.Current.Shutdown();
-            break;
+            load(null);
+            return;
         }
+        While();
       });
-      return While();
     }
-    return While();
+    While();
   }
 }
