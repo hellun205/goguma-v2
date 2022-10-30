@@ -7,7 +7,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace goguma
+namespace goguma_v2
 {
   /// <summary>
   /// Interaction logic for Screen.xaml

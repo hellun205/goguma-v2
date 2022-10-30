@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
-using static goguma.ConsoleUtil;
+using System.Windows.Media;
+using goguma_v2.Engine.Player;
+using static goguma_v2.ConsoleUtil;
 
-namespace goguma
+namespace goguma_v2
 {
   /// <summary>
   /// Interaction logic for MainWindow.xaml
@@ -13,6 +15,10 @@ namespace goguma
     {
       InitializeComponent();
       MainScreen = Screen;
+      Player.Load(() =>
+      {
+        
+      });
     }
 
     private void Window_Loaded(object sender, RoutedEventArgs e)

@@ -1,4 +1,4 @@
-﻿namespace goguma
+﻿namespace goguma_v2
 {
   public struct Pair<T>
   {
