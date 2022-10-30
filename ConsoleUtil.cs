@@ -15,6 +15,7 @@ namespace goguma
     public static Pair<int> Selection2d { get; private set; } = new(0, 0);
     public static Pair<Brush> ColorOnSelect => new(MainScreen.BGColor, MainScreen.FGColor);
     public static Pair<Brush> ColorOnNoSelect => new(MainScreen.FGColor, MainScreen.BGColor);
+    public static string SelectCancelText = "취소";
 
     private static bool isSelecting = false;
 
@@ -49,7 +50,6 @@ namespace goguma
       //<fg='' bg=''>
       if (formattedText.Contains('<'))
       {
-
         string[] split = formattedText.Split('<');
 
         for (int i = 1; i < split.Length; i++)
@@ -62,12 +62,14 @@ namespace goguma
 
             if (tagSplit[0].Contains("fg='"))
             {
-              color.X = (Brush)new BrushConverter().ConvertFromString(tagSplit[0].Split("fg='")[1].Split("'")[0]);
+              color.X = (Brush) new BrushConverter().ConvertFromString(tagSplit[0].Split("fg='")[1].Split("'")[0]);
             }
+
             if (tagSplit[0].Contains("bg='"))
             {
-              color.Y = (Brush)new BrushConverter().ConvertFromString(tagSplit[0].Split("bg='")[1].Split("'")[0]);
+              color.Y = (Brush) new BrushConverter().ConvertFromString(tagSplit[0].Split("bg='")[1].Split("'")[0]);
             }
+
             Print(tagSplit[1], color);
           }
           catch
@@ -80,7 +82,7 @@ namespace goguma
         Print(formattedText);
     }
 
-    public static void Select(string title, Dictionary<string, Action> queue)
+    public static void Select(string title, Dictionary<string, Action> queue, bool cancellable, Action cancelCallBack)
     {
       List<string> options = queue.Keys.ToList();
       List<Action> actions = queue.Values.ToList();
@@ -90,19 +92,22 @@ namespace goguma
         dict.Add(option, option);
       }
 
-      Select(title, dict, () =>
+      Select(title, dict, cancellable, () =>
       {
-        queue[Selection]();
+        if (cancellable && string.IsNullOrEmpty(Selection))
+          cancelCallBack();
+        else
+          queue[Selection]();
       });
     }
 
-    public static void Select(string title, Dictionary<string, string> queue, Action callBack)
+    public static void Select(string title, Dictionary<string, string> queue, bool cancellable, Action callBack)
     {
       if (!isSelecting)
       {
         isSelecting = true;
         int selectingIndex = 0;
-        int maxIndex = queue.Count - 1;
+        int maxIndex = queue.Count - (cancellable ? 0 : 1);
         List<string> options = queue.Keys.ToList();
 
         void While()
@@ -111,7 +116,7 @@ namespace goguma
           PrintF(title);
           Print("\n");
 
-          for (int i = 0; i < queue.Count; i++)
+          for (int i = 0; i < queue.Count + (cancellable ? 1 : 0); i++)
           {
             Pair<Brush> color = ColorOnNoSelect;
             if (i == selectingIndex)
@@ -119,17 +124,21 @@ namespace goguma
               color = ColorOnSelect;
             }
 
-            Print($" [ {options[i]} ] ", color);
+            Print($" [ {(cancellable && i == maxIndex ? SelectCancelText : options[i])} ] ", color);
             Print("\n");
           }
-          
+
           ReadKey(() =>
           {
             if (Key == Key.Enter)
             {
-              Selection = queue[options[selectingIndex]];
-              isSelecting = false;
+              if (cancellable && selectingIndex == maxIndex)
+                Selection = null;
+              else
+                Selection = queue[options[selectingIndex]];
+              
               callBack();
+              isSelecting = false;
             }
             else if (Key == Key.Up)
             {
@@ -186,6 +195,7 @@ namespace goguma
 
             Print("  ");
           }
+
           Print("\n");
           if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
             for (int i = 0; i < queue[rows[selectingIndexs.X]].Count; i++)
@@ -195,11 +205,12 @@ namespace goguma
               {
                 color = ColorOnSelect;
               }
+
               Print("    ");
               Print($" [ {queue[rows[selectingIndexs.X]][i]} ] ", color);
               Print("\n");
             }
-          
+
           ReadKey(() =>
           {
             if (Key == Key.Enter)
