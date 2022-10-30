@@ -26,6 +26,7 @@ namespace goguma_v2
     private Action CallAfterReadingText;
     private Action CallAfterReadingKey;
     private string tempRTF;
+    private Key? keyToPress;
 
     public Screen()
     {
@@ -103,7 +104,22 @@ namespace goguma_v2
       if (!isReadingText && !isReadingKey)
       {
         isReadingKey = true;
+        keyToPress = null;
         CallAfterReadingKey = CallAfterReading;
+      }
+      else if (isReadingKey)
+        throw new Exception("이미 키를 읽고 있습니다.");
+      else if (isReadingText)
+        throw new Exception("현재 텍스트를 읽고 있으므로 키를 읽을 수 없습니다.");
+    }
+
+    public void ReadKey(Key press, Action callBack)
+    {
+      if (!isReadingText && !isReadingKey)
+      {
+        isReadingKey = true;
+        keyToPress = press;
+        CallAfterReadingKey = callBack;
       }
       else if (isReadingKey)
         throw new Exception("이미 키를 읽고 있습니다.");
@@ -128,6 +144,8 @@ namespace goguma_v2
     {
       if (isReadingKey)
       {
+        if (keyToPress != null && e.Key != keyToPress) return;
+        
         isReadingKey = false;
         KeyOfRead = e.Key;
         CallAfterReadingKey();

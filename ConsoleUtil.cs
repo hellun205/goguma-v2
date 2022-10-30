@@ -12,9 +12,10 @@ namespace goguma_v2
     public static string Text { get; private set; } = "";
     public static Key Key { get; private set; }
     public static string Selection { get; private set; } = "";
-    public static Pair<int> Selection2d { get; private set; } = new(0, 0);
+    public static Pair<int>? Selection2d { get; private set; } = new(0, 0);
     public static Pair<Brush> ColorOnSelect => new(MainScreen.BGColor, MainScreen.FGColor);
     public static Pair<Brush> ColorOnNoSelect => new(MainScreen.FGColor, MainScreen.BGColor);
+    public static string SelectCancelText = "취소";
 
     private static bool isSelecting = false;
 
@@ -36,6 +37,15 @@ namespace goguma_v2
       });
     }
 
+    public static void ReadKey(Key keyToPress, Action callBack)
+    {
+      MainScreen.ReadKey(keyToPress, () =>
+      {
+        Key = MainScreen.KeyOfRead;
+        callBack();
+      });
+    }
+
     public static void Clear() => MainScreen.Clear();
 
     public static void Print(string text) => MainScreen.Print(text);
@@ -49,7 +59,6 @@ namespace goguma_v2
       //<fg='' bg=''>
       if (formattedText.Contains('<'))
       {
-
         string[] split = formattedText.Split('<');
 
         for (int i = 1; i < split.Length; i++)
@@ -62,12 +71,14 @@ namespace goguma_v2
 
             if (tagSplit[0].Contains("fg='"))
             {
-              color.X = (Brush)new BrushConverter().ConvertFromString(tagSplit[0].Split("fg='")[1].Split("'")[0]);
+              color.X = (Brush) new BrushConverter().ConvertFromString(tagSplit[0].Split("fg='")[1].Split("'")[0]);
             }
+
             if (tagSplit[0].Contains("bg='"))
             {
-              color.Y = (Brush)new BrushConverter().ConvertFromString(tagSplit[0].Split("bg='")[1].Split("'")[0]);
+              color.Y = (Brush) new BrushConverter().ConvertFromString(tagSplit[0].Split("bg='")[1].Split("'")[0]);
             }
+
             Print(tagSplit[1], color);
           }
           catch
@@ -80,7 +91,7 @@ namespace goguma_v2
         Print(formattedText);
     }
 
-    public static void Select(string title, Dictionary<string, Action> queue)
+    public static void Select(string title, Dictionary<string, Action> queue, bool cancellable, Action cancelCallBack)
     {
       List<string> options = queue.Keys.ToList();
       List<Action> actions = queue.Values.ToList();
@@ -90,28 +101,31 @@ namespace goguma_v2
         dict.Add(option, option);
       }
 
-      Select(title, dict, () =>
+      Select(title, dict, cancellable, () =>
       {
-        queue[Selection]();
+        if (cancellable && string.IsNullOrEmpty(Selection))
+          cancelCallBack();
+        else
+          queue[Selection]();
       });
     }
 
-    public static void Select(string title, Dictionary<string, string> queue, Action callBack)
+    public static void Select(string title, Dictionary<string, string> queue, bool cancellable, Action callBack)
     {
       if (!isSelecting)
       {
         isSelecting = true;
         int selectingIndex = 0;
-        int maxIndex = queue.Count - 2;
+        int maxIndex = queue.Count - (cancellable ? 0 : 1);
         List<string> options = queue.Keys.ToList();
-        
+
         void While()
         {
           Clear();
           PrintF(title);
           Print("\n");
 
-          for (int i = 0; i < queue.Count - 1; i++)
+          for (int i = 0; i < queue.Count + (cancellable ? 1 : 0); i++)
           {
             Pair<Brush> color = ColorOnNoSelect;
             if (i == selectingIndex)
@@ -119,14 +133,19 @@ namespace goguma_v2
               color = ColorOnSelect;
             }
 
-            Print($" [ {options[i]} ] ", color);
+            Print($" [ {(cancellable && i == maxIndex ? SelectCancelText : options[i])} ] ", color);
             Print("\n");
           }
+
           ReadKey(() =>
           {
             if (Key == Key.Enter)
             {
-              Selection = queue[options[selectingIndex]];
+              if (cancellable && selectingIndex == maxIndex)
+                Selection = null;
+              else
+                Selection = queue[options[selectingIndex]];
+
               isSelecting = false;
               callBack();
             }
@@ -178,13 +197,10 @@ namespace goguma_v2
             }
 
             Print("  ");
-            if (cancellable && i == rows.Count)
-              Print($" [ 취소 ] ", color);
-            else
-              Print($" [ {rows[i]} ] ", color);
-
+            Print($" [ {(cancellable && i == rows.Count ? SelectCancelText : rows[i])} ] ", color);
             Print("  ");
           }
+
           Print("\n");
           if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
             for (int i = 0; i < queue[rows[selectingIndexs.X]].Count; i++)
@@ -194,11 +210,12 @@ namespace goguma_v2
               {
                 color = ColorOnSelect;
               }
+
               Print("    ");
               Print($" [ {queue[rows[selectingIndexs.X]][i]} ] ", color);
               Print("\n");
             }
-          
+
           ReadKey(() =>
           {
             if (Key == Key.Enter)
@@ -206,7 +223,7 @@ namespace goguma_v2
               if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
                 Selection2d = selectingIndexs;
               else
-                Selection2d = new(-1, -1);
+                Selection2d = null;
               isSelecting = false;
               callBack();
             }
@@ -256,5 +273,24 @@ namespace goguma_v2
       }
       else throw new Exception("이미 선택중 입니다.");
     }
+
+    public static void Pause(string text, Action callBack)
+    {
+      if (!string.IsNullOrEmpty(text))
+        Print($"\n{text}\n");
+      ReadKey(callBack);
+    }
+
+    public static void Pause(Action callBack) => Pause("계속하려면 아무 키나 누르십시오...", callBack);
+
+    public static void Pause(string text, Key press, Action callBack)
+    {
+      if (!string.IsNullOrEmpty(text))
+        Print($"\n{text}\n");
+      ReadKey(press, callBack);
+    }
+
+    public static void Pause(Key press, Action callBack) => Pause($"계속하려면 {press}키를 누르십시오...", press, callBack);
+
   }
 }
