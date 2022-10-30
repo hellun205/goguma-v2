@@ -12,7 +12,7 @@ namespace goguma
     public static string Text { get; private set; } = "";
     public static Key Key { get; private set; }
     public static string Selection { get; private set; } = "";
-    public static Pair<int> Selection2d { get; private set; } = new(0, 0);
+    public static Pair<int>? Selection2d { get; private set; } = new(0, 0);
     public static Pair<Brush> ColorOnSelect => new(MainScreen.BGColor, MainScreen.FGColor);
     public static Pair<Brush> ColorOnNoSelect => new(MainScreen.FGColor, MainScreen.BGColor);
     public static string SelectCancelText = "취소";
@@ -31,6 +31,15 @@ namespace goguma
     public static void ReadKey(Action callBack)
     {
       MainScreen.ReadKey(() =>
+      {
+        Key = MainScreen.KeyOfRead;
+        callBack();
+      });
+    }
+
+    public static void ReadKey(Key keyToPress, Action callBack)
+    {
+      MainScreen.ReadKey(keyToPress, () =>
       {
         Key = MainScreen.KeyOfRead;
         callBack();
@@ -136,9 +145,9 @@ namespace goguma
                 Selection = null;
               else
                 Selection = queue[options[selectingIndex]];
-              
-              callBack();
+
               isSelecting = false;
+              callBack();
             }
             else if (Key == Key.Up)
             {
@@ -188,11 +197,7 @@ namespace goguma
             }
 
             Print("  ");
-            if (cancellable && i == rows.Count)
-              Print($" [ 취소 ] ", color);
-            else
-              Print($" [ {rows[i]} ] ", color);
-
+            Print($" [ {(cancellable && i == rows.Count ? SelectCancelText : rows[i])} ] ", color);
             Print("  ");
           }
 
@@ -218,7 +223,7 @@ namespace goguma
               if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
                 Selection2d = selectingIndexs;
               else
-                Selection2d = new(-1, -1);
+                Selection2d = null;
               isSelecting = false;
               callBack();
             }
@@ -268,5 +273,24 @@ namespace goguma
       }
       else throw new Exception("이미 선택중 입니다.");
     }
+
+    public static void Pause(string text, Action callBack)
+    {
+      if (!string.IsNullOrEmpty(text))
+        Print($"\n{text}\n");
+      ReadKey(callBack);
+    }
+
+    public static void Pause(Action callBack) => Pause("계속하려면 아무 키나 누르십시오...", callBack);
+
+    public static void Pause(string text, Key press, Action callBack)
+    {
+      if (!string.IsNullOrEmpty(text))
+        Print($"\n{text}\n");
+      ReadKey(press, callBack);
+    }
+
+    public static void Pause(Key press, Action callBack) => Pause($"계속하려면 {press}키를 누르십시오...", press, callBack);
+
   }
 }
