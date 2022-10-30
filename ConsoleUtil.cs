@@ -102,16 +102,16 @@ namespace goguma
       {
         isSelecting = true;
         int selectingIndex = 0;
-        int maxIndex = queue.Count - 2;
+        int maxIndex = queue.Count - 1;
         List<string> options = queue.Keys.ToList();
 
-        void Refresh()
+        void While()
         {
           Clear();
           PrintF(title);
           Print("\n");
 
-          for (int i = 0; i < queue.Count - 1; i++)
+          for (int i = 0; i < queue.Count; i++)
           {
             Pair<Brush> color = ColorOnNoSelect;
             if (i == selectingIndex)
@@ -122,11 +122,7 @@ namespace goguma
             Print($" [ {options[i]} ] ", color);
             Print("\n");
           }
-        }
-
-        void While()
-        {
-          Refresh();
+          
           ReadKey(() =>
           {
             if (Key == Key.Enter)
@@ -169,7 +165,7 @@ namespace goguma
         Pair<int> selectingIndexs = new();
         Pair<int> maxIndexs = new(rows.Count - (cancellable ? 0 : 1), 0);
 
-        void Refresh()
+        void While()
         {
           Clear();
           PrintF($"{title}\n\n");
@@ -203,11 +199,7 @@ namespace goguma
               Print($" [ {queue[rows[selectingIndexs.X]][i]} ] ", color);
               Print("\n");
             }
-        }
-
-        void While()
-        {
-          Refresh();
+          
           ReadKey(() =>
           {
             if (Key == Key.Enter)
