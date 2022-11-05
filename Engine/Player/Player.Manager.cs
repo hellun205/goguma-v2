@@ -52,7 +52,7 @@ public partial class Player
         {"새로 만들기", "new"},
         {"세이브 불러오기", "load"},
         {"뒤로 가기", "cancel"}
-      }, () =>
+      }, false, () =>
       {
         switch (Selection)
         {
@@ -61,8 +61,9 @@ public partial class Player
             ReadText(() =>
             {
               load(new Player(Text));
+              Save(Main.Player);
             });
-            return;
+            break;
           
           case "load":
             DirectoryInfo dInfo = new DirectoryInfo($"{SavePath}");
@@ -73,17 +74,20 @@ public partial class Player
               PlayerData pData = PlayerData.Load(file.FullName);
               datas.Add($"{pData.Name} ( Lv. {pData.Level} / {pData.Class} )", file.Name.Replace(".json", ""));
             }
-            Select("불러올 캐릭터를 선택하세요.", datas, () =>
+            Select("불러올 캐릭터를 선택하세요.", datas, true, () =>
             {
-               load(Load(Selection));
+               if (!string.IsNullOrEmpty(Selection)) load(Load(Selection));
+               else While();
             });
-            return;
+            break;
           
           case "cancel":
             load(null);
-            return;
+            break;
+          default:
+            While();
+            break;
         }
-        While();
       });
     }
     While();
