@@ -11,6 +11,7 @@ public partial class Player
   public uint Hp { get; private set; } = 50;
   public uint MaxHp { get; private set; } = 50;
   public string Class { get; private set; } = "없음";
+  public Inventory.Inventory Inventory { get; set; }
 
   public static uint GetNextLevelExp(ushort level) =>
     (uint) Math.Floor(0.04 * (level ^ 3) + 0.8 * (level ^ 2) + 2 * level);
@@ -18,6 +19,7 @@ public partial class Player
   public Player(string name)
   {
     Name = name;
+    Inventory = new(new[] {"장비", "소비", "기타"});
   }
 
   public void GainExp(uint amount)
