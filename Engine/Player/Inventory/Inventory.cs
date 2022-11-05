@@ -9,14 +9,14 @@ namespace goguma_v2.Engine.Player.Inventory;
 [Serializable]
 public class Inventory
 {
-  public Dictionary<string, List<Item.Item>> Items { get; set; }
-  public ItemInfo? SelectedItem { get; private set; }
+  public Dictionary<string, List<Item.Item>> Items { get; private set; }
+  public Item.Item? SelectedItem { get; private set; }
 
-  public Inventory(string[] names)
+  public Inventory(string[] groupNames)
   {
     Items = new Dictionary<string, List<Item.Item>>();
 
-    foreach (string name in names)
+    foreach (string name in groupNames)
       Items.Add(name, new List<Item.Item>());
   }
 
@@ -31,12 +31,31 @@ public class Inventory
       if (Selection2d != null)
       {
         string Group = Items.Keys.ToList()[Selection2d.Value.X];
-        Item.Item Item = Items[Group][Selection2d.Value.Y];
-        SelectedItem = new ItemInfo(Group, Item);
+        SelectedItem = Items[Group][Selection2d.Value.Y];
       }
       else SelectedItem = null;
 
       callBack();
     });
+  }
+
+  public void GainItem(Item.Item item)
+  {
+    CheckType(item.Type);
+    Items[item.Type].Add(item);
+  }
+
+  public void LoseItem(Item.Item item)
+  {
+    CheckType(item.Type);
+    if (Items[item.Type].Contains(item))
+    {
+      Items[item.Type].Remove(item);
+    }
+  }
+
+  private void CheckType(string type)
+  {
+    if (!Items.ContainsKey(type)) throw new Exception($"인벤토리 그룹 중 \"{type}\"(이)가 없습니다.");
   }
 }
