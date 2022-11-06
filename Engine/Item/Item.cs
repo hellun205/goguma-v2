@@ -10,7 +10,6 @@ public abstract partial class Item : IEquatable<Item>
   public string Name { get; set; } = "none";
   public abstract string Type { get; }
   public string Description { get; set; } = string.Empty;
-  public ushort Count { get; set; } = 0;
   public Brush DefaultColor { get; set; } = ConsoleUtil.MainScreen.FGColor;
   public string Display => $"[ {Type} ] {Name}";
 
