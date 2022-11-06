@@ -2,21 +2,21 @@ namespace goguma_v2.Engine.Item;
 
 public static class ItemType
 {
-  public static string EquipableItem => "장비";
+  public const string EquipableItem = "장비";
   
-  public static string ConsumableItem => "소비";
+  public const string ConsumableItem = "소비";
   
-  public static string OtherItem => "기타";
+  public const string OtherItem = "기타";
 
   public static class EquipmentType
   {
-    public static string Hat => "모자";
+    public const string Hat = "모자";
 
-    public static string Top => "상의";
+    public const string Top = "상의";
 
-    public static string Bottom => "하의";
+    public const string Bottom = "하의";
 
-    public static string Shoes => "신발";
+    public const string Shoes = "신발";
   }
   
 }

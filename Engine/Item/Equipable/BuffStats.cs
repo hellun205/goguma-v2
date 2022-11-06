@@ -2,25 +2,46 @@ using System;
 
 namespace goguma_v2.Engine.Item.Equipable;
 
+[Serializable]
 public struct BuffStats
 {
-  private Byte _avoidanceRate;
-  private ushort _receiveExpGrowthRate;
-  
-  
-  public int MaxHp { get; set; }
-  
-  // to do
-  public Byte AvoidanceRate
+  public int MaxHp { get; set; } = 0;
+  public int MaxMoisture { get; set; } = 0;
+  public short AvoidanceRate { get; set; } = 0;
+  public double ReceiveExpGrowthRate { get; set; } = 0;
+  public short Armor { get; set; } = 0;
+  public short CritArmor { get; set; } = 0;
+  public short CritPer { get; set; } = 0;
+  public short CritDmg { get; set; } = 0;
+  public short ArmorPenetration { get; set; } = 0;
+
+  public BuffStats()
   {
-    get => _avoidanceRate;
-    set => Util.Limit(0, 100, value);
+    
   }
 
-  public float ReceiveExpGrowthRate
+  public void Combine(HatBuffStats buffStats)
   {
-    get => _receiveExpGrowthRate;
-    set => Util.LimitF(0f, 10f, Math.Round(value, 1));
+    MaxHp += buffStats.MaxHp;
+    MaxMoisture += buffStats.MaxMoisture;
+    ReceiveExpGrowthRate += buffStats.ReceiveExpGrowthRate;
+    CritArmor += buffStats.CritArmor;
+  }
+  
+  public void Combine(TopBotBuffStats buffStats)
+  {
+    MaxHp += buffStats.MaxHp;
+    MaxMoisture += buffStats.MaxMoisture;
+    ReceiveExpGrowthRate += buffStats.ReceiveExpGrowthRate;
+    Armor += buffStats.Armor;
+  }
+  
+  public void Combine(ShoesBuffStats buffStats)
+  {
+    MaxHp += buffStats.MaxHp;
+    MaxMoisture += buffStats.MaxMoisture;
+    ReceiveExpGrowthRate += buffStats.ReceiveExpGrowthRate;
+    AvoidanceRate += buffStats.AvoidanceRate;
   }
   
 }
