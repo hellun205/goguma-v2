@@ -3,6 +3,7 @@ using System.Windows.Media;
 
 namespace goguma_v2.Engine.Item;
 
+[Serializable]
 public abstract partial class Item : IEquatable<Item>
 {
   public string Code { get; init; }

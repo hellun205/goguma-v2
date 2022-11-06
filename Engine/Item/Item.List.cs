@@ -19,13 +19,13 @@ public abstract partial class Item
 
   private static HashSet<Item> Items = new HashSet<Item>()
   {
-    new EquipableItem("test:hat")
+    new Equipable.Hat("test:hat")
     {
       Name = "테스트 모자",
       Description = "테스트 용으로 만들어졌다",
     },
     
-    new EquipableItem("test:t_shirt")
+    new Equipable.Top("test:t_shirt")
     {
       Name = "티셔츠",
       Description = "아주 평범한 티셔츠이다",

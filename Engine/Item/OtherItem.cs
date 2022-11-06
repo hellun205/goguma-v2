@@ -3,17 +3,17 @@ using System.Windows.Media;
 
 namespace goguma_v2.Engine.Item;
 
-public class EquipableItem : Item
+[Serializable]
+public abstract class OtherItem : Item
 {
-  public override string Type => ItemType.EquipableItem;
-  public ushort Count { get; private set; } = 0;
+  public override string Type => ItemType.OtherItem;
 
   public override void OnUse()
   {
     throw new System.NotImplementedException();
   }
 
-  public EquipableItem(string code) : base(code)
+  public OtherItem(string code) : base(code)
   {
     
   }
