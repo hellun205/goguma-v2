@@ -1,5 +1,4 @@
 using System;
-using System.Windows.Media;
 
 namespace goguma_v2.Engine.Item.Consumable;
 
@@ -7,11 +6,10 @@ namespace goguma_v2.Engine.Item.Consumable;
 public abstract class Consumableitem : Item
 {
   public override string Type => ItemType.ConsumableItem;
+  
+  public abstract string CType { get; }
 
-  public override void OnUse()
-  {
-    throw new System.NotImplementedException();
-  }
+  public abstract void OnUse();
 
   public Consumableitem(string code) : base(code)
   {

@@ -3,7 +3,7 @@ using System;
 namespace goguma_v2.Engine.Player;
 
 [Serializable]
-public struct Stats
+public class Stats
 {
   public static uint GetNextLevelExp(ushort level) =>
     (uint) Math.Floor(0.04 * (level ^ 3) + 0.8 * (level ^ 2) + 2 * level);
@@ -117,7 +117,6 @@ public struct Stats
 
   public Stats()
   {
-    this = default(Stats);
     MaxHp = 10;
     Hp = MaxHp;
     MaxMoisture = 10;

@@ -8,7 +8,7 @@ public static class ItemType
   
   public const string OtherItem = "기타";
 
-  public static class EquipmentType
+  public static class EquipableItemType
   {
     public const string Hat = "모자";
 
@@ -17,6 +17,11 @@ public static class ItemType
     public const string Bottom = "하의";
 
     public const string Shoes = "신발";
+  }
+
+  public static class ConsumableItemType
+  {
+    public const string Potion = "포션";
   }
   
 }

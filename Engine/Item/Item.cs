@@ -34,6 +34,4 @@ public abstract partial class Item : IEquatable<Item>
   {
     Code = code;
   }
-  
-  public abstract void OnUse();
 }
