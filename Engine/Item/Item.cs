@@ -1,15 +1,39 @@
+using System;
+using System.Windows.Media;
+
 namespace goguma_v2.Engine.Item;
 
-public class Item
+public abstract partial class Item : IEquatable<Item>
 {
-  public string Name { get; set; }
-  public string Type { get; private set; }
+  public string Code { get; init; }
+  public string Name { get; set; } = "none";
+  public abstract string Type { get; }
+  public string Description { get; set; } = string.Empty;
+  public ushort Count { get; set; } = 0;
+  public Brush DefaultColor { get; set; } = ConsoleUtil.MainScreen.FGColor;
+  public string Display => $"[ {Type} ] {Name}";
 
-  public Item(string type, string name)
+  public bool Equals(Item? other)
   {
-    Type = type;
-    Name = name;
+    if (ReferenceEquals(null, other)) return false;
+    return Code == other.Code;
   }
 
-  public override string ToString() => $"[ {Type} ] {Name}";
+  public override bool Equals(object? obj)
+  {
+    if (ReferenceEquals(null, obj)) return false;
+    if (obj.GetType() != this.GetType()) return false;
+    return Equals((Item) obj);
+  }
+
+  public override int GetHashCode() => Code.GetHashCode();
+
+  public override string ToString() => Code;
+
+  protected Item(string code)
+  {
+    Code = code;
+  }
+  
+  public abstract void OnUse();
 }

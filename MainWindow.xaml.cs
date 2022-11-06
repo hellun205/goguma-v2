@@ -22,17 +22,13 @@ namespace goguma_v2
       // });
 
       Main.Player = new Player("test");
-      
-      Main.Player.Inventory.GainItem(new Item("장비", "장비 1"));
-      Main.Player.Inventory.GainItem(new Item("장비", "장비 2"));
-      Main.Player.Inventory.GainItem(new Item("장비", "장비 3"));
-      Main.Player.Inventory.GainItem(new Item("소비", "소비 1"));
-      Main.Player.Inventory.GainItem(new Item("소비", "소비 2"));
-      Main.Player.Inventory.GainItem(new Item("기타", "기타 1"));
-      Main.Player.Inventory.GainItem(new Item("기타", "기타 2"));
-      Main.Player.Inventory.GainItem(new Item("기타", "기타 3"));
 
-      Main.Player.Inventory.Open(() => { Print($"selected item is {Main.Player.Inventory.SelectedItem}"); });
+      Main.Player.Inventory.GainItem(Item.Get("test:t_shirt"));
+
+      Main.Player.Inventory.Open(() =>
+      {
+        Print($"selected item is {Main.Player.Inventory.SelectedItem}");
+      });
     }
 
     private void Window_Loaded(object sender, RoutedEventArgs e)
