@@ -2,7 +2,7 @@ using System;
 
 namespace goguma_v2.Engine.Item;
 
-public class ItemBundle : IEquatable<ItemBundle>
+public sealed class ItemBundle : IEquatable<ItemBundle>
 {
   public string Item { get; init; }
   public Byte Count { get; private set; }

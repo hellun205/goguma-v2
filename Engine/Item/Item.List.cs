@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -9,12 +10,15 @@ namespace goguma_v2.Engine.Item;
 
 public abstract partial class Item
 {
+  public const string Empty = "global:empty";
+  
   public static Item Get(string code)
   {
     var item = Items.FirstOrDefault(x => x.Code == code);
+    if (code == Empty)
+      throw new Exception($"{code} is empty item");
     if (item == null)
-      MessageBox.Show($"invalid item code: {code}", "error");
-    
+      throw new Exception($"invalid item code: {code}");
     return item;
   }
 

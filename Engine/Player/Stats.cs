@@ -3,7 +3,8 @@ using System;
 namespace goguma_v2.Engine.Player;
 
 [Serializable]
-public class Stats
+[Obsolete("need to fix this code and need limited value class")]
+public sealed class Stats 
 {
   public static uint GetNextLevelExp(ushort level) =>
     (uint) Math.Floor(0.04 * (level ^ 3) + 0.8 * (level ^ 2) + 2 * level);

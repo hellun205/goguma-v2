@@ -4,10 +4,10 @@ using System.Linq;
 using goguma_v2.Engine.Item;
 using static goguma_v2.ConsoleUtil;
 
-namespace goguma_v2.Engine.Player.Inventory;
+namespace goguma_v2.Engine.Player;
 
 [Serializable]
-public class Inventory
+public sealed class Inventory
 {
   public Dictionary<string, List<ItemBundle>> Items { get; private set; }
   public Pair<string, int>? SelectedItem { get; private set; }

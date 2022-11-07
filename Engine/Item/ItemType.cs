@@ -17,6 +17,8 @@ public static class ItemType
     public const string Bottom = "하의";
 
     public const string Shoes = "신발";
+
+    public const string Weapon = "무기";
   }
 
   public static class ConsumptionType
