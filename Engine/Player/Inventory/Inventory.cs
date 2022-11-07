@@ -24,7 +24,7 @@ public class Inventory
   {
     Dictionary<string, List<string>> dict = new();
     foreach (var group in Items.Keys)
-      dict.Add(group, Items[group].Select(x => Item.Item.Get(x.Item).Name).ToList());
+      dict.Add(group, Items[group].Select(x => x.ToString()).ToList());
 
     Select2d("인벤토리", dict, true, () =>
     {
@@ -42,7 +42,7 @@ public class Inventory
     var max = byte.MaxValue;
     var items = (from item in Items[CheckType(itemCode)]
       where item.Item == itemCode
-      orderby item.Count descending 
+      orderby item.Count descending
       select item).ToList();
 
     if (items.Count != 0)
@@ -55,36 +55,92 @@ public class Inventory
           uint lostCount = item.Count + count - max;
           item.Set(max);
           GainItem(itemCode, lostCount);
-          break;
+          return;
         }
         else
         {
-          item.Add((byte)count);
-          break;
+          item.Add((byte) count);
+          return;
         }
       }
-    }
-    else
-    {
+
       if (count > max)
       {
-        uint lostCount = count - max;
         Items[type].Add(new ItemBundle(itemCode, max));
-        GainItem(itemCode, lostCount);
+        GainItem(itemCode, count - max);
       }
       else
       {
         Items[type].Add(new ItemBundle(itemCode, (byte)count));
       }
     }
+    else
+    {
+      if (count > max)
+      {
+        Items[type].Add(new ItemBundle(itemCode, max));
+        GainItem(itemCode, count - max);
+      }
+      else
+      {
+        Items[type].Add(new ItemBundle(itemCode, (byte) count));
+      }
+    }
   }
 
-  public void LoseItem(string itemCode, byte count = 1)
+  public void LoseItem(string itemCode, uint count = 1)
   {
     string type = CheckType(itemCode);
-    if (Items[type].Contains(item))
+    var max = byte.MaxValue;
+    var items = (from item in Items[CheckType(itemCode)]
+      where item.Item == itemCode
+      orderby item.Count
+      select item).ToList();
+
+    if (items.Count != 0)
     {
-      Items[type].Remove(item);
+      if (count > max)
+      {
+        foreach (var item in items)
+        {
+          if (item.Count == max)
+          {
+            Items[type].Remove(item);
+            LoseItem(itemCode, count - max);
+            break;
+          }
+          else
+          {
+            uint lostCount = count - item.Count;
+            Items[type].Remove(item);
+            LoseItem(itemCode, lostCount);
+            break;
+          }
+        }
+      }
+      else
+      {
+        foreach (var item in items)
+        {
+          if (item.Count < count)
+          {
+            var lostCount = count - item.Count;
+            Items[type].Remove(item);
+            LoseItem(itemCode, lostCount);
+            break;
+          }
+          else if (item.Count > count)
+          {
+            item.Remove((byte)count);
+            break;
+          }
+          else if (item.Count == count)
+          {
+            Items[type].Remove(item);
+            break;
+          }
+        }
+      }
     }
   }
 

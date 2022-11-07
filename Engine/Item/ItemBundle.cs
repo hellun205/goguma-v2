@@ -52,4 +52,6 @@ public class ItemBundle : IEquatable<ItemBundle>
   {
     return HashCode.Combine(Item, Count);
   }
+
+  public override string ToString() => $"{Engine.Item.Item.Get(Item).Name}{(Count == 1 ? "" : $" {Count}개")}";
 }

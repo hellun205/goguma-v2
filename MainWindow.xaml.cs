@@ -23,13 +23,13 @@ namespace goguma_v2
 
       Main.Player = new Player("test");
 
-      Main.Player.Inventory.GainItem(Item.Get("test:t_shirt"));
-      Main.Player.Inventory.GainItem(Item.Get("test:hat"));
-      Main.Player.Inventory.GainItem(Item.Get("test:potion"));
-
+      Main.Player.Inventory.GainItem("test:hat", 300);
+      Main.Player.Inventory.GainItem("test:hat", 200);
+      Main.Player.Inventory.LoseItem("test:hat", 10);
       Main.Player.Inventory.Open(() =>
       {
-        Print($"selected item is {Main.Player.Inventory.SelectedItem}");
+        var item = Item.Get(Main.Player.Inventory.Items[Main.Player.Inventory.SelectedItem.Value.X][Main.Player.Inventory.SelectedItem.Value.Y].Item);
+        Print($"selected item is {item}\n{item.Name}\n{item.Description}");
       });
     }
 
