@@ -1,6 +1,9 @@
-﻿namespace goguma_v2
+﻿using System;
+using System.Collections.Generic;
+
+namespace goguma_v2
 {
-  public struct Pair<T>
+  public struct Pair<T> : IEquatable<Pair<T>>
   {
     public T X { get; set; }
     public T Y { get; set; }
@@ -9,6 +12,50 @@
     {
       X = x;
       Y = y;
+    }
+
+    public override string ToString() => $"({X}, {Y})";
+
+    public bool Equals(Pair<T> other)
+    {
+      return EqualityComparer<T>.Default.Equals(X, other.X) && EqualityComparer<T>.Default.Equals(Y, other.Y);
+    }
+
+    public override bool Equals(object? obj)
+    {
+      return obj is Pair<T> other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+      return HashCode.Combine(X, Y);
+    }
+  }
+
+  public struct Pair<Tx, Ty> : IEquatable<Pair<Tx, Ty>>
+  {
+    public Tx X { get; set; }
+    public Ty Y { get; set; }
+
+    public Pair(Tx x, Ty y)
+    {
+      X = x;
+      Y = y;
+    }
+
+    public bool Equals(Pair<Tx, Ty> other)
+    {
+      return EqualityComparer<Tx>.Default.Equals(X, other.X) && EqualityComparer<Ty>.Default.Equals(Y, other.Y);
+    }
+
+    public override bool Equals(object? obj)
+    {
+      return obj is Pair<Tx, Ty> other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+      return HashCode.Combine(X, Y);
     }
 
     public override string ToString() => $"({X}, {Y})";

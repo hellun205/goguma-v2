@@ -20,7 +20,7 @@ public abstract partial class Item
 
   public static string[] GetCodes() => Items.Select(x => x.Code).ToArray();
 
-  private static HashSet<Item> Items = new HashSet<Item>()
+  private readonly static HashSet<Item> Items = new HashSet<Item>()
   {
     new EquipmentItem("test:hat", ItemType.EquipmentType.Hat)
     {

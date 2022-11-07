@@ -2,9 +2,9 @@ using System;
 
 namespace goguma_v2.Engine.Item;
 
-public struct ItemBundle : IEquatable<ItemBundle>
+public class ItemBundle : IEquatable<ItemBundle>
 {
-  public string Item { get; private set; }
+  public string Item { get; init; }
   public Byte Count { get; private set; }
 
   public ItemBundle(string itemCode)
@@ -32,19 +32,24 @@ public struct ItemBundle : IEquatable<ItemBundle>
   {
     Count = value;
   }
-  
-  public bool Equals(ItemBundle other)
+
+  public bool Equals(ItemBundle? other)
   {
-    return Item == other.Item;
+    if (ReferenceEquals(null, other)) return false;
+    if (ReferenceEquals(this, other)) return true;
+    return Item == other.Item && Count == other.Count;
   }
 
   public override bool Equals(object? obj)
   {
-    return obj is ItemBundle other && Equals(other);
+    if (ReferenceEquals(null, obj)) return false;
+    if (ReferenceEquals(this, obj)) return true;
+    if (obj.GetType() != this.GetType()) return false;
+    return Equals((ItemBundle) obj);
   }
 
   public override int GetHashCode()
   {
-    return Item.GetHashCode();
+    return HashCode.Combine(Item, Count);
   }
 }
