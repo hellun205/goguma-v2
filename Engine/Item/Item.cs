@@ -4,15 +4,15 @@ using System.Windows.Media;
 namespace goguma_v2.Engine.Item;
 
 [Serializable]
-public abstract partial class Item : IEquatable<Item>
+public abstract partial class Item : IEquatable<Item>, ISellable, IPurchasable
 {
-  public string Code { get; init; }
+  public string Code { get; init; } // format = [test|game_name]:[item_name], ex) test:sword
   public string Name { get; set; } = "none";
-  public abstract string Type { get; }
   public string Description { get; set; } = string.Empty;
-  public Brush DefaultColor { get; set; } = ConsoleUtil.MainScreen.FGColor;
-  public string Display => $"[ {Type} ] {Name}";
 
+  public uint PriceOfSell { get; set; }
+  public uint PriceOfPurchase { get; set; }
+  
   public bool Equals(Item? other)
   {
     if (ReferenceEquals(null, other)) return false;
@@ -33,5 +33,19 @@ public abstract partial class Item : IEquatable<Item>
   protected Item(string code)
   {
     Code = code;
+  }
+
+  public event IPurchasable._OnPurchase? OnPurchase;
+  public void Purchase(Player.Player player)
+  {
+    OnPurchase.Invoke(this, PriceOfPurchase);
+    throw new NotImplementedException();
+  }
+
+  public event ISellable._OnSell? OnSell;
+  public void Sell(Player.Player player)
+  {
+    OnPurchase.Invoke(this, PriceOfSell);
+    throw new NotImplementedException();
   }
 }

@@ -24,6 +24,8 @@ namespace goguma_v2
       Main.Player = new Player("test");
 
       Main.Player.Inventory.GainItem(Item.Get("test:t_shirt"));
+      Main.Player.Inventory.GainItem(Item.Get("test:hat"));
+      Main.Player.Inventory.GainItem(Item.Get("test:potion"));
 
       Main.Player.Inventory.Open(() =>
       {

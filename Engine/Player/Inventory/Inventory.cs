@@ -41,21 +41,30 @@ public class Inventory
 
   public void GainItem(Item.Item item)
   {
-    CheckType(item.Type);
-    Items[item.Type].Add(item);
+    string type = CheckType(item);
+    Items[type].Add(item);
   }
 
   public void LoseItem(Item.Item item)
   {
-    CheckType(item.Type);
-    if (Items[item.Type].Contains(item))
+    string type = CheckType(item);
+    if (Items[type].Contains(item))
     {
-      Items[item.Type].Remove(item);
+      Items[type].Remove(item);
     }
   }
 
-  private void CheckType(string type)
+  private string CheckType(Item.Item item)
   {
+    string type;
+    if (item is IEquippable)
+      type = ItemType.EquipableItem;
+    else if (item is IConsumable)
+      type = ItemType.ConsumableItem;
+    else
+      type = ItemType.OtherItem;
+    
     if (!Items.ContainsKey(type)) throw new Exception($"인벤토리 그룹 중 \"{type}\"(이)가 없습니다.");
+    return type;
   }
 }
