@@ -40,7 +40,7 @@ public sealed class Inventory
   {
     string type = CheckType(itemCode);
     var max = byte.MaxValue;
-    var items = (from item in Items[CheckType(itemCode)]
+    var items = (from item in Items[type]
       where item.Item == itemCode
       orderby item.Count descending
       select item).ToList();
@@ -92,7 +92,7 @@ public sealed class Inventory
   {
     string type = CheckType(itemCode);
     var max = byte.MaxValue;
-    var items = (from item in Items[CheckType(itemCode)]
+    var items = (from item in Items[type]
       where item.Item == itemCode
       orderby item.Count
       select item).ToList();
@@ -144,14 +144,26 @@ public sealed class Inventory
     }
   }
 
-  public void LoseAllItem()
+  public void Clear()
   {
-    throw new NotImplementedException();
+    foreach (var type in Items.Keys)
+      Items[type].Clear();
+  }
+  
+  public void Clear(string type)
+  {
+    Items[type].Clear();
   }
   
   public void LoseAllItem(string itemCode)
   {
-    throw new NotImplementedException();
+    string type = CheckType(itemCode);
+    var items = (from item in Items[type]
+      where item.Item == itemCode
+      select item).ToList();
+
+    foreach (var item in items)
+      Items[type].Remove(item);
   }
 
   public string CheckType(string itemCode)
