@@ -154,7 +154,7 @@ public sealed class Inventory
     throw new NotImplementedException();
   }
 
-  private string CheckType(string itemCode)
+  public string CheckType(string itemCode)
   {
     Item.Item item = Item.Item.Get(itemCode);
 
@@ -170,8 +170,5 @@ public sealed class Inventory
     return type;
   }
 
-  public bool CheckItem(string itemCode, uint count = 1)
-  {
-    throw new NotImplementedException();
-  }
+  public bool CheckItem(string itemCode, uint count = 1) => Items[CheckType(itemCode)].Exists(x => x.Item == itemCode && x.Count >= count);
 }

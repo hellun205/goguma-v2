@@ -27,7 +27,9 @@ namespace goguma_v2
 
         Main.Player.Inventory.GainItem("test:hat", 300);
         Main.Player.Inventory.GainItem("test:hat", 200);
-        Main.Player.Inventory.LoseItem("test:hat", 10);
+        Main.Player.Inventory.GainItem("test:t_shirt", 2);
+        Main.Player.Equipment.EquipItem("test:t_shirt");
+        // Main.Player.Equipment.UnEquipItem(ItemType.EquipmentType.Top);
         Main.Player.Inventory.Open(() =>
         {
           var item = Item.Get(

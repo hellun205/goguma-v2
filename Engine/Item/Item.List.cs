@@ -32,7 +32,7 @@ public abstract partial class Item
       Description = "테스트 용으로 만들어졌다",
     },
     
-    new EquipmentItem("test:hat", ItemType.EquipmentType.Hat)
+    new EquipmentItem("test:t_shirt", ItemType.EquipmentType.Top)
     {
       Name = "티셔츠",
       Description = "아주 평범한 티셔츠이다",

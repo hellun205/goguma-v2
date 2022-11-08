@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using goguma_v2.Engine.Item;
 
 namespace goguma_v2.Engine.Player;
@@ -31,16 +32,32 @@ public sealed class Equipment
   public void EquipItem(string itemCode)
   {
     var item = Item.Item.Get(itemCode);
-    if (inventory.CheckItem(itemCode) && item is IEquippable)
+    if (inventory.CheckItem(itemCode))
     {
-      string type = ((IEquippable) item).EquipmentType;
-      inventory.LoseItem(itemCode, 1);
-      Items[type] = itemCode;
+      if (item is IEquippable)
+      {
+        string type = ((IEquippable) item).EquipmentType;
+        if (Items[type] != Item.Item.Empty)
+          UnEquipItem(type);
+        inventory.LoseItem(itemCode, 1);
+        Items[type] = itemCode;
+      }
+      else throw new Exception($"this item({itemCode}) cannot be equipped.");
     }
+    else throw new Exception($"the item({itemCode}) does not exist in your inventory.");
   }
 
   public void UnEquipItem(string typeOfEquipment)
   {
-    throw new NotImplementedException();
+    if (Items.Keys.Contains(typeOfEquipment))
+    {
+      if (Items[typeOfEquipment] != Item.Item.Empty)
+      {
+        inventory.GainItem(Items[typeOfEquipment], 1);
+        Items[typeOfEquipment] = Item.Item.Empty;
+      }
+      else throw new Exception($"there are no equipped items: {typeOfEquipment}");
+    }
+    else throw new Exception($"type {typeOfEquipment} does not exist.");
   }
 }
