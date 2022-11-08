@@ -10,15 +10,20 @@ public sealed class EquipmentItem : Item, IEquippable
   public BuffStats Buff { get; set; }
 
   public event IEquippable._OnEquip? OnEquip;
+  public event IEquippable._OnUnEquip? OnUnEquip;
 
   public EquipmentItem(string code, string equipmentType) : base(code)
   {
     EquipmentType = equipmentType;
   }
 
-  public void Equip(Player.Player player)
+  public void Equip()
   {
     OnEquip.Invoke(this);
-    throw new NotImplementedException();
+  }
+
+  public void UnEquip()
+  {
+    OnUnEquip.Invoke(this);
   }
 }

@@ -41,6 +41,7 @@ public sealed class Equipment
           UnEquipItem(type);
         inventory.LoseItem(itemCode, 1);
         Items[type] = itemCode;
+        ((IEquippable)item).Equip();
       }
       else throw new Exception($"this item({itemCode}) cannot be equipped.");
     }
@@ -55,6 +56,7 @@ public sealed class Equipment
       {
         inventory.GainItem(Items[typeOfEquipment], 1);
         Items[typeOfEquipment] = Item.Item.Empty;
+        ((IEquippable) Item.Item.Get(Items[typeOfEquipment])).UnEquip();
       }
       else throw new Exception($"there are no equipped items: {typeOfEquipment}");
     }
