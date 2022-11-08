@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using goguma_v2.Engine.Item;
 
 namespace goguma_v2.Engine.Player;
 
@@ -11,9 +12,12 @@ public sealed class Equipment
   /// </summary>
   public Dictionary<string, string> Items { get; private set; }
 
-  public Equipment(string[] typeOfEquipment)
+  private Inventory inventory;
+
+  public Equipment(string[] typeOfEquipment, Inventory inventory)
   {
     Items = new Dictionary<string, string>();
+    this.inventory = inventory;
 
     foreach (string type in typeOfEquipment)
       Items.Add(type, Item.Item.Empty);
@@ -26,7 +30,13 @@ public sealed class Equipment
 
   public void EquipItem(string itemCode)
   {
-    throw new NotImplementedException();
+    var item = Item.Item.Get(itemCode);
+    if (inventory.CheckItem(itemCode) && item is IEquippable)
+    {
+      string type = ((IEquippable) item).EquipmentType;
+      inventory.LoseItem(itemCode, 1);
+      Items[type] = itemCode;
+    }
   }
 
   public void UnEquipItem(string typeOfEquipment)

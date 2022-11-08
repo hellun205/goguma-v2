@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
 using goguma_v2.Engine.Item;
@@ -15,22 +16,32 @@ namespace goguma_v2
     public MainWindow()
     {
       InitializeComponent();
-      MainScreen = Screen;
-      // Player.Load(() =>
-      // {
-      //   
-      // });
-
-      Main.Player = new Player("test");
-
-      Main.Player.Inventory.GainItem("test:hat", 300);
-      Main.Player.Inventory.GainItem("test:hat", 200);
-      Main.Player.Inventory.LoseItem("test:hat", 10);
-      Main.Player.Inventory.Open(() =>
+      try
       {
-        var item = Item.Get(Main.Player.Inventory.Items[Main.Player.Inventory.SelectedItem.Value.X][Main.Player.Inventory.SelectedItem.Value.Y].Item);
-        Print($"selected item is {item}\n{item.Name}\n{item.Description}");
-      });
+        MainScreen = Screen;
+        // Player.Load(() =>
+             // {
+             //   
+             // });
+        Main.Player = new Player("test");
+
+        Main.Player.Inventory.GainItem("test:hat", 300);
+        Main.Player.Inventory.GainItem("test:hat", 200);
+        Main.Player.Inventory.LoseItem("test:hat", 10);
+        Main.Player.Inventory.Open(() =>
+        {
+          var item = Item.Get(
+            Main.Player.Inventory.Items[Main.Player.Inventory.SelectedItem.Value.X][
+              Main.Player.Inventory.SelectedItem.Value.Y].Item);
+          Print($"selected item is {item}\n{item.Name}\n{item.Description}");
+        });
+      }
+      catch (Exception ex)
+      {
+        PrintF(
+          $"<fg='{Brushes.DarkRed}' bg='{MainScreen.FGColor}'>\nERROR: {ex.Message}\nSOURCE: {ex.Source ?? ""}\nTARGETSITE: {ex.TargetSite}\nSTACKTRACE ---\n{ex.StackTrace ?? ""}");
+        Pause(() => { Application.Current.Shutdown(); });
+      }
     }
 
     private void Window_Loaded(object sender, RoutedEventArgs e)

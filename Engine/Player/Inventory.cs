@@ -144,6 +144,16 @@ public sealed class Inventory
     }
   }
 
+  public void LoseAllItem()
+  {
+    throw new NotImplementedException();
+  }
+  
+  public void LoseAllItem(string itemCode)
+  {
+    throw new NotImplementedException();
+  }
+
   private string CheckType(string itemCode)
   {
     Item.Item item = Item.Item.Get(itemCode);
@@ -158,5 +168,10 @@ public sealed class Inventory
 
     if (!Items.ContainsKey(type)) throw new Exception($"인벤토리 그룹 중 \"{type}\"(이)가 없습니다.");
     return type;
+  }
+
+  public bool CheckItem(string itemCode, uint count = 1)
+  {
+    throw new NotImplementedException();
   }
 }

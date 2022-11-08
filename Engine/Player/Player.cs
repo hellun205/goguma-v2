@@ -21,7 +21,7 @@ public sealed partial class Player
     {
       ItemType.EquipmentType.Hat, ItemType.EquipmentType.Top, ItemType.EquipmentType.Bottom, ItemType.EquipmentType.Shoes,
       ItemType.EquipmentType.Weapon
-    });
+    }, Inventory);
     Stats = new Stats()
     {
       MaxHp = 50,
