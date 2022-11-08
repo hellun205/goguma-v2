@@ -7,7 +7,7 @@ using static goguma_v2.ConsoleUtil;
 
 namespace goguma_v2.Engine.Player;
 
-public partial class Player
+public sealed partial class Player
 {
   private static string SavePath => "./Save";
   
