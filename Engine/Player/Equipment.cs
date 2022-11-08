@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using goguma_v2.Engine.Item;
+using static goguma_v2.ConsoleUtil;
 
 namespace goguma_v2.Engine.Player;
 
@@ -24,9 +25,18 @@ public sealed class Equipment
       Items.Add(type, Item.Item.Empty);
   }
 
-  public void Open()
+  public void Open(Action<string> callBack) // temporary
   {
-    throw new NotImplementedException();
+    Dictionary<string, List<string>> dict = new();
+    foreach (var group in Items.Keys)
+      dict.Add(group, new List<string>() { (Items[group] == Item.Item.Empty ? "없음" :Item.Item.Get(Items[group]).Name) });
+
+    Select2d("장비", dict, true, () =>
+    {
+      if (Selection2d != null)
+        callBack(Items[Items.Keys.ToList()[Selection2d.Value.X]]);
+      else callBack(null);
+    });
   }
 
   public void EquipItem(string itemCode)

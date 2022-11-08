@@ -8,5 +8,5 @@ public interface ISellable
 
   public event _OnSell OnSell;
   
-  public void Sell(Player.Player player);
+  public void Sell();
 }

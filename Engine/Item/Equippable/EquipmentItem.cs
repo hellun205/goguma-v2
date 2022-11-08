@@ -19,11 +19,11 @@ public sealed class EquipmentItem : Item, IEquippable
 
   public void Equip()
   {
-    OnEquip.Invoke(this);
+    if (OnEquip != null) OnEquip.Invoke(this);
   }
 
   public void UnEquip()
   {
-    OnUnEquip.Invoke(this);
+    if (OnUnEquip != null) OnUnEquip.Invoke(this);
   }
 }

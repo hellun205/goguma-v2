@@ -8,5 +8,5 @@ public interface IPurchasable
   
   public event _OnPurchase OnPurchase;
 
-  public void Purchase(Player.Player player);
+  public void Purchase();
 }

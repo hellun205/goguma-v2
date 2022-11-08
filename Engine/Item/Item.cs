@@ -38,16 +38,14 @@ public abstract partial class Item : IEquatable<Item>, ISellable, IPurchasable
   }
 
   public event IPurchasable._OnPurchase? OnPurchase;
-  public void Purchase(Player.Player player)
+  public void Purchase()
   {
     OnPurchase.Invoke(this, PriceOfPurchase);
-    throw new NotImplementedException();
   }
 
   public event ISellable._OnSell? OnSell;
-  public void Sell(Player.Player player)
+  public void Sell()
   {
     OnPurchase.Invoke(this, PriceOfSell);
-    throw new NotImplementedException();
   }
 }

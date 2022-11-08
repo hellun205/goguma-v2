@@ -10,7 +10,6 @@ namespace goguma_v2.Engine.Player;
 public sealed class Inventory
 {
   public Dictionary<string, List<ItemBundle>> Items { get; private set; }
-  public Pair<string, int>? SelectedItem { get; private set; }
 
   public Inventory(string[] groupNames)
   {
@@ -20,7 +19,7 @@ public sealed class Inventory
       Items.Add(name, new List<ItemBundle>());
   }
 
-  public void Open(Action callBack)
+  public void Open(Action<Pair<string,int>?> callBack)
   {
     Dictionary<string, List<string>> dict = new();
     foreach (var group in Items.Keys)
@@ -29,10 +28,8 @@ public sealed class Inventory
     Select2d("인벤토리", dict, true, () =>
     {
       if (Selection2d != null)
-        SelectedItem = new Pair<string, int>(Items.Keys.ToList()[Selection2d.Value.X], Selection2d.Value.Y);
-      else SelectedItem = null;
-
-      callBack();
+        callBack(new Pair<string, int>(Items.Keys.ToList()[Selection2d.Value.X], Selection2d.Value.Y));
+      else callBack(null);
     });
   }
 
