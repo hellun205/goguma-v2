@@ -5,6 +5,7 @@ namespace GogumaV2;
 
 public class Main
 {
-  public static MainWindow Window = (MainWindow) Application.Current.MainWindow;
-  public static Player? Player = null;
+  public static MainWindow window = (MainWindow) Application.Current.MainWindow;
+  public static ConsoleUtil consoleUtil;
+  public static Player? player = null;
 }

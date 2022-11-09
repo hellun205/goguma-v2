@@ -18,13 +18,11 @@ namespace GogumaV2
     public Brush BGColor => RTBMain.Background;
     public Brush FGColor => RTBMain.Foreground;
     public Brush BGColorWhenReadText { get; set; } = Brushes.DimGray;
-    public string TextOfRead;
-    public Key KeyOfRead;
 
     private bool isReadingText = false;
     private bool isReadingKey = false;
-    private Action CallAfterReadingText;
-    private Action CallAfterReadingKey;
+    private Action<string> CallAfterReadingText;
+    private Action<Key> CallAfterReadingKey;
     private string tempRTF;
     private Key? keyToPress;
 
@@ -54,7 +52,7 @@ namespace GogumaV2
 
     private void RTBMain_TextChanged(object sender, TextChangedEventArgs e)
     {
-      RTBMain.ScrollToEnd();
+      // RTBMain.ScrollToEnd();
     }
 
     private void SaveRTF()
@@ -78,18 +76,14 @@ namespace GogumaV2
       range.Load(stream, DataFormats.Rtf);
       range.ApplyPropertyValue(TextElement.FontFamilyProperty, Font);
     }
-
-    /// <summary>
-    /// 텍스트를 입력 받고, 받은 후 함수를 호출합니다.
-    /// </summary>
-    /// <param name="CallAfterReading">텍스트를 입력 받은 후 호출될 함수</param>
-    public void ReadText(Action CallAfterReading)
+    
+    public void ReadText(Action<string> callBack)
     {
       if (!isReadingText && !isReadingKey)
       {
         isReadingText = true;
         TBInput.Clear();
-        CallAfterReadingText = CallAfterReading;
+        CallAfterReadingText = callBack;
         SaveRTF();
         Print("  ", new Pair<Brush>(BGColor, BGColorWhenReadText));
       }
@@ -99,21 +93,9 @@ namespace GogumaV2
         throw new Exception("현재 키를 읽고 있으므로 텍스트를 읽을 수 없습니다.");
     }
 
-    public void ReadKey(Action CallAfterReading)
-    {
-      if (!isReadingText && !isReadingKey)
-      {
-        isReadingKey = true;
-        keyToPress = null;
-        CallAfterReadingKey = CallAfterReading;
-      }
-      else if (isReadingKey)
-        throw new Exception("이미 키를 읽고 있습니다.");
-      else if (isReadingText)
-        throw new Exception("현재 텍스트를 읽고 있으므로 키를 읽을 수 없습니다.");
-    }
+    public void ReadKey(Action<Key> callBack) => ReadKey(null, callBack);
 
-    public void ReadKey(Key press, Action callBack)
+    public void ReadKey(Key? press, Action<Key> callBack)
     {
       if (!isReadingText && !isReadingKey)
       {
@@ -147,19 +129,16 @@ namespace GogumaV2
         if (keyToPress != null && e.Key != keyToPress) return;
         
         isReadingKey = false;
-        KeyOfRead = e.Key;
-        CallAfterReadingKey();
+        CallAfterReadingKey(e.Key);
       }
       else if (isReadingText)
       {
         if (e.Key == Key.Enter)
         {
           isReadingText = false;
-          TextOfRead = TBInput.Text;
-          CallAfterReadingText();
+          CallAfterReadingText(TBInput.Text);
         }
       }
-
     }
 
     private void TBInput_TextChanged(object sender, TextChangedEventArgs e)

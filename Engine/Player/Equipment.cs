@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GogumaV2.Engine.Item;
-using static GogumaV2.ConsoleUtil;
+using static GogumaV2.Main;
 
 namespace GogumaV2.Engine.Player;
 
@@ -27,15 +27,11 @@ public sealed class Equipment
 
   public void Open(Action<string> callBack) // temporary
   {
-    Dictionary<string, List<string>> dict = new();
-    foreach (var group in Items.Keys)
-      dict.Add(group, new List<string>() { (Items[group] == Item.Item.Empty ? "없음" :Item.Item.Get(Items[group]).Name) });
+    Dictionary<string, List<string>> dict = Items.Keys.ToDictionary(group => group, group => new List<string>() {(Items[group] == Item.Item.Empty ? "없음" : Item.Item.Get(Items[group]).Name)});
 
-    Select2d("장비", dict, true, () =>
+    consoleUtil.Select2d("장비", dict, "취소", selection =>
     {
-      if (Selection2d != null)
-        callBack(Items[Items.Keys.ToList()[Selection2d.Value.X]]);
-      else callBack(null);
+      callBack((selection != null ? Items[Items.Keys.ToList()[selection.Value.X]] : null) ?? string.Empty);
     });
   }
 
@@ -44,14 +40,14 @@ public sealed class Equipment
     var item = Item.Item.Get(itemCode);
     if (inventory.CheckItem(itemCode))
     {
-      if (item is IEquippable)
+      if (item is IEquippable equipmentItem)
       {
-        string type = ((IEquippable) item).EquipmentType;
+        string type = equipmentItem.EquipmentType;
         if (Items[type] != Item.Item.Empty)
           UnEquipItem(type);
         inventory.LoseItem(itemCode, 1);
         Items[type] = itemCode;
-        ((IEquippable)item).Equip();
+        equipmentItem.Equip();
       }
       else throw new Exception($"this item({itemCode}) cannot be equipped.");
     }
@@ -60,7 +56,7 @@ public sealed class Equipment
 
   public void UnEquipItem(string typeOfEquipment)
   {
-    if (Items.Keys.Contains(typeOfEquipment))
+    if (Items.ContainsKey(typeOfEquipment))
     {
       if (Items[typeOfEquipment] != Item.Item.Empty)
       {

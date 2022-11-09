@@ -4,230 +4,215 @@ using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace GogumaV2
+namespace GogumaV2;
+
+public class ConsoleUtil
 {
-  public static class ConsoleUtil
+  public Screen MainScreen { get; init; }
+
+  public Pair<Brush> ColorOnSelect;
+
+  public Pair<Brush> ColorOnNoSelect;
+
+  private bool isSelecting = false;
+
+  public ConsoleUtil(Screen screen)
   {
-    public static Screen MainScreen { get; set; }
-    public static string Text { get; private set; } = "";
-    public static Key Key { get; private set; }
-    public static string Selection { get; private set; } = "";
-    public static Pair<int>? Selection2d { get; private set; } = new(0, 0);
-    public static Pair<Brush> ColorOnSelect => new(MainScreen.BGColor, MainScreen.FGColor);
-    public static Pair<Brush> ColorOnNoSelect => new(MainScreen.FGColor, MainScreen.BGColor);
-    public static string SelectCancelText = "취소";
+    MainScreen = screen;
+    ColorOnSelect = new(MainScreen.BGColor, MainScreen.FGColor);
+    ColorOnNoSelect = new(MainScreen.FGColor, MainScreen.BGColor);
+  }
 
-    private static bool isSelecting = false;
+  public void ReadText(Action<string> callBack) => MainScreen.ReadText(callBack);
 
-    public static void ReadText(Action callBack)
+  public void ReadKey(Action<Key> callBack) => MainScreen.ReadKey(callBack);
+
+  public void ReadKey(Key keyToPress, Action<Key> callBack) => MainScreen.ReadKey(keyToPress, callBack);
+
+  public void Clear() => MainScreen.Clear();
+
+  public void Print(string text) => MainScreen.Print(text);
+
+  public void Print(string text, Pair<Brush> color) => MainScreen.Print(text, color);
+
+  public void PrintF(string formattedText)
+  {
+    // new BrushConverter().ConvertFromString("Red");
+
+    //<fg='' bg=''>
+    if (formattedText.Contains('<'))
     {
-      MainScreen.ReadText(() =>
+      string[] split = formattedText.Split('<');
+
+      for (int i = 1; i < split.Length; i++)
       {
-        Text = MainScreen.TextOfRead;
-        callBack();
-      });
-    }
-
-    public static void ReadKey(Action callBack)
-    {
-      MainScreen.ReadKey(() =>
-      {
-        Key = MainScreen.KeyOfRead;
-        callBack();
-      });
-    }
-
-    public static void ReadKey(Key keyToPress, Action callBack)
-    {
-      MainScreen.ReadKey(keyToPress, () =>
-      {
-        Key = MainScreen.KeyOfRead;
-        callBack();
-      });
-    }
-
-    public static void Clear() => MainScreen.Clear();
-
-    public static void Print(string text) => MainScreen.Print(text);
-
-    public static void Print(string text, Pair<Brush> color) => MainScreen.Print(text, color);
-
-    public static void PrintF(string formattedText)
-    {
-      // new BrushConverter().ConvertFromString("Red");
-
-      //<fg='' bg=''>
-      if (formattedText.Contains('<'))
-      {
-        string[] split = formattedText.Split('<');
-
-        for (int i = 1; i < split.Length; i++)
+        string text = split[i];
+        string[] tagSplit = text.Split('>');
+        try
         {
-          string text = split[i];
-          string[] tagSplit = text.Split('>');
-          try
+          Pair<Brush> color = new(MainScreen.FGColor, MainScreen.BGColor);
+
+          if (tagSplit[0].Contains("fg='"))
           {
-            Pair<Brush> color = new(MainScreen.FGColor, MainScreen.BGColor);
-
-            if (tagSplit[0].Contains("fg='"))
-            {
-              color.X = (Brush) new BrushConverter().ConvertFromString(tagSplit[0].Split("fg='")[1].Split("'")[0]);
-            }
-
-            if (tagSplit[0].Contains("bg='"))
-            {
-              color.Y = (Brush) new BrushConverter().ConvertFromString(tagSplit[0].Split("bg='")[1].Split("'")[0]);
-            }
-
-            Print(tagSplit[1], color);
+            color.X = (Brush) new BrushConverter().ConvertFromString(tagSplit[0].Split("fg='")[1].Split("'")[0]);
           }
-          catch
+
+          if (tagSplit[0].Contains("bg='"))
           {
-            Print(tagSplit[1]);
+            color.Y = (Brush) new BrushConverter().ConvertFromString(tagSplit[0].Split("bg='")[1].Split("'")[0]);
           }
+
+          Print(tagSplit[1], color);
+        }
+        catch
+        {
+          Print(tagSplit[1]);
         }
       }
+    }
+    else
+      Print(formattedText);
+  }
+
+  public void Select(string title, Dictionary<string, Action> queue) => Select(title, queue, string.Empty, null);
+
+  public void Select(string title, Dictionary<string, Action> queue, string cancelText, Action? cancelCallBack)
+  {
+    bool cancellable = !string.IsNullOrEmpty(cancelText);
+    Dictionary<string, string> dict = queue.ToDictionary(x => x.Key, x => x.Key);
+
+    Select(title, dict, cancelText, value =>
+    {
+      if (cancellable && string.IsNullOrEmpty(value))
+        cancelCallBack();
       else
-        Print(formattedText);
-    }
+        queue[value]();
+    });
+  }
 
-    public static void Select(string title, Dictionary<string, Action> queue, bool cancellable, Action cancelCallBack)
+  public void Select(string title, Dictionary<string, string> queue, Action<string> callBack) =>
+    Select(title, queue, null, callBack);
+
+  public void Select(string title, Dictionary<string, string> queue, string cancelText, Action<string> callBack)
+  {
+    if (!isSelecting)
     {
-      List<string> options = queue.Keys.ToList();
-      List<Action> actions = queue.Values.ToList();
-      Dictionary<string, string> dict = new Dictionary<string, string>();
-      foreach (string option in options)
-      {
-        dict.Add(option, option);
-      }
+      isSelecting = true;
+      bool cancellable = !string.IsNullOrEmpty(cancelText);
+      int selectingIndex = 0;
+      int maxIndex = queue.Count - (cancellable ? 0 : 1);
+      string[] options = queue.Keys.ToArray();
 
-      Select(title, dict, cancellable, () =>
+      void While()
       {
-        if (cancellable && string.IsNullOrEmpty(Selection))
-          cancelCallBack();
-        else
-          queue[Selection]();
-      });
-    }
+        Clear();
+        PrintF(title);
+        Print("\n");
 
-    public static void Select(string title, Dictionary<string, string> queue, bool cancellable, Action callBack)
-    {
-      if (!isSelecting)
-      {
-        isSelecting = true;
-        int selectingIndex = 0;
-        int maxIndex = queue.Count - (cancellable ? 0 : 1);
-        List<string> options = queue.Keys.ToList();
-
-        void While()
+        for (int i = 0; i < queue.Count + (cancellable ? 1 : 0); i++)
         {
-          Clear();
-          PrintF(title);
-          Print("\n");
-
-          for (int i = 0; i < queue.Count + (cancellable ? 1 : 0); i++)
+          Pair<Brush> color = ColorOnNoSelect;
+          if (i == selectingIndex)
           {
-            Pair<Brush> color = ColorOnNoSelect;
-            if (i == selectingIndex)
-            {
-              color = ColorOnSelect;
-            }
-
-            Print($" [ {(cancellable && i == maxIndex ? SelectCancelText : options[i])} ] ", color);
-            Print("\n");
+            color = ColorOnSelect;
           }
 
-          ReadKey(() =>
-          {
-            if (Key == Key.Enter)
-            {
-              if (cancellable && selectingIndex == maxIndex)
-                Selection = null;
-              else
-                Selection = queue[options[selectingIndex]];
+          Print($" [ {(cancellable && i == maxIndex ? cancelText : options[i])} ] ", color);
+          Print("\n");
+        }
 
+        ReadKey(key =>
+        {
+          switch (key)
+          {
+            case Key.Enter:
               isSelecting = false;
-              callBack();
-            }
-            else if (Key == Key.Up)
+              callBack((((cancellable && selectingIndex == maxIndex) ? null : queue[options[selectingIndex]]) ??
+                        string.Empty));
+              break;
+            case Key.Up:
             {
               if (selectingIndex == 0)
                 selectingIndex = maxIndex;
               else
                 selectingIndex -= 1;
               While();
+              break;
             }
-            else if (Key == Key.Down)
+            case Key.Down:
             {
               if (selectingIndex == maxIndex)
                 selectingIndex = 0;
               else
                 selectingIndex += 1;
               While();
+              break;
             }
-            else While();
-          });
+            default:
+              While();
+              break;
+          }
+        });
+      }
+
+      While();
+    }
+    else throw new Exception("이미 선택중 입니다.");
+  }
+
+  public void Select2d(string title, Dictionary<string, List<string>> queue, string cancelText,
+    Action<Pair<int>?> callBack)
+  {
+    if (!isSelecting)
+    {
+      isSelecting = true;
+      bool cancellable = !string.IsNullOrEmpty(cancelText);
+      List<string> rows = queue.Keys.ToList();
+      Pair<int> selectingIndexs = new();
+      Pair<int> maxIndexs = new(rows.Count - (cancellable ? 0 : 1), 0);
+
+      void While()
+      {
+        Clear();
+        PrintF($"{title}\n\n");
+
+        for (int i = 0; i < rows.Count + (cancellable ? 1 : 0); i++)
+        {
+          Pair<Brush> color = ColorOnNoSelect;
+          if (i == selectingIndexs.X)
+          {
+            color = ColorOnSelect;
+          }
+
+          Print("  ");
+          Print($" [ {(cancellable && i == rows.Count ? cancelText : rows[i])} ] ", color);
+          Print("  ");
         }
 
-        While();
-      }
-      else throw new Exception("이미 선택중 입니다.");
-    }
-
-    public static void Select2d(string title, Dictionary<string, List<string>> queue, bool cancellable, Action callBack)
-    {
-      if (!isSelecting)
-      {
-        isSelecting = true;
-        List<string> rows = queue.Keys.ToList();
-        Pair<int> selectingIndexs = new();
-        Pair<int> maxIndexs = new(rows.Count - (cancellable ? 0 : 1), 0);
-
-        void While()
-        {
-          Clear();
-          PrintF($"{title}\n\n");
-
-          for (int i = 0; i < rows.Count + (cancellable ? 1 : 0); i++)
+        Print("\n");
+        if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
+          for (int i = 0; i < queue[rows[selectingIndexs.X]].Count; i++)
           {
             Pair<Brush> color = ColorOnNoSelect;
-            if (i == selectingIndexs.X)
+            if (i == selectingIndexs.Y)
             {
               color = ColorOnSelect;
             }
 
-            Print("  ");
-            Print($" [ {(cancellable && i == rows.Count ? SelectCancelText : rows[i])} ] ", color);
-            Print("  ");
+            Print("    ");
+            Print($" [ {queue[rows[selectingIndexs.X]][i]} ] ", color);
+            Print("\n");
           }
 
-          Print("\n");
-          if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
-            for (int i = 0; i < queue[rows[selectingIndexs.X]].Count; i++)
-            {
-              Pair<Brush> color = ColorOnNoSelect;
-              if (i == selectingIndexs.Y)
-              {
-                color = ColorOnSelect;
-              }
-
-              Print("    ");
-              Print($" [ {queue[rows[selectingIndexs.X]][i]} ] ", color);
-              Print("\n");
-            }
-
-          ReadKey(() =>
+        ReadKey(key =>
+        {
+          switch (key)
           {
-            if (Key == Key.Enter)
-            {
-              if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
-                Selection2d = selectingIndexs;
-              else
-                Selection2d = null;
+            case Key.Enter:
               isSelecting = false;
-              callBack();
-            }
-            else if (Key == Key.Left)
+              callBack((!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X) ? selectingIndexs : null));
+              break;
+            case Key.Left:
             {
               if (selectingIndexs.X == 0)
                 selectingIndexs.X = maxIndexs.X;
@@ -237,8 +222,9 @@ namespace GogumaV2
               if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
                 maxIndexs.Y = queue[rows[selectingIndexs.X]].Count - 1;
               While();
+              break;
             }
-            else if (Key == Key.Right)
+            case Key.Right:
             {
               if (selectingIndexs.X == maxIndexs.X)
                 selectingIndexs.X = 0;
@@ -248,49 +234,53 @@ namespace GogumaV2
               if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
                 maxIndexs.Y = queue[rows[selectingIndexs.X]].Count - 1;
               While();
+              break;
             }
-            else if (Key == Key.Up)
+            case Key.Up:
             {
               if (selectingIndexs.Y == 0)
                 selectingIndexs.Y = maxIndexs.Y;
               else
                 selectingIndexs.Y -= 1;
               While();
+              break;
             }
-            else if (Key == Key.Down)
+            case Key.Down:
             {
               if (selectingIndexs.Y == maxIndexs.Y)
                 selectingIndexs.Y = 0;
               else
                 selectingIndexs.Y += 1;
               While();
+              break;
             }
-            else While();
-          });
-        }
-
-        While();
+            default:
+              While();
+              break;
+          }
+        });
       }
-      else throw new Exception("이미 선택중 입니다.");
+
+      While();
     }
-
-    public static void Pause(string text, Action callBack)
-    {
-      if (!string.IsNullOrEmpty(text))
-        Print($"\n{text}\n");
-      ReadKey(callBack);
-    }
-
-    public static void Pause(Action callBack) => Pause("계속하려면 아무 키나 누르십시오...", callBack);
-
-    public static void Pause(string text, Key press, Action callBack)
-    {
-      if (!string.IsNullOrEmpty(text))
-        Print($"\n{text}\n");
-      ReadKey(press, callBack);
-    }
-
-    public static void Pause(Key press, Action callBack) => Pause($"계속하려면 {press}키를 누르십시오...", press, callBack);
-
+    else throw new Exception("이미 선택중 입니다.");
   }
+
+  public void Pause(string text, Action<Key> callBack)
+  {
+    if (!string.IsNullOrEmpty(text))
+      Print($"\n{text}\n");
+    ReadKey(callBack);
+  }
+
+  public void Pause(Action<Key> callBack) => Pause("계속하려면 아무 키나 누르십시오...", callBack);
+
+  public void Pause(string text, Key press, Action<Key> callBack)
+  {
+    if (!string.IsNullOrEmpty(text))
+      Print($"\n{text}\n");
+    ReadKey(press, callBack);
+  }
+
+  public void Pause(Key press, Action<Key> callBack) => Pause($"계속하려면 {press}키를 누르십시오...", press, callBack);
 }
