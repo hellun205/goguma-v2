@@ -1,6 +1,6 @@
 using System;
 
-namespace goguma_v2.Engine.Player;
+namespace GogumaV2.Engine.Player;
 
 [Serializable]
 [Obsolete("need to fix this code and need limited value class")]

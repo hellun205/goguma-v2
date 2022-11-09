@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Media;
 
-namespace goguma_v2.Engine.Item;
+namespace GogumaV2.Engine.Item;
 
 [Serializable]
 public abstract partial class Item : IEquatable<Item>, ISellable, IPurchasable

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace goguma_v2
+namespace GogumaV2
 {
   public static class ConsoleUtil
   {

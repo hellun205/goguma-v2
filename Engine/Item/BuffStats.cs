@@ -1,6 +1,6 @@
 using System;
 
-namespace goguma_v2.Engine.Item;
+namespace GogumaV2.Engine.Item;
 
 [Serializable]
 public struct BuffStats

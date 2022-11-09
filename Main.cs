@@ -1,7 +1,7 @@
 using System.Windows;
-using goguma_v2.Engine.Player;
+using GogumaV2.Engine.Player;
 
-namespace goguma_v2;
+namespace GogumaV2;
 
 public class Main
 {

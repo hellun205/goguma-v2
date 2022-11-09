@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using goguma_v2.Engine.Item.Consumable;
-using goguma_v2.Engine.Item.Equippable;
+using GogumaV2.Engine.Item.Consumable;
+using GogumaV2.Engine.Item.Equippable;
 
-namespace goguma_v2.Engine.Item;
+namespace GogumaV2.Engine.Item;
 
 public abstract partial class Item
 {

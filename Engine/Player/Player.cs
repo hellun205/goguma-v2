@@ -1,7 +1,7 @@
 using System;
-using goguma_v2.Engine.Item;
+using GogumaV2.Engine.Item;
 
-namespace goguma_v2.Engine.Player;
+namespace GogumaV2.Engine.Player;
 
 [Serializable]
 public sealed partial class Player

@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using goguma_v2.Engine.Item;
-using static goguma_v2.ConsoleUtil;
+using GogumaV2.Engine.Item;
+using static GogumaV2.ConsoleUtil;
 
-namespace goguma_v2.Engine.Player;
+namespace GogumaV2.Engine.Player;
 
 [Serializable]
 public sealed class Equipment

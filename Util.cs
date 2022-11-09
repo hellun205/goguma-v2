@@ -1,6 +1,6 @@
 using System;
 
-namespace goguma_v2;
+namespace GogumaV2;
 
 public static class Util
 {

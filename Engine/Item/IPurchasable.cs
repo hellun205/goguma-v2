@@ -1,4 +1,4 @@
-namespace goguma_v2.Engine.Item;
+namespace GogumaV2.Engine.Item;
 
 public interface IPurchasable
 {

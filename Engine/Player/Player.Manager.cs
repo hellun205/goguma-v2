@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows;
-using static goguma_v2.ConsoleUtil;
+using static GogumaV2.ConsoleUtil;
 
-namespace goguma_v2.Engine.Player;
+namespace GogumaV2.Engine.Player;
 
 public sealed partial class Player
 {

@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
-using goguma_v2.Engine.Item;
-using goguma_v2.Engine.Player;
-using static goguma_v2.ConsoleUtil;
+using GogumaV2.Engine.Item;
+using GogumaV2.Engine.Player;
+using static GogumaV2.ConsoleUtil;
 
-namespace goguma_v2
+namespace GogumaV2
 {
   /// <summary>
   /// Interaction logic for MainWindow.xaml

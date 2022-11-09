@@ -1,6 +1,6 @@
 using System;
 
-namespace goguma_v2.Engine.Item.Consumable;
+namespace GogumaV2.Engine.Item.Consumable;
 
 [Serializable]
 public sealed class Potion : Item, IConsumable
