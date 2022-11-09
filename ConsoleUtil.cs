@@ -9,7 +9,7 @@ namespace GogumaV2;
 public class ConsoleUtil
 {
   public Screen MainScreen { get; init; }
-  
+
   public Pair<Brush> ColorOnSelect;
 
   public Pair<Brush> ColorOnNoSelect;
@@ -74,16 +74,12 @@ public class ConsoleUtil
       Print(formattedText);
   }
 
-  [Obsolete("Not recommended for use")]
-  public void Select(string title, Dictionary<string, Action> queue, string cancelText, Action cancelCallBack)
+  public void Select(string title, Dictionary<string, Action> queue) => Select(title, queue, string.Empty, null);
+
+  public void Select(string title, Dictionary<string, Action> queue, string cancelText, Action? cancelCallBack)
   {
-    var options = queue.Keys.ToList();
-    var actions = queue.Values.ToList();
     bool cancellable = !string.IsNullOrEmpty(cancelText);
-    Dictionary<string, string> dict = new Dictionary<string, string>();
-    
-    foreach (string option in options)
-      dict.Add(option, option);
+    Dictionary<string, string> dict = queue.ToDictionary(x => x.Key, x => x.Key);
 
     Select(title, dict, cancelText, value =>
     {
@@ -96,7 +92,7 @@ public class ConsoleUtil
 
   public void Select(string title, Dictionary<string, string> queue, Action<string> callBack) =>
     Select(title, queue, null, callBack);
-  
+
   public void Select(string title, Dictionary<string, string> queue, string cancelText, Action<string> callBack)
   {
     if (!isSelecting)
@@ -105,7 +101,7 @@ public class ConsoleUtil
       bool cancellable = !string.IsNullOrEmpty(cancelText);
       int selectingIndex = 0;
       int maxIndex = queue.Count - (cancellable ? 0 : 1);
-      List<string> options = queue.Keys.ToList();
+      string[] options = queue.Keys.ToArray();
 
       void While()
       {
@@ -131,7 +127,8 @@ public class ConsoleUtil
           {
             case Key.Enter:
               isSelecting = false;
-              callBack((((cancellable && selectingIndex == maxIndex) ? null : queue[options[selectingIndex]]) ?? string.Empty));
+              callBack((((cancellable && selectingIndex == maxIndex) ? null : queue[options[selectingIndex]]) ??
+                        string.Empty));
               break;
             case Key.Up:
             {
@@ -163,7 +160,8 @@ public class ConsoleUtil
     else throw new Exception("이미 선택중 입니다.");
   }
 
-  public void Select2d(string title, Dictionary<string, List<string>> queue, string cancelText, Action<Pair<int>?> callBack)
+  public void Select2d(string title, Dictionary<string, List<string>> queue, string cancelText,
+    Action<Pair<int>?> callBack)
   {
     if (!isSelecting)
     {
