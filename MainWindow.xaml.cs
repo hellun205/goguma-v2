@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Media;
 using GogumaV2.Engine.Item;
 using GogumaV2.Engine.Player;
-using static GogumaV2.ConsoleUtil;
+using static GogumaV2.Main;
 
 namespace GogumaV2
 {
@@ -13,7 +13,7 @@ namespace GogumaV2
   /// </summary>
   public partial class MainWindow : Window
   {
-    private const bool PrintErrorOnScreen = false;
+    private const bool PrintErrorOnScreen = true;
 
     public MainWindow()
     {
@@ -21,24 +21,33 @@ namespace GogumaV2
 
       void Play()
       {
-        MainScreen = Screen;
+        consoleUtil = new ConsoleUtil(Screen);
         // Player.Load(() =>
         // {
         //   
         // });
-        Main.Player = new Player("test");
+        player = new Player("test");
 
-        Main.Player.Inventory.GainItem("test:hat", 300);
-        Main.Player.Inventory.GainItem("test:hat", 200);
-        Main.Player.Inventory.GainItem("test:t_shirt", 2);
-        Main.Player.Equipment.EquipItem("test:t_shirt");
-        // Main.Player.Equipment.UnEquipItem(ItemType.EquipmentType.Top);
-        Main.Player.Inventory.Open(selecttedItem =>
+        player.Inventory.GainItem("test:hat", 300);
+        player.Inventory.GainItem("test:hat", 200);
+        player.Inventory.GainItem("test:t_shirt", 2);
+        player.Equipment.EquipItem("test:t_shirt");
+        // player.Equipment.UnEquipItem(ItemType.EquipmentType.Top);
+        player.Inventory.Open(selecttedItem =>
         {
-          var item = Item.Get(
-            Main.Player.Inventory.Items[selecttedItem.Value.X][
-              selecttedItem.Value.Y].Item);
-          Main.Player.Equipment.Open(selecttedEquipment => { Print($"you select : {selecttedEquipment}"); });
+          Item item = null;
+          if (selecttedItem != null)
+          {
+            item = Item.Get(
+              player.Inventory.Items[selecttedItem.Value.X][
+                selecttedItem.Value.Y].Item);
+          }
+
+          player.Equipment.Open(selecttedEquipment =>
+          {
+            consoleUtil.Print($"you select : {selecttedEquipment}");
+            consoleUtil.ReadText(value => { consoleUtil.Print($"Select: {value}"); });
+          });
         });
       }
 
@@ -50,9 +59,9 @@ namespace GogumaV2
         }
         catch (Exception ex)
         {
-          PrintF(
-            $"<fg='{Brushes.DarkRed}' bg='{MainScreen.FGColor}'>\nERROR: {ex.Message}\nSOURCE: {ex.Source ?? ""}\nTARGETSITE: {ex.TargetSite}\nSTACKTRACE ---\n{ex.StackTrace ?? ""}");
-          Pause(() => { Application.Current.Shutdown(); });
+          consoleUtil.PrintF(
+            $"<fg='{Brushes.DarkRed}' bg='{consoleUtil.MainScreen.FGColor}'>\nERROR: {ex.Message}\nSOURCE: {ex.Source ?? ""}\nTARGETSITE: {ex.TargetSite}\nSTACKTRACE ---\n{ex.StackTrace ?? ""}");
+          consoleUtil.Pause(key => { Application.Current.Shutdown(); });
         }
       }
       else

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GogumaV2.Engine.Item;
-using static GogumaV2.ConsoleUtil;
+using static GogumaV2.Main;
 
 namespace GogumaV2.Engine.Player;
 
@@ -25,10 +25,10 @@ public sealed class Inventory
     foreach (var group in Items.Keys)
       dict.Add(group, Items[group].Select(x => x.ToString()).ToList());
 
-    Select2d("인벤토리", dict, true, () =>
+    consoleUtil.Select2d("인벤토리", dict, "닫기", selection =>
     {
-      if (Selection2d != null)
-        callBack(new Pair<string, int>(Items.Keys.ToList()[Selection2d.Value.X], Selection2d.Value.Y));
+      if (selection != null)
+        callBack(new Pair<string, int>(Items.Keys.ToList()[selection.Value.X], selection.Value.Y));
       else callBack(null);
     });
   }
@@ -36,7 +36,7 @@ public sealed class Inventory
   public void GainItem(string itemCode, uint count = 1)
   {
     string type = CheckType(itemCode);
-    var max = byte.MaxValue;
+    const byte max = byte.MaxValue;
     var items = (from item in Items[type]
       where item.Item == itemCode
       orderby item.Count descending
@@ -44,9 +44,8 @@ public sealed class Inventory
 
     if (items.Count != 0)
     {
-      foreach (var item in items)
+      foreach (var item in items.Where(item => item.Count != max))
       {
-        if (item.Count == max) continue;
         if (item.Count + count > max)
         {
           uint lostCount = item.Count + count - max;
@@ -88,7 +87,7 @@ public sealed class Inventory
   public void LoseItem(string itemCode, uint count = 1)
   {
     string type = CheckType(itemCode);
-    var max = byte.MaxValue;
+    const byte max = byte.MaxValue;
     var items = (from item in Items[type]
       where item.Item == itemCode
       orderby item.Count
@@ -167,13 +166,12 @@ public sealed class Inventory
   {
     Item.Item item = Item.Item.Get(itemCode);
 
-    string type;
-    if (item is IEquippable)
-      type = ItemType.EquipableItem;
-    else if (item is IConsumable)
-      type = ItemType.ConsumableItem;
-    else
-      type = ItemType.OtherItem;
+    string type = item switch
+    {
+      IEquippable => ItemType.EquipableItem,
+      IConsumable => ItemType.ConsumableItem,
+      _ => ItemType.OtherItem
+    };
 
     if (!Items.ContainsKey(type)) throw new Exception($"인벤토리 그룹 중 \"{type}\"(이)가 없습니다.");
     return type;

@@ -16,9 +16,9 @@ public sealed class Potion : Item, IConsumable
   
   public void Use()
   {
-    Main.Player.Stats.Hp = (uint)(Main.Player.Stats.Hp + Buff.Hp);
-    Main.Player.Stats.Moisture = (uint)(Main.Player.Stats.Moisture + Buff.Moisture);
-    if (Buff.Exp != 0) Main.Player.Stats.GainExp(Buff.Exp);
+    Main.player.Stats.Hp = (uint)(Main.player.Stats.Hp + Buff.Hp);
+    Main.player.Stats.Moisture = (uint)(Main.player.Stats.Moisture + Buff.Moisture);
+    if (Buff.Exp != 0) Main.player.Stats.GainExp(Buff.Exp);
     
     OnUse.Invoke(this);
   }

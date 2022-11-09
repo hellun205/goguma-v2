@@ -27,4 +27,6 @@ public sealed class PlayerData
     JObject json = JObject.FromObject(playerData);
     File.WriteAllText(path, json.ToString());
   }
+
+  public override string ToString() => $"{Name} ( Lv. {Level} / {Class} )";
 }
