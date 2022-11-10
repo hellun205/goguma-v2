@@ -4,13 +4,16 @@ using System.Windows.Media;
 namespace GogumaV2.Engine.Item;
 
 [Serializable]
-public abstract partial class Item : IEquatable<Item>, ISellable, IPurchasable
+public abstract class Item : IEquatable<Item>, ISellable, IPurchasable, IManageable
 {
-  public string Code { get; init; } // format = [test|game_name]:[item_name], ex) test:sword
+  public string Code { get; init; } // format = "[test|game_name]:[item_name]"
+  
   public string Name { get; set; } = "none";
+  
   public string Description { get; set; } = string.Empty;
 
   public uint PriceOfSell { get; set; }
+  
   public uint PriceOfPurchase { get; set; }
   
   public bool Equals(Item? other)
@@ -38,12 +41,14 @@ public abstract partial class Item : IEquatable<Item>, ISellable, IPurchasable
   }
 
   public event IPurchasable._OnPurchase? OnPurchase;
+  
   public void Purchase()
   {
     OnPurchase.Invoke(this, PriceOfPurchase);
   }
 
   public event ISellable._OnSell? OnSell;
+  
   public void Sell()
   {
     OnPurchase.Invoke(this, PriceOfSell);

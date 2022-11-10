@@ -1,4 +1,5 @@
 using System;
+using GogumaV2.Goguma;
 
 namespace GogumaV2.Engine.Item;
 
@@ -53,5 +54,5 @@ public sealed class ItemBundle : IEquatable<ItemBundle>
     return HashCode.Combine(Item, Count);
   }
 
-  public override string ToString() => $"{Engine.Item.Item.Get(Item).Name}{(Count == 1 ? "" : $" {Count}개")}";
+  public override string ToString() => $"{Item.GetItem().Name}{(Count == 1 ? "" : $" {Count}개")}";
 }
