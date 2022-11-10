@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Media;
 using GogumaV2.Engine.Item;
 using GogumaV2.Engine.Player;
-using static GogumaV2.Main;
+using static GogumaV2.Goguma.Main;
 
 namespace GogumaV2
 {
