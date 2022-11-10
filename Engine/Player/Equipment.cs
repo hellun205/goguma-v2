@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GogumaV2.Engine.Item;
-using static GogumaV2.Main;
+using static GogumaV2.Goguma.Main;
 
 namespace GogumaV2.Engine.Player;
 
@@ -22,12 +22,12 @@ public sealed class Equipment
     this.inventory = inventory;
 
     foreach (string type in typeOfEquipment)
-      Items.Add(type, Item.Item.Empty);
+      Items.Add(type, EmptyCode);
   }
 
   public void Open(Action<string> callBack) // temporary
   {
-    Dictionary<string, List<string>> dict = Items.Keys.ToDictionary(group => group, group => new List<string>() {(Items[group] == Item.Item.Empty ? "없음" : Item.Item.Get(Items[group]).Name)});
+    Dictionary<string, List<string>> dict = Items.Keys.ToDictionary(group => group, group => new List<string>() {(Items[group] == EmptyCode ? "없음" : Items[group].GetItem().Name)});
 
     consoleUtil.Select2d("장비", dict, "취소", selection =>
     {
@@ -37,13 +37,13 @@ public sealed class Equipment
 
   public void EquipItem(string itemCode)
   {
-    var item = Item.Item.Get(itemCode);
+    var item = itemCode.GetItem();
     if (inventory.CheckItem(itemCode))
     {
       if (item is IEquippable equipmentItem)
       {
         string type = equipmentItem.EquipmentType;
-        if (Items[type] != Item.Item.Empty)
+        if (Items[type] != EmptyCode)
           UnEquipItem(type);
         inventory.LoseItem(itemCode, 1);
         Items[type] = itemCode;
@@ -58,11 +58,11 @@ public sealed class Equipment
   {
     if (Items.ContainsKey(typeOfEquipment))
     {
-      if (Items[typeOfEquipment] != Item.Item.Empty)
+      if (Items[typeOfEquipment] != EmptyCode)
       {
         inventory.GainItem(Items[typeOfEquipment], 1);
-        Items[typeOfEquipment] = Item.Item.Empty;
-        ((IEquippable) Item.Item.Get(Items[typeOfEquipment])).UnEquip();
+        Items[typeOfEquipment] = EmptyCode;
+        ((IEquippable) Items[typeOfEquipment].GetItem()).UnEquip();
       }
       else throw new Exception($"there are no equipped items: {typeOfEquipment}");
     }

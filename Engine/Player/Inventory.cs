@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GogumaV2.Engine.Item;
-using static GogumaV2.Main;
+using static GogumaV2.Goguma.Main;
 
 namespace GogumaV2.Engine.Player;
 
@@ -164,7 +164,7 @@ public sealed class Inventory
 
   public string CheckType(string itemCode)
   {
-    Item.Item item = Item.Item.Get(itemCode);
+    Item.Item item = itemCode.GetItem();
 
     string type = item switch
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows;
-using static GogumaV2.Main;
+using static GogumaV2.Goguma.Main;
 
 namespace GogumaV2.Engine.Player;
 
@@ -41,7 +41,7 @@ public sealed partial class Player
   {
     void load(Player? player)
     {
-      Main.player = player;
+      player = player;
       callBack();
     } 
     void While() 
@@ -61,7 +61,7 @@ public sealed partial class Player
             consoleUtil.ReadText(playerName =>
             {
               load(new Player(playerName));
-              Save(Main.player);
+              Save(player);
             });
             break;
           

@@ -10,5 +10,5 @@ public interface IConsumable
 
   public event _OnUse OnUse;
 
-  public void Use();
+  public void Use(Player.Player player);
 }
