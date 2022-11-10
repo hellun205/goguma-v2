@@ -7,7 +7,7 @@ namespace GogumaV2.Engine.Skill;
 [Serializable]
 public sealed class SkillManager
 {
-  public HashSet<Skill> Skills { get; private set; } = new HashSet<Skill>();
+  public HashSet<Skill> Skills { get; private set; }
 
   public string[] GetCodes => Skills.Select(x => x.Code).ToArray();
   
@@ -35,5 +35,13 @@ public sealed class SkillManager
   {
     foreach (var skill in skills)
       Add(skill);
+  }
+
+  public SkillManager()
+  {
+    Skills = new HashSet<Skill>()
+    {
+      new BasicAttack()
+    };
   }
 }
