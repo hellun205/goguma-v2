@@ -50,10 +50,10 @@ public static class MapExtensions
             print("■ ", new Pair<Brush>(new SolidColorBrush(Color.FromArgb(1, 255,255,255)), screen.BGColor));
           else
           {
-            var clr = new Pair<Brush>(screen.FGColor, screen.BGColor);
+            var clr = new Pair<Brush>(Brushes.DarkGreen, screen.BGColor);
             if (item is IRequirable reqItem)
             {
-              clr.X = (reqItem.Check ? Brushes.DarkRed : clr.X);
+              clr.X = (reqItem.Check ? clr.X : Brushes.DarkRed);
             }
             print($"{item.Icon} ", clr);
           }

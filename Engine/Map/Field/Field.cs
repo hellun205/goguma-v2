@@ -11,9 +11,7 @@ public abstract class Field : IManageable, ICanvas, ICanvasItem
   public string Name { get; set; }
   
   public string Descriptions { get; set; }
-  
-  public string CanvasTitle { get; set; }
-  
+
   public Pair<byte> CanvasSize { get; set; }
 
   public Pair<byte> Position { get; set; }

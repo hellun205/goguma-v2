@@ -20,7 +20,6 @@ public static partial class Main
       new TestField("test_world", "test_field", '☆')
       {
         Name = "테스트 필드",
-        CanvasTitle = "TEST FIELD",
         Descriptions = "테스트용",
         Position = new Pair<byte>(4, 4),
         CanvasSize = new Pair<byte>(10, 10)
