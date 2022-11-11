@@ -36,5 +36,18 @@ public sealed class Manager<T> where T : IManageable
     foreach (var item in items)
       Add(item);
   }
+}
 
+public static class Manager
+{
+  public static class Types
+  {
+    public const string Item = "item";
+
+    public const string Skill = "skill";
+
+    public const string Field = "field";
+
+    public const string World = "world";
+  }
 }

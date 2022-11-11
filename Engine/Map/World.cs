@@ -6,7 +6,7 @@ namespace GogumaV2.Engine.Map;
 
 public sealed class World : IManageable, ICanvas
 {
-  public string Type => "world";
+  public string Type => Manager.Types.World;
   
   public string Name { get; set; }
   

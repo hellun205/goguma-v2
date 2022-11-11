@@ -4,7 +4,7 @@ namespace GogumaV2.Engine.Map.Field;
 
 public abstract class Field : IManageable, ICanvas, ICanvasItem
 {
-  public string Type => "field";
+  public string Type => Manager.Types.Field;
   
   public string Code { get; init; }
   
