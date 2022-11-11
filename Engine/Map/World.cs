@@ -11,6 +11,8 @@ public sealed class World : IManageable, ICanvas
   public string Name { get; set; }
   
   public string Code { get; init; }
+  
+  public string Descriptions { get; set; }
 
   public string CanvasTitle { get; set; }
   

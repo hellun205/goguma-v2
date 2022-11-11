@@ -248,5 +248,5 @@ public class ConsoleUtil
 
   public void Pause(Key press, Action<Key> callBack) => Pause($"계속하려면 {press}키를 누르십시오...", press, callBack);
 
-  public void PrintCanvas(ICanvas canvas) => MainScreen.PrintCanvas(canvas);
+  public void PrintCanvas(ICanvas canvas, string textF = "") => MainScreen.PrintCanvas(canvas, textF);
 }

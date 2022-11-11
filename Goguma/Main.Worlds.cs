@@ -21,6 +21,7 @@ public static partial class Main
       {
         Name = "테스트 월드",
         CanvasTitle = "테스트 월드",
+        Descriptions = "캔버스 테스트를 위해 만들어짐.",
         Fields = new[]
         {
           "field:test_world.test_field"

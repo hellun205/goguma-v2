@@ -36,7 +36,7 @@ public static partial class Main
     void While()
     {
       consoleUtil.Clear();
-      consoleUtil.PrintCanvas(world);
+      consoleUtil.PrintCanvas(world, $"[ {world.Name} ]\n{world.Descriptions}");
       consoleUtil.ReadKey(key =>
       {
         switch (key)
