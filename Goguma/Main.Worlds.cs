@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using GogumaV2.Engine;
 using GogumaV2.Engine.Map;
 
@@ -11,12 +12,21 @@ public static partial class Main
   }
 
   public static Manager<World> WorldManager = new Manager<World>();
-  
+
   private static void InitWorldManager()
   {
-    // WorldManager.AddRange(new []
-    // {
-    //
-    // });
+    WorldManager.AddRange(new[]
+    {
+      new World("test_world")
+      {
+        Name = "테스트 월드",
+        CanvasTitle = "테스트 월드",
+        Fields = new[]
+        {
+          "field:test_world.test_field"
+        },
+        CanvasSize = new Pair<byte>(18, 10),
+      }
+    });
   }
 }

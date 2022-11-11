@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Input;
 using GogumaV2.Engine;
 using GogumaV2.Engine.Player;
 
@@ -28,6 +29,34 @@ public static partial class Main
     //   
     // });
     player = new Player("test");
-    consoleUtil.Print($"basic attack skill's name: {"skill:basic_attack".GetSkill().Name}");
+
+    var world = "world:test_world".GetWorld();
+    player.Position = new Pair<byte>(5, 5);
+    world.Enter(player);
+    void While()
+    {
+      consoleUtil.Clear();
+      consoleUtil.PrintCanvas(world);
+      consoleUtil.ReadKey(key =>
+      {
+        switch (key)
+        {
+          case Key.Left:
+            player.Position = new((byte)(player.Position.X - 1), player.Position.Y);
+            break;
+          case Key.Right:
+            player.Position = new((byte)(player.Position.X + 1), player.Position.Y);
+            break;
+          case Key.Up:
+            player.Position = new(player.Position.X,(byte)(player.Position.Y - 1));
+            break;
+          case Key.Down:
+            player.Position = new(player.Position.X,(byte)(player.Position.Y + 1));
+            break;
+        }
+        While();
+      });
+    }
+    While();
   }
 }

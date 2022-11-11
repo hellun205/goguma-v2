@@ -12,31 +12,42 @@ public static class MapExtensions
   {
     string[] texts = textF.Split("\n");
 
+    void prints(string txt)
+    {
+      print(txt, new Pair<Brush>(screen.FGColor, screen.BGColor));
+    }
+
+    void print(string txt, Pair<Brush> clr)
+    {
+      // screen.PrintWithFont(txt, , clr);
+      screen.Print(txt, clr);
+    }
+    
     screen.Clear();
     StringBuilder sb;
 
     sb = new StringBuilder()
-      .Append('┌')
-      .Append(canvas.CanvasTitle.GetSep(canvas.CanvasSize.X + 1, '─'))
-      .Append('┐')
-      .Append('\n');
-    screen.Print(sb.ToString());
+      .Append("┌ ")
+      .Append(string.Empty.GetSep(canvas.CanvasSize.X + 1, "─ "))
+      .Append('┐');
+    prints(sb.ToString());
+    prints("\n");
 
     for (byte y = 0; y <= canvas.CanvasSize.Y; y++)
     {
-      screen.Print("│");
+      prints("│ ");
       for (byte x = 0; x <= canvas.CanvasSize.X; x++)
       {
         var item = canvas.CanvasChild.FirstOrDefault(item => item.Position == new Pair<byte>(x, y));
 
         if (canvas.MovingObject != null && canvas.MovingObject.Position == new Pair<byte>(x, y))
         {
-          screen.Print("●", new Pair<Brush>(Brushes.Firebrick, screen.BGColor));
+          print("● ", new Pair<Brush>(Brushes.Firebrick, screen.BGColor));
         }
         else
         {
           if (item == null)
-            screen.Print(" ");
+            print("■ ", new Pair<Brush>(new SolidColorBrush(Color.FromArgb(1, 255,255,255)), screen.BGColor));
           else
           {
             var clr = new Pair<Brush>(screen.FGColor, screen.BGColor);
@@ -44,22 +55,22 @@ public static class MapExtensions
             {
               clr.X = (reqItem.Check ? Brushes.DarkRed : clr.X);
             }
-            screen.Print($"{item.Icon}", clr);
+            print($"{item.Icon} ", clr);
           }
         }
       }
 
-      screen.Print("│  ");
+      prints("│  ");
       if (texts.Length > y)
-        screen.PrintF(texts[y]);
-      screen.Print("\n");
+        prints(texts[y]);
+      prints("\n");
     }
 
     sb = new StringBuilder()
-      .Append('└')
-      .Append(string.Empty.GetSep(canvas.CanvasSize.X + 1, '─'))
+      .Append("└ ")
+      .Append(string.Empty.GetSep(canvas.CanvasSize.X + 1, "─ "))
       .Append('┘')
       .Append('\n');
-    screen.Print(sb.ToString());
+    prints(sb.ToString());
   }
 }

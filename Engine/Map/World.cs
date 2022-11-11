@@ -16,14 +16,11 @@ public sealed class World : IManageable, ICanvas
   
   public Pair<byte> CanvasSize { get; set; }
 
-  public IEnumerable<ICanvasItem> CanvasChild => Fields.Values.Select(fieldCode => fieldCode.GetField());
+  public IEnumerable<ICanvasItem> CanvasChild => Fields.Select(fieldCode => fieldCode.GetField());
   
   public IPositionable? MovingObject { get; private set; }
-
-  /// <summary>
-  /// Key: Location of Field, Value: Field Code
-  /// </summary>
-  public Dictionary<Pair<byte>, string> Fields { get; set; }
+  
+  public IEnumerable<string> Fields { get; set; }
 
   public World(string code)
   {
