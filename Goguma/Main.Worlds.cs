@@ -25,7 +25,7 @@ public static partial class Main
         {
           "field:test_world.test_field"
         },
-        CanvasSize = new Pair<byte>(18, 10),
+        CanvasSize = new Pair<byte>(30, 17),
       }
     });
   }

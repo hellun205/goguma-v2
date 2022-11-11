@@ -8,21 +8,13 @@ namespace GogumaV2.Engine.Map;
 
 public static class MapExtensions
 {
+  private const char PlayerIcon = '●';
+  private const char NothingIcon = '■';
+  
   public static void PrintCanvas(this Screen screen, ICanvas canvas, string textF = "")
   {
     string[] texts = textF.Split("\n");
 
-    void prints(string txt)
-    {
-      print(txt, new Pair<Brush>(screen.FGColor, screen.BGColor));
-    }
-
-    void print(string txt, Pair<Brush> clr)
-    {
-      // screen.PrintWithFont(txt, , clr);
-      screen.Print(txt, clr);
-    }
-    
     screen.Clear();
     StringBuilder sb;
 
@@ -30,24 +22,24 @@ public static class MapExtensions
       .Append("┌ ")
       .Append(string.Empty.GetSep(canvas.CanvasSize.X + 1, "─ "))
       .Append('┐');
-    prints(sb.ToString());
-    prints("\n");
+    screen.Print(sb.ToString());
+    screen.Print("\n");
 
     for (byte y = 0; y <= canvas.CanvasSize.Y; y++)
     {
-      prints("│ ");
+      screen.Print("│ ");
       for (byte x = 0; x <= canvas.CanvasSize.X; x++)
       {
         var item = canvas.CanvasChild.FirstOrDefault(item => item.Position == new Pair<byte>(x, y));
 
         if (canvas.MovingObject != null && canvas.MovingObject.Position == new Pair<byte>(x, y))
         {
-          print("● ", new Pair<Brush>(Brushes.Firebrick, screen.BGColor));
+          screen.Print($"{PlayerIcon} ", new Pair<Brush>(Brushes.Firebrick, screen.BGColor));
         }
         else
         {
           if (item == null)
-            print("■ ", new Pair<Brush>(new SolidColorBrush(Color.FromArgb(1, 255,255,255)), screen.BGColor));
+            screen.Print($"{NothingIcon} ", new Pair<Brush>(new SolidColorBrush(Color.FromArgb(1, 255, 255, 255)), screen.BGColor));
           else
           {
             var clr = new Pair<Brush>(Brushes.DarkGreen, screen.BGColor);
@@ -55,15 +47,16 @@ public static class MapExtensions
             {
               clr.X = (reqItem.Check ? clr.X : Brushes.DarkRed);
             }
-            print($"{item.Icon} ", clr);
+
+            screen.Print($"{item.Icon} ", clr);
           }
         }
       }
 
-      prints("│  ");
+      screen.Print("│  ");
       if (texts.Length > y)
-        prints(texts[y]);
-      prints("\n");
+        screen.Print(texts[y]);
+      screen.Print("\n");
     }
 
     sb = new StringBuilder()
@@ -71,6 +64,6 @@ public static class MapExtensions
       .Append(string.Empty.GetSep(canvas.CanvasSize.X + 1, "─ "))
       .Append('┘')
       .Append('\n');
-    prints(sb.ToString());
+    screen.Print(sb.ToString());
   }
 }
