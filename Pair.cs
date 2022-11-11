@@ -30,6 +30,9 @@ public struct Pair<T> : IEquatable<Pair<T>>
   {
     return HashCode.Combine(X, Y);
   }
+
+  public static bool operator ==(Pair<T> a, Pair<T> b) => a.Equals(b);
+  public static bool operator !=(Pair<T> a, Pair<T> b) => !a.Equals(b);
 }
 
 public struct Pair<Tx, Ty> : IEquatable<Pair<Tx, Ty>>
@@ -59,4 +62,7 @@ public struct Pair<Tx, Ty> : IEquatable<Pair<Tx, Ty>>
   }
 
   public override string ToString() => $"({X}, {Y})";
+
+  public static bool operator ==(Pair<Tx, Ty> a, Pair<Tx, Ty> b) => a.Equals(b);
+  public static bool operator !=(Pair<Tx, Ty> a, Pair<Tx, Ty> b) => !a.Equals(b);
 }

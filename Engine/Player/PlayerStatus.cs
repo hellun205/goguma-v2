@@ -3,7 +3,7 @@ using System;
 namespace GogumaV2.Engine.Player;
 
 [Serializable]
-public sealed class Stats
+public sealed class PlayerStatus
 {
   public static uint GetNextLevelExp(ushort level) =>
     (uint) Math.Floor(0.04 * (level ^ 3) + 0.8 * (level ^ 2) + 2 * level);
@@ -115,7 +115,7 @@ public sealed class Stats
     }
   }
 
-  public Stats()
+  public PlayerStatus()
   {
     MaxHp = 10;
     Hp = MaxHp;

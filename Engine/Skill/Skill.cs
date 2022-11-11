@@ -5,7 +5,9 @@ namespace GogumaV2.Engine.Skill;
 [Serializable]
 public abstract class Skill : IEquatable<Skill>, IManageable
 {
-  public delegate void _OnUse(object sender); 
+  public delegate void _OnUse(object sender);
+
+  public string Type => Manager.Types.Skill;
   
   public string Code { get; init; } // format = "[test|game_name]:[skill_name]"
   

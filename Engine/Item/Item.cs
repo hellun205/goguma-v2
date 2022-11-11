@@ -6,6 +6,8 @@ namespace GogumaV2.Engine.Item;
 [Serializable]
 public abstract class Item : IEquatable<Item>, ISellable, IPurchasable, IManageable
 {
+  public string Type => Manager.Types.Item;
+  
   public string Code { get; init; } // format = "[test|game_name]:[item_name]"
   
   public string Name { get; set; } = "none";
