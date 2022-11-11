@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
+using GogumaV2.Engine.Map;
 
 namespace GogumaV2;
 
@@ -35,44 +36,7 @@ public class ConsoleUtil
 
   public void Print(string text, Pair<Brush> color) => MainScreen.Print(text, color);
 
-  public void PrintF(string formattedText)
-  {
-    // new BrushConverter().ConvertFromString("Red");
-
-    //<fg='' bg=''>
-    if (formattedText.Contains('<'))
-    {
-      string[] split = formattedText.Split('<');
-
-      for (int i = 1; i < split.Length; i++)
-      {
-        string text = split[i];
-        string[] tagSplit = text.Split('>');
-        try
-        {
-          Pair<Brush> color = new(MainScreen.FGColor, MainScreen.BGColor);
-
-          if (tagSplit[0].Contains("fg='"))
-          {
-            color.X = (Brush) new BrushConverter().ConvertFromString(tagSplit[0].Split("fg='")[1].Split("'")[0]);
-          }
-
-          if (tagSplit[0].Contains("bg='"))
-          {
-            color.Y = (Brush) new BrushConverter().ConvertFromString(tagSplit[0].Split("bg='")[1].Split("'")[0]);
-          }
-
-          Print(tagSplit[1], color);
-        }
-        catch
-        {
-          Print(tagSplit[1]);
-        }
-      }
-    }
-    else
-      Print(formattedText);
-  }
+  public void PrintF(string formattedText) => MainScreen.PrintF(formattedText);
 
   public void Select(string title, Dictionary<string, Action> queue) => Select(title, queue, string.Empty, null);
 
@@ -283,4 +247,6 @@ public class ConsoleUtil
   }
 
   public void Pause(Key press, Action<Key> callBack) => Pause($"계속하려면 {press}키를 누르십시오...", press, callBack);
+
+  public void PrintCanvas(ICanvas canvas) => MainScreen.PrintCanvas(canvas);
 }
