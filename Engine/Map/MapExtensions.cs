@@ -4,7 +4,7 @@ namespace GogumaV2.Engine.Map;
 
 public static class MapExtensions
 {
-  public static void PrintWorld(this Screen screen, World world, IPositionable obj)
+  public static void PrintCanvas(this Screen screen, ICanvas canvas)
   {
     throw new NotImplementedException();
   }

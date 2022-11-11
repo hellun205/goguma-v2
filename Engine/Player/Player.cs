@@ -1,17 +1,19 @@
 using System;
 using GogumaV2.Engine.Item;
+using GogumaV2.Engine.Map;
 
 namespace GogumaV2.Engine.Player;
 
 [Serializable]
-public sealed partial class Player
+public sealed partial class Player : IPositionable
 {
   public string Name { get; private set; }
   public string Class { get; private set; } = "없음";
   public Inventory Inventory { get; set; }
   public Equipment Equipment { get; set; }
-  public Stats Stats { get; set; }
-
+  public PlayerStatus PlayerStatus { get; set; }
+  
+  public Pair<byte> Position { get; set; }
 
   public Player(string name)
   {
@@ -22,7 +24,7 @@ public sealed partial class Player
       ItemType.EquipmentType.Hat, ItemType.EquipmentType.Top, ItemType.EquipmentType.Bottom, ItemType.EquipmentType.Shoes,
       ItemType.EquipmentType.Weapon
     }, Inventory);
-    Stats = new Stats()
+    PlayerStatus = new PlayerStatus()
     {
       MaxHp = 50,
       Hp = 50,
@@ -32,5 +34,5 @@ public sealed partial class Player
   }
 
 
-  public PlayerData GetData() => new PlayerData() {Name = this.Name, Class = this.Class, Level = Stats.Level};
+  public PlayerData GetData() => new PlayerData() {Name = this.Name, Class = this.Class, Level = PlayerStatus.Level};
 }

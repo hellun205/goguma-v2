@@ -17,6 +17,8 @@ public static partial class Main
     consoleUtil = new ConsoleUtil(screen);
     InitItemManager();
     InitSkillManager();
+    InitFieldManager();
+    InitWorldManager();
   }
 
   public static void Start()

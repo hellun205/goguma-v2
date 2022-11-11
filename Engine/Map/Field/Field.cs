@@ -1,8 +1,43 @@
-using System;
+using System.Collections.Generic;
 
 namespace GogumaV2.Engine.Map.Field;
 
-public abstract class Field : IEquatable<Field>
+public abstract class Field : IManageable, ICanvas, ICanvasItem
 {
+  public string Type => "field";
   
+  public string Code { get; init; }
+  
+  public string Name { get; set; }
+  
+  public string Descriptions { get; set; }
+  
+  public string CanvasTitle { get; set; }
+  
+  public Pair<byte> CanvasSize { get; set; }
+
+  public Pair<byte> Position { get; set; }
+  
+  public char Icon { get; init; }
+
+  public IEnumerable<ICanvasItem> CanvasChild { get; set; }
+  
+  public IPositionable? MovingObject { get; private set; }
+
+  protected Field(string worldCode, string code, char icon)
+  {
+    Code = $"{Type}:{worldCode}.{code}";
+    Icon = icon;
+  }
+
+  public void Enter(IPositionable player)
+  {
+    MovingObject = player;
+  }
+
+  public void Leave()
+  {
+    MovingObject = null;
+  }
+
 }

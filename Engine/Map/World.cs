@@ -1,13 +1,42 @@
 using System.Collections.Generic;
+using System.Linq;
+using GogumaV2.Goguma;
 
 namespace GogumaV2.Engine.Map;
 
-public class World
+public sealed class World : IManageable, ICanvas
 {
-  public Pair<byte> Size { get; init; }
+  public string Type => "world";
   
-  public WorldStyle Style { get; set; }
+  public string Name { get; set; }
   
-  public HashSet<Field.Field> Fields { get; set; }
+  public string Code { get; init; }
+
+  public string CanvasTitle { get; set; }
   
+  public Pair<byte> CanvasSize { get; set; }
+
+  public IEnumerable<ICanvasItem> CanvasChild => Fields.Values.Select(fieldCode => fieldCode.GetField());
+  
+  public IPositionable? MovingObject { get; private set; }
+
+  /// <summary>
+  /// Key: Location of Field, Value: Field Code
+  /// </summary>
+  public Dictionary<Pair<byte>, string> Fields { get; set; }
+
+  public World(string code)
+  {
+    Code = $"{Type}:{code}";
+  }
+
+  public void Enter(IPositionable player)
+  {
+    MovingObject = player;
+  }
+
+  public void Leave()
+  {
+    MovingObject = null;
+  }
 }

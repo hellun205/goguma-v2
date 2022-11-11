@@ -1,6 +1,8 @@
 namespace GogumaV2.Engine.Map;
 
-public interface IPositionable
+public interface ICanvasItem
 {
   public Pair<byte> Position { get; }
+  
+  public char Icon { get; }
 }
