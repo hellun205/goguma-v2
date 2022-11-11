@@ -14,8 +14,6 @@ public sealed class World : IManageable, ICanvas
   
   public string Descriptions { get; set; }
 
-  public string CanvasTitle { get; set; }
-  
   public Pair<byte> CanvasSize { get; set; }
 
   public IEnumerable<ICanvasItem> CanvasChild => Fields.Select(fieldCode => fieldCode.GetField());
