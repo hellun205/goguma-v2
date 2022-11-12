@@ -1,0 +1,11 @@
+﻿<Application x:Class="GogumaWPF.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:GogumaWPF"
+             StartupUri="MainWindow.xaml">
+  <Application.Resources>
+    <FontFamily x:Key="Galmuri14">applicaton:,,,/Font/#Galmuri14 Regular</FontFamily>
+    <FontFamily x:Key="Galmuri11">applicaton:,,,/Font/#Galmuri11 Regular</FontFamily>
+    <FontFamily x:Key="Galmuri11-Bold">applicaton:,,,/Font/#Galmuri11 Bold</FontFamily>
+  </Application.Resources>
+</Application>

@@ -1,4 +1,6 @@
-bin
-obj
+GogumaConsole/bin
+GogumaConsole/obj
+GogumaWPF/bin
+GogumaWPF/obj
 .vs
 .idea
