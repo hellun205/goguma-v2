@@ -8,39 +8,11 @@ using GogumaWPF.Screen;
 
 namespace GogumaWPF;
 
-public class ScreenUtil
+public static class ScreenUtil
 {
-  public Screen.Screen MainScreen { get; init; }
-  
-  public KeySet<Key> KeySet { get; set; }
+  private static bool isSelecting = false;
 
-  public Pair<Brush> ColorOnSelect;
-
-  public Pair<Brush> ColorOnNoSelect;
-
-  private bool isSelecting = false;
-
-  public ScreenUtil(Screen.Screen screen)
-  {
-    MainScreen = screen;
-    ColorOnSelect = new(MainScreen.BGColor, MainScreen.FGColor);
-    ColorOnNoSelect = new(MainScreen.FGColor, MainScreen.BGColor);
-    KeySet = new KeySet<Key>(Key.Up, Key.Down, Key.Left, Key.Right, Key.Enter);
-  }
-
-  public void ReadText(Action<string> callBack) => MainScreen.ReadText(callBack);
-
-  public void ReadKey(Action<Key> callBack) => MainScreen.ReadKey(callBack);
-
-  public void ReadKey(Key keyToPress, Action<Key> callBack) => MainScreen.ReadKey(keyToPress, callBack);
-
-  public void Clear() => MainScreen.Clear();
-
-  public void Print(string text) => MainScreen.Print(text);
-
-  public void Print(string text, Pair<Brush> color) => MainScreen.Print(text, color);
-
-  public void PrintF(string formattedText)
+  public static void PrintF(this Screen.Screen screen, string formattedText)
   {
     //<fg='' bg=''>
     if (formattedText.Contains('<'))
@@ -53,7 +25,7 @@ public class ScreenUtil
         string[] tagSplit = text.Split('>');
         try
         {
-          Pair<Brush> color = new(MainScreen.FGColor, MainScreen.BGColor);
+          Pair<Brush> color = new(screen.FGColor, screen.BGColor);
 
           if (tagSplit[0].Contains("fg='"))
           {
@@ -65,26 +37,26 @@ public class ScreenUtil
             color.Y = (Brush) new BrushConverter().ConvertFromString(tagSplit[0].Split("bg='")[1].Split("'")[0]);
           }
 
-          Print(tagSplit[1], color);
+          screen.Print(tagSplit[1], color);
         }
         catch
         {
-          Print(tagSplit[1]);
+          screen.Print(tagSplit[1]);
         }
       }
     }
     else
-      Print(formattedText);
+      screen.Print(formattedText);
   }
 
-  public void Select(string title, Dictionary<string, Action> queue) => Select(title, queue, string.Empty, null);
+  public static void Select(this Screen.Screen screen, string title, Dictionary<string, Action> queue) => Select(screen, title, queue, string.Empty, null);
 
-  public void Select(string title, Dictionary<string, Action> queue, string cancelText, Action? cancelCallBack)
+  public static void Select(this Screen.Screen screen, string title, Dictionary<string, Action> queue, string cancelText, Action? cancelCallBack)
   {
     bool cancellable = !string.IsNullOrEmpty(cancelText);
     Dictionary<string, string> dict = queue.ToDictionary(x => x.Key, x => x.Key);
 
-    Select(title, dict, cancelText, value =>
+    Select(screen, title, dict, cancelText, value =>
     {
       if (cancellable && string.IsNullOrEmpty(value))
         cancelCallBack?.Invoke();
@@ -93,10 +65,10 @@ public class ScreenUtil
     });
   }
 
-  public void Select(string title, Dictionary<string, string> queue, Action<string> callBack) =>
-    Select(title, queue, null, callBack);
+  public static void Select(this Screen.Screen screen, string title, Dictionary<string, string> queue, Action<string> callBack) =>
+    Select(screen, title, queue, null, callBack);
 
-  public void Select(string title, Dictionary<string, string> queue, string cancelText, Action<string> callBack)
+  public static void Select(this Screen.Screen screen, string title, Dictionary<string, string> queue, string cancelText, Action<string> callBack)
   {
     if (!isSelecting)
     {
@@ -108,31 +80,31 @@ public class ScreenUtil
 
       void While()
       {
-        Clear();
-        PrintF(title);
-        Print("\n");
+        screen.Clear();
+        screen.PrintF(title);
+        screen.Println();
 
         for (int i = 0; i < queue.Count + (cancellable ? 1 : 0); i++)
         {
-          Pair<Brush> color = ColorOnNoSelect;
+          Pair<Brush> color = new(screen.FGColor, screen.BGColor);
           if (i == selectingIndex)
           {
-            color = ColorOnSelect;
+            color = new(screen.BGColor,screen.FGColor);
           }
 
-          Print($" [ {(cancellable && i == maxIndex ? cancelText : options[i])} ] ", color);
-          Print("\n");
+          screen.Print($" [ {(cancellable && i == maxIndex ? cancelText : options[i])} ] ", color);
+          screen.Println();
         }
 
-        ReadKey(key =>
+        screen.ReadKey(key =>
         {
-          if (key == KeySet.Enter)
+          if (key == screen.KeySet.Enter)
           {
             isSelecting = false;
             callBack((((cancellable && selectingIndex == maxIndex) ? null : queue[options[selectingIndex]]) ??
                       string.Empty));
           }
-          else if (key == KeySet.Up)
+          else if (key == screen.KeySet.Up)
           {
             if (selectingIndex == 0)
               selectingIndex = maxIndex;
@@ -140,7 +112,7 @@ public class ScreenUtil
               selectingIndex -= 1;
             While();
           }
-          else if (key == KeySet.Down)
+          else if (key == screen.KeySet.Down)
           {
             if (selectingIndex == maxIndex)
               selectingIndex = 0;
@@ -160,7 +132,7 @@ public class ScreenUtil
     else throw new Exception("이미 선택중 입니다.");
   }
 
-  public void Select2d(string title, Dictionary<string, List<string>> queue, string cancelText,
+  public static void Select2d(this Screen.Screen screen, string title, Dictionary<string, List<string>> queue, string cancelText,
     Action<Pair<int>?> callBack)
   {
     if (!isSelecting)
@@ -173,45 +145,45 @@ public class ScreenUtil
 
       void While()
       {
-        Clear();
-        PrintF($"{title}\n\n");
+        screen.Clear();
+        screen.PrintF($"{title}\n\n");
 
         for (int i = 0; i < rows.Count + (cancellable ? 1 : 0); i++)
         {
-          Pair<Brush> color = ColorOnNoSelect;
+          Pair<Brush> color = new(screen.FGColor, screen.BGColor);
           if (i == selectingIndexs.X)
           {
-            color = ColorOnSelect;
+            color = new(screen.BGColor, screen.FGColor);
           }
 
-          Print("  ");
-          Print($" [ {(cancellable && i == rows.Count ? cancelText : rows[i])} ] ", color);
-          Print("  ");
+          screen.Print("  ");
+          screen.Print($" [ {(cancellable && i == rows.Count ? cancelText : rows[i])} ] ", color);
+          screen.Print("  ");
         }
 
-        Print("\n");
+        screen.Print("\n");
         if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
           for (int i = 0; i < queue[rows[selectingIndexs.X]].Count; i++)
           {
-            Pair<Brush> color = ColorOnNoSelect;
+            Pair<Brush> color = new(screen.FGColor, screen.BGColor);
             if (i == selectingIndexs.Y)
             {
-              color = ColorOnSelect;
+              color = new(screen.BGColor, screen.FGColor);
             }
 
-            Print("    ");
-            Print($" [ {queue[rows[selectingIndexs.X]][i]} ] ", color);
-            Print("\n");
+            screen.Print("    ");
+            screen.Print($" [ {queue[rows[selectingIndexs.X]][i]} ] ", color);
+            screen.Println();
           }
 
-        ReadKey(key =>
+        screen.ReadKey(key =>
         {
-          if (key == KeySet.Enter)
+          if (key == screen.KeySet.Enter)
           {
             isSelecting = false;
             callBack((!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X) ? selectingIndexs : null));
           }
-          else if (key == KeySet.Left)
+          else if (key == screen.KeySet.Left)
           {
             if (selectingIndexs.X == 0)
               selectingIndexs.X = maxIndexs.X;
@@ -222,7 +194,7 @@ public class ScreenUtil
               maxIndexs.Y = queue[rows[selectingIndexs.X]].Count - 1;
             While();
           }
-          else if (key == KeySet.Right)
+          else if (key == screen.KeySet.Right)
           {
             if (selectingIndexs.X == maxIndexs.X)
               selectingIndexs.X = 0;
@@ -233,7 +205,7 @@ public class ScreenUtil
               maxIndexs.Y = queue[rows[selectingIndexs.X]].Count - 1;
             While();
           }
-          else if (key == KeySet.Up)
+          else if (key == screen.KeySet.Up)
           {
             if (selectingIndexs.Y == 0)
               selectingIndexs.Y = maxIndexs.Y;
@@ -241,7 +213,7 @@ public class ScreenUtil
               selectingIndexs.Y -= 1;
             While();
           }
-          else if (key == KeySet.Down)
+          else if (key == screen.KeySet.Down)
           {
             if (selectingIndexs.Y == maxIndexs.Y)
               selectingIndexs.Y = 0;
@@ -261,23 +233,23 @@ public class ScreenUtil
     else throw new Exception("이미 선택중 입니다.");
   }
 
-  public void Pause(string text, Action<Key> callBack)
+  public static void Pause(this Screen.Screen screen, string text, Action<Key> callBack)
   {
     if (!string.IsNullOrEmpty(text))
-      Print($"\n{text}\n");
-    ReadKey(callBack);
+      screen.Print($"\n{text}\n");
+    screen.ReadKey(callBack);
   }
 
-  public void Pause(Action<Key> callBack) => Pause("계속하려면 아무 키나 누르십시오...", callBack);
+  public static void Pause(this Screen.Screen screen, Action<Key> callBack) => screen.Pause("계속하려면 아무 키나 누르십시오...", callBack);
 
-  public void Pause(string text, Key press, Action<Key> callBack)
+  public static void Pause(this Screen.Screen screen, string text, Key press, Action<Key> callBack)
   {
     if (!string.IsNullOrEmpty(text))
-      Print($"\n{text}\n");
-    ReadKey(press, callBack);
+      screen.Print($"\n{text}\n");
+    screen.ReadKey(press, callBack);
   }
 
-  public void Pause(Key press, Action<Key> callBack) => Pause($"계속하려면 {press}키를 누르십시오...", press, callBack);
+  public static void Pause(this Screen.Screen screen, Key press, Action<Key> callBack) => screen.Pause($"계속하려면 {press}키를 누르십시오...", press, callBack);
 
-  public void PrintCanvas(ICanvas canvas, string textF = "") => MainScreen.PrintCanvas(canvas, textF);
+  public static void Println(this Screen.Screen screen) => screen.Print("\n");
 }
