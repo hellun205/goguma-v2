@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Input;
-using GogumaConsole;
+﻿using System.Text;
 using GogumaConsole.Engine.Map;
 using GogumaConsole.Engine.Map.Field;
 
-namespace GogumaConsole;
+
+namespace GogumaConsole.Console;
 
 public static class ConsoleUtil
 {
@@ -16,10 +11,13 @@ public static class ConsoleUtil
 
   public static readonly string ColorOnNoSelect = AnsiColor.WHITE_BG + AnsiColor.BLACK;
 
+  public static KeySet<ConsoleKey> KeySet { get; set; } = new KeySet<ConsoleKey>(ConsoleKey.UpArrow,
+    ConsoleKey.DownArrow, ConsoleKey.LeftArrow, ConsoleKey.RightArrow, ConsoleKey.Enter);
+
   public static string ReadText()
   {
     Print($"{AnsiColor.WHITE_BG}{AnsiColor.BLACK} ");
-    var res = Console.ReadLine();
+    var res = System.Console.ReadLine();
     Print($" {AnsiColor.RESET}");
     return res;
   }
@@ -30,23 +28,23 @@ public static class ConsoleUtil
   {
     if (keyToPress == null)
     {
-      return Console.ReadKey(true).Key;
+      return System.Console.ReadKey(true).Key;
     }
     else
     {
       ConsoleKeyInfo res;
       do
       {
-        res = Console.ReadKey(true);
+        res = System.Console.ReadKey(true);
       } while (res.Key != keyToPress);
 
       return res.Key;
     }
   }
 
-  public static void Clear() => Console.Clear();
+  public static void Clear() => System.Console.Clear();
 
-  public static void Print(string text) => Console.Write($"{AnsiColor.RESET}{text}");
+  public static void Print(string text) => System.Console.Write($"{AnsiColor.RESET}{text}");
 
   public static void Println() => Print("\n");
 
@@ -65,7 +63,7 @@ public static class ConsoleUtil
       queue[value]();
   }
 
-  public static string Select(string title, Dictionary<string, string> queue) => Select(title, queue, null);
+  public static string Select(string title, Dictionary<string, string> queue) => Select(title, queue, string.Empty);
 
   public static string Select(string title, Dictionary<string, string> queue, string cancelText)
   {
@@ -94,26 +92,24 @@ public static class ConsoleUtil
 
       var key = ReadKey();
 
-      switch (key)
+      if (key == KeySet.Enter)
       {
-        case ConsoleKey.Enter:
-          return (((cancellable && selectingIndex == maxIndex) ? null : queue[options[selectingIndex]]) ??
-                  string.Empty);
-          break;
-
-        case ConsoleKey.UpArrow:
-          if (selectingIndex == 0)
-            selectingIndex = maxIndex;
-          else
-            selectingIndex -= 1;
-          break;
-
-        case ConsoleKey.DownArrow:
-          if (selectingIndex == maxIndex)
-            selectingIndex = 0;
-          else
-            selectingIndex += 1;
-          break;
+        return (((cancellable && selectingIndex == maxIndex) ? null : queue[options[selectingIndex]]) ??
+                string.Empty);
+      }
+      else if (key == KeySet.Up)
+      {
+        if (selectingIndex == 0)
+          selectingIndex = maxIndex;
+        else
+          selectingIndex -= 1;
+      }
+      else if (key == KeySet.Down)
+      {
+        if (selectingIndex == maxIndex)
+          selectingIndex = 0;
+        else
+          selectingIndex += 1;
       }
     }
   }
@@ -163,47 +159,43 @@ public static class ConsoleUtil
 
       var key = ReadKey();
 
-      switch (key)
+      if (key == KeySet.Enter)
       {
-        case ConsoleKey.Enter:
-          return (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X) ? selectingIndexs : null);
-          break;
-
-        case ConsoleKey.LeftArrow:
-          if (selectingIndexs.X == 0)
-            selectingIndexs.X = maxIndexs.X;
-          else
-            selectingIndexs.X -= 1;
+        return (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X) ? selectingIndexs : null);
+      }
+      else if (key == KeySet.Left)
+      {
+        if (selectingIndexs.X == 0)
+          selectingIndexs.X = maxIndexs.X;
+        else
+          selectingIndexs.X -= 1;
+        selectingIndexs.Y = 0;
+        if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
+          maxIndexs.Y = queue[rows[selectingIndexs.X]].Count - 1;
+      }
+      else if (key == KeySet.Right)
+      {
+        if (selectingIndexs.X == maxIndexs.X)
+          selectingIndexs.X = 0;
+        else
+          selectingIndexs.X += 1;
+        selectingIndexs.Y = 0;
+        if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
+          maxIndexs.Y = queue[rows[selectingIndexs.X]].Count - 1;
+      }
+      else if (key == KeySet.Up)
+      {
+        if (selectingIndexs.Y == 0)
+          selectingIndexs.Y = maxIndexs.Y;
+        else
+          selectingIndexs.Y -= 1;
+      }
+      else if (key == KeySet.Down)
+      {
+        if (selectingIndexs.Y == maxIndexs.Y)
           selectingIndexs.Y = 0;
-          if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
-            maxIndexs.Y = queue[rows[selectingIndexs.X]].Count - 1;
-          break;
-
-        case ConsoleKey.RightArrow:
-          if (selectingIndexs.X == maxIndexs.X)
-            selectingIndexs.X = 0;
-          else
-            selectingIndexs.X += 1;
-          selectingIndexs.Y = 0;
-          if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
-            maxIndexs.Y = queue[rows[selectingIndexs.X]].Count - 1;
-          break;
-
-        case ConsoleKey.UpArrow:
-          if (selectingIndexs.Y == 0)
-            selectingIndexs.Y = maxIndexs.Y;
-          else
-            selectingIndexs.Y -= 1;
-          break;
-
-        case ConsoleKey.DownArrow:
-        {
-          if (selectingIndexs.Y == maxIndexs.Y)
-            selectingIndexs.Y = 0;
-          else
-            selectingIndexs.Y += 1;
-          break;
-        }
+        else
+          selectingIndexs.Y += 1;
       }
     }
   }
