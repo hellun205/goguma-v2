@@ -28,11 +28,11 @@ public static partial class Main
 
     var world = "world:test_world".GetWorld();
     player.Position = new Pair<byte>(5, 5);
-    world.Enter(player);
+    player.Enter(world);
     void While()
     {
       Clear();
-      PrintCanvas(world, $"[ {world.Name} ]\n{world.Descriptions}");
+      PrintCanvas(player, $"[ {world.Name} ]\n{world.Descriptions}");
       var key = ReadKey();
       switch (key)
       {

@@ -26,7 +26,7 @@ public sealed class Inventory
     foreach (var group in Items.Keys)
       dict.Add(group, Items[group].Select(x => x.ToString()).ToList());
 
-    Main.ScreenUtil.Select2d("인벤토리", dict, "닫기", selection =>
+    Main.screen.Select2d("인벤토리", dict, "닫기", selection =>
     {
       if (selection != null)
         callBack(new Pair<string, int>(Items.Keys.ToList()[selection.Value.X], selection.Value.Y));

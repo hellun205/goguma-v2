@@ -213,7 +213,7 @@ public static class ConsoleUtil
     return ReadKey(press);
   }
 
-  public static void PrintCanvas(ICanvas canvas, string textF = "")
+  public static void PrintCanvas(IPositionable movingObj, string textF = "")
   {
     const char PlayerIcon = '●';
     const char NothingIcon = '■';
@@ -221,6 +221,7 @@ public static class ConsoleUtil
     string PlayerClr = AnsiColor.GetRGBFG(178, 34, 34);
 
     string[] texts = textF.Split("\n");
+    var canvas = movingObj.Canvas;
 
     Clear();
     StringBuilder sb;
@@ -239,7 +240,7 @@ public static class ConsoleUtil
       {
         var item = canvas.CanvasChild.FirstOrDefault(item => item.Position == new Pair<byte>(x, y));
 
-        if (canvas.MovingObject != null && canvas.MovingObject.Position == new Pair<byte>(x, y))
+        if (movingObj != null && movingObj.Position == new Pair<byte>(x, y))
         {
           Print($"{PlayerClr}{PlayerIcon} ");
         }
