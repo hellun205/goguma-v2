@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Drawing;
+using System.Text;
+using GogumaConsole.Console;
 using GogumaConsole.Engine.Map.Field;
 using static GogumaConsole.Console.ConsoleUtil;
 
@@ -52,23 +54,25 @@ public static class MapExtensions
 
         if (movingObj != null && movingObj.Position == new Pair<byte>(x, y))
         {
-          Print($"{AnsiColor.GetRGBFG(178, 34, 34)}{movingObj.Direction.GetIcon()} ");
+          Print($"{movingObj.Direction.GetIcon()} ",
+            new Pair<ConsoleColor>(Color.Firebrick.ToConsoleColor(), ConsoleUtil.DefaultColor.Y));
         }
         else if (moveable)
-          Print($"{AnsiColor.GetRGBFG(50, 50, 50)}＋ ");
+          Print("• ",
+            new Pair<ConsoleColor>(Color.DimGray.ToConsoleColor(), ConsoleUtil.DefaultColor.Y));
         else
         {
           if (item == null)
-            Print($"　 ");
+            Print("  ");
           else
           {
-            string clr = AnsiColor.GREEN;
+            ConsoleColor clr = Color.DarkGreen.ToConsoleColor();
             if (item is IRequirable reqItem)
             {
-              clr = (reqItem.Check ? clr : AnsiColor.RED);
+              clr = (reqItem.Check ? clr : Color.DarkRed.ToConsoleColor());
             }
 
-            Print($"{clr}{item.Icon} ");
+            Print($"{item.Icon} ", new(clr, DefaultColor.Y));
           }
         }
       }

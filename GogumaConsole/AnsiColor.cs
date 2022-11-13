@@ -1,5 +1,6 @@
 ﻿namespace GogumaConsole;
 
+[Obsolete("Not supported by Windows cmd", true)]
 public static class AnsiColor
 {
   private const string ESCCODE = "\u001B";
