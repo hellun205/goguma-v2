@@ -9,4 +9,6 @@ public interface ICanvas
   public Pair<byte> StartPosition { get; }
   
   public IEnumerable<Pair<byte>> MoveablePosition { get; }
+  
+  public Direction StartDirection { get; }
 }

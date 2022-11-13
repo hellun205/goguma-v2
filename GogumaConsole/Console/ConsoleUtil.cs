@@ -213,65 +213,13 @@ public static class ConsoleUtil
     return ReadKey(press);
   }
 
-  public static void PrintCanvas(IPositionable movingObj, string textF = "")
+  public static ConsoleColor ColorFromRGB(byte r, byte g, byte b)
   {
-    const char PlayerIcon = '●';
-    const char NothingIcon = '■';
-    string NothingClr = AnsiColor.GetRGBFG(50, 50, 50);
-    string PlayerClr = AnsiColor.GetRGBFG(178, 34, 34);
+    int index = (r > 128 | g > 128 | b > 128) ? 8 : 0; // Bright bit
+    index |= (r > 64) ? 4 : 0; // Red bit
+    index |= (g > 64) ? 2 : 0; // Green bit
+    index |= (b > 64) ? 1 : 0; // Blue bit
 
-    string[] texts = textF.Split("\n");
-    var canvas = movingObj.Canvas;
-
-    Clear();
-    StringBuilder sb;
-
-    sb = new StringBuilder()
-      .Append("┌ ")
-      .Append(string.Empty.GetSep(canvas.CanvasSize.X + 1, "─ "))
-      .Append('┐');
-    Print(sb.ToString());
-    Print("\n");
-
-    for (byte y = 0; y <= canvas.CanvasSize.Y; y++)
-    {
-      Print("│ ");
-      for (byte x = 0; x <= canvas.CanvasSize.X; x++)
-      {
-        var item = canvas.CanvasChild.FirstOrDefault(item => item.Position == new Pair<byte>(x, y));
-
-        if (movingObj != null && movingObj.Position == new Pair<byte>(x, y))
-        {
-          Print($"{PlayerClr}{PlayerIcon} ");
-        }
-        else
-        {
-          if (item == null)
-            Print($"{NothingClr}{NothingIcon} ");
-          else
-          {
-            string clr = AnsiColor.GREEN;
-            if (item is IRequirable reqItem)
-            {
-              clr = (reqItem.Check ? clr : AnsiColor.RED);
-            }
-
-            Print($"{clr}{item.Icon} ");
-          }
-        }
-      }
-
-      Print("│  ");
-      if (texts.Length > y)
-        Print(texts[y]);
-      Println();
-    }
-
-    sb = new StringBuilder()
-      .Append("└ ")
-      .Append(string.Empty.GetSep(canvas.CanvasSize.X + 1, "─ "))
-      .Append('┘')
-      .Append('\n');
-    Print(sb.ToString());
+    return (System.ConsoleColor) index;
   }
 }

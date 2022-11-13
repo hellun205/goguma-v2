@@ -18,9 +18,11 @@ public abstract class Field : IManageable, ICanvas, ICanvasItem
 
   public IEnumerable<ICanvasItem> CanvasChild { get; set; }
   
-  public Pair<byte> StartPosition { get; }
+  public Pair<byte> StartPosition { get; set; }
   
-  public IEnumerable<Pair<byte>> MoveablePosition { get; }
+  public IEnumerable<Pair<byte>> MoveablePosition { get; set; }
+  
+  public Direction StartDirection { get; set; }
 
   protected Field(string worldCode, string code, char icon)
   {

@@ -2,9 +2,9 @@ namespace GogumaConsole.Engine.Map;
 
 public interface IPositionable
 {
-  public Pair<byte> Position { get; }
+  public Pair<byte> Position { get; set; }
   
   public ICanvas Canvas { get; set; }
 
-  public void Enter(ICanvas canvas);
+  public Direction Direction { get; set; }
 }
