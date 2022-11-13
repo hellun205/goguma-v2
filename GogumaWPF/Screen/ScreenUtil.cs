@@ -40,7 +40,42 @@ public class ScreenUtil
 
   public void Print(string text, Pair<Brush> color) => MainScreen.Print(text, color);
 
-  public void PrintF(string formattedText) => MainScreen.PrintF(formattedText);
+  public void PrintF(string formattedText)
+  {
+    //<fg='' bg=''>
+    if (formattedText.Contains('<'))
+    {
+      string[] split = formattedText.Split('<');
+
+      for (int i = 1; i < split.Length; i++)
+      {
+        string text = split[i];
+        string[] tagSplit = text.Split('>');
+        try
+        {
+          Pair<Brush> color = new(MainScreen.FGColor, MainScreen.BGColor);
+
+          if (tagSplit[0].Contains("fg='"))
+          {
+            color.X = (Brush) new BrushConverter().ConvertFromString(tagSplit[0].Split("fg='")[1].Split("'")[0]);
+          }
+
+          if (tagSplit[0].Contains("bg='"))
+          {
+            color.Y = (Brush) new BrushConverter().ConvertFromString(tagSplit[0].Split("bg='")[1].Split("'")[0]);
+          }
+
+          Print(tagSplit[1], color);
+        }
+        catch
+        {
+          Print(tagSplit[1]);
+        }
+      }
+    }
+    else
+      Print(formattedText);
+  }
 
   public void Select(string title, Dictionary<string, Action> queue) => Select(title, queue, string.Empty, null);
 
