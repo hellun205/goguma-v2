@@ -4,12 +4,15 @@ using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
 using GogumaWPF.Engine.Map;
+using GogumaWPF.Screen;
 
 namespace GogumaWPF;
 
 public class ScreenUtil
 {
   public Screen.Screen MainScreen { get; init; }
+  
+  public KeySet<Key> KeySet { get; set; }
 
   public Pair<Brush> ColorOnSelect;
 
@@ -22,6 +25,7 @@ public class ScreenUtil
     MainScreen = screen;
     ColorOnSelect = new(MainScreen.BGColor, MainScreen.FGColor);
     ColorOnNoSelect = new(MainScreen.FGColor, MainScreen.BGColor);
+    KeySet = new KeySet<Key>(Key.Up, Key.Down, Key.Left, Key.Right, Key.Enter);
   }
 
   public void ReadText(Action<string> callBack) => MainScreen.ReadText(callBack);
@@ -36,7 +40,42 @@ public class ScreenUtil
 
   public void Print(string text, Pair<Brush> color) => MainScreen.Print(text, color);
 
-  public void PrintF(string formattedText) => MainScreen.PrintF(formattedText);
+  public void PrintF(string formattedText)
+  {
+    //<fg='' bg=''>
+    if (formattedText.Contains('<'))
+    {
+      string[] split = formattedText.Split('<');
+
+      for (int i = 1; i < split.Length; i++)
+      {
+        string text = split[i];
+        string[] tagSplit = text.Split('>');
+        try
+        {
+          Pair<Brush> color = new(MainScreen.FGColor, MainScreen.BGColor);
+
+          if (tagSplit[0].Contains("fg='"))
+          {
+            color.X = (Brush) new BrushConverter().ConvertFromString(tagSplit[0].Split("fg='")[1].Split("'")[0]);
+          }
+
+          if (tagSplit[0].Contains("bg='"))
+          {
+            color.Y = (Brush) new BrushConverter().ConvertFromString(tagSplit[0].Split("bg='")[1].Split("'")[0]);
+          }
+
+          Print(tagSplit[1], color);
+        }
+        catch
+        {
+          Print(tagSplit[1]);
+        }
+      }
+    }
+    else
+      Print(formattedText);
+  }
 
   public void Select(string title, Dictionary<string, Action> queue) => Select(title, queue, string.Empty, null);
 
@@ -48,7 +87,7 @@ public class ScreenUtil
     Select(title, dict, cancelText, value =>
     {
       if (cancellable && string.IsNullOrEmpty(value))
-        cancelCallBack();
+        cancelCallBack?.Invoke();
       else
         queue[value]();
     });
@@ -87,34 +126,31 @@ public class ScreenUtil
 
         ReadKey(key =>
         {
-          switch (key)
+          if (key == KeySet.Enter)
           {
-            case Key.Enter:
-              isSelecting = false;
-              callBack((((cancellable && selectingIndex == maxIndex) ? null : queue[options[selectingIndex]]) ??
-                        string.Empty));
-              break;
-            case Key.Up:
-            {
-              if (selectingIndex == 0)
-                selectingIndex = maxIndex;
-              else
-                selectingIndex -= 1;
-              While();
-              break;
-            }
-            case Key.Down:
-            {
-              if (selectingIndex == maxIndex)
-                selectingIndex = 0;
-              else
-                selectingIndex += 1;
-              While();
-              break;
-            }
-            default:
-              While();
-              break;
+            isSelecting = false;
+            callBack((((cancellable && selectingIndex == maxIndex) ? null : queue[options[selectingIndex]]) ??
+                      string.Empty));
+          }
+          else if (key == KeySet.Up)
+          {
+            if (selectingIndex == 0)
+              selectingIndex = maxIndex;
+            else
+              selectingIndex -= 1;
+            While();
+          }
+          else if (key == KeySet.Down)
+          {
+            if (selectingIndex == maxIndex)
+              selectingIndex = 0;
+            else
+              selectingIndex += 1;
+            While();
+          }
+          else
+          {
+            While();
           }
         });
       }
@@ -170,57 +206,52 @@ public class ScreenUtil
 
         ReadKey(key =>
         {
-          switch (key)
+          if (key == KeySet.Enter)
           {
-            case Key.Enter:
-              isSelecting = false;
-              callBack((!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X) ? selectingIndexs : null));
-              break;
-            case Key.Left:
-            {
-              if (selectingIndexs.X == 0)
-                selectingIndexs.X = maxIndexs.X;
-              else
-                selectingIndexs.X -= 1;
+            isSelecting = false;
+            callBack((!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X) ? selectingIndexs : null));
+          }
+          else if (key == KeySet.Left)
+          {
+            if (selectingIndexs.X == 0)
+              selectingIndexs.X = maxIndexs.X;
+            else
+              selectingIndexs.X -= 1;
+            selectingIndexs.Y = 0;
+            if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
+              maxIndexs.Y = queue[rows[selectingIndexs.X]].Count - 1;
+            While();
+          }
+          else if (key == KeySet.Right)
+          {
+            if (selectingIndexs.X == maxIndexs.X)
+              selectingIndexs.X = 0;
+            else
+              selectingIndexs.X += 1;
+            selectingIndexs.Y = 0;
+            if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
+              maxIndexs.Y = queue[rows[selectingIndexs.X]].Count - 1;
+            While();
+          }
+          else if (key == KeySet.Up)
+          {
+            if (selectingIndexs.Y == 0)
+              selectingIndexs.Y = maxIndexs.Y;
+            else
+              selectingIndexs.Y -= 1;
+            While();
+          }
+          else if (key == KeySet.Down)
+          {
+            if (selectingIndexs.Y == maxIndexs.Y)
               selectingIndexs.Y = 0;
-              if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
-                maxIndexs.Y = queue[rows[selectingIndexs.X]].Count - 1;
-              While();
-              break;
-            }
-            case Key.Right:
-            {
-              if (selectingIndexs.X == maxIndexs.X)
-                selectingIndexs.X = 0;
-              else
-                selectingIndexs.X += 1;
-              selectingIndexs.Y = 0;
-              if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
-                maxIndexs.Y = queue[rows[selectingIndexs.X]].Count - 1;
-              While();
-              break;
-            }
-            case Key.Up:
-            {
-              if (selectingIndexs.Y == 0)
-                selectingIndexs.Y = maxIndexs.Y;
-              else
-                selectingIndexs.Y -= 1;
-              While();
-              break;
-            }
-            case Key.Down:
-            {
-              if (selectingIndexs.Y == maxIndexs.Y)
-                selectingIndexs.Y = 0;
-              else
-                selectingIndexs.Y += 1;
-              While();
-              break;
-            }
-            default:
-              While();
-              break;
+            else
+              selectingIndexs.Y += 1;
+            While();
+          }
+          else
+          {
+            While();
           }
         });
       }

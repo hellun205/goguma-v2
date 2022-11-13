@@ -1,8 +1,6 @@
-using System.Windows;
-using System.Windows.Input;
 using GogumaConsole.Engine;
 using GogumaConsole.Engine.Player;
-using static GogumaConsole.ConsoleUtil;
+using static GogumaConsole.Console.ConsoleUtil;
 
 namespace GogumaConsole.Goguma;
 

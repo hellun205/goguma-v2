@@ -3,7 +3,7 @@ using System.Text;
 
 namespace GogumaConsole;
 
-public static class Util
+public static class Utils
 {
   public static int Limit(this int value, int min, int max) => (int) Math.Max(min, Math.Min(max, value));
   public static uint Limit(this uint value, uint min, uint max) => (uint) Math.Max(min, Math.Min(max, value));

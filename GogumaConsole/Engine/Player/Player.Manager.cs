@@ -1,5 +1,5 @@
 using System.Runtime.Serialization.Formatters.Binary;
-using static GogumaConsole.ConsoleUtil;
+using static GogumaConsole.Console.ConsoleUtil;
 
 namespace GogumaConsole.Engine.Player;
 

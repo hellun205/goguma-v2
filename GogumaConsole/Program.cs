@@ -1,4 +1,4 @@
-﻿using GogumaConsole.Goguma;
+﻿using GogumaConsole.Console;
 
 namespace GogumaConsole;
 

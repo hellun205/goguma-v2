@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using GogumaConsole.Engine;
 using GogumaConsole.Engine.Map;
 

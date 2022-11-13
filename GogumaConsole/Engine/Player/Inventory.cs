@@ -1,6 +1,6 @@
 using GogumaConsole.Goguma;
 using GogumaConsole.Engine.Item;
-using static GogumaConsole.ConsoleUtil;
+using static GogumaConsole.Console.ConsoleUtil;
 
 namespace GogumaConsole.Engine.Player;
 
