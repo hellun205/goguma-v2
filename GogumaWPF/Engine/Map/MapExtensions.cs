@@ -21,7 +21,7 @@ public static class MapExtensions
       Direction.RIGHT => '▶',
     };
   }
-  
+
   public static void Enter(this IPositionable movingObj, ICanvas canvas)
   {
     movingObj.Canvas = canvas;
@@ -90,16 +90,19 @@ public static class MapExtensions
     screen.Print(sb.ToString());
   }
 
-  public static void OpenCanvas(this Screen.Screen screen, IPositionable movingObj, Action callBack)
+  public static void OpenCanvas(this Screen.Screen screen, IPositionable movingObj, Action<ICanvasItem> callBack)
   {
-    var canvas = movingObj.Canvas;
-    var text = "";
+    ICanvas canvas = movingObj.Canvas;
+    string text = String.Empty;
+    Pair<byte> tempPos = movingObj.Position;
 
     bool CheckMoveable(Pair<byte> position)
     {
       return canvas.MoveablePosition.Contains(position) && position.X >= 0 && position.Y >= 0 &&
              position.X <= canvas.CanvasSize.X && position.Y <= canvas.CanvasSize.Y;
     }
+
+    ICanvasItem TryGetItem(Pair<byte> position) => canvas.CanvasChild.FirstOrDefault(x => x.Position == position);
 
     void While()
     {
@@ -111,6 +114,12 @@ public static class MapExtensions
 
         if (key == screen.KeySet.Enter)
         {
+          var res = TryGetItem(tempPos);
+          if (res != null)
+          {
+            callBack(res);
+            return;
+          }
         }
         else if (key == screen.KeySet.Up)
         {
@@ -134,6 +143,11 @@ public static class MapExtensions
         }
 
         if (CheckMoveable(position)) movingObj.Position = position;
+
+        var item = TryGetItem(position);
+        text = (item != null ? item.CanvasDescriptions : string.Empty);
+        tempPos = position;
+
         While();
       });
     }

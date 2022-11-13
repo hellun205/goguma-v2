@@ -33,9 +33,11 @@ public static partial class Main
     var world = "world:test_world".GetWorld();
     player.Position = new Pair<byte>(5, 5);
     player.Enter(world);
-    screen.OpenCanvas(player, () =>
+    screen.OpenCanvas(player, field =>
     {
-      
+      var fld = field as Field.TestField;
+      screen.Clear();
+      screen.Print($"{fld.Icon} {fld.Name}\n{fld.Descriptions}");
     });
   }
 }

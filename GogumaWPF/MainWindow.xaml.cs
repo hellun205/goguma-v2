@@ -32,6 +32,7 @@ namespace GogumaWPF
       void Play()
       {
         Initialize(Screen);
+        Screen.Focus();
         Start();
       }
 
@@ -55,7 +56,7 @@ namespace GogumaWPF
 
     private void Window_Loaded(object sender, RoutedEventArgs e)
     {
-      Screen.RTBMain.Focus();
+      Screen.Focus();
     }
   }
 }
