@@ -10,8 +10,11 @@ namespace GogumaWPF.Engine.Map;
 public static class MapExtensions
 {
   private const char NothingIcon = '■';
+  private static ICanvas lastCanvas;
+  private static Direction lastDir;
+  private static Pair<byte> lastPos;
 
-  private static char GetIcon(this Direction direction)
+  public static char GetIcon(this Direction direction)
   {
     return direction switch
     {
@@ -22,11 +25,33 @@ public static class MapExtensions
     };
   }
 
-  public static void Enter(this IPositionable movingObj, ICanvas canvas)
+  public static Direction GetOpposite(this Direction direction)
   {
+    return direction switch
+    {
+      Direction.UP => Direction.DOWN,
+      Direction.DOWN => Direction.UP,
+      Direction.LEFT => Direction.RIGHT,
+      Direction.RIGHT => Direction.LEFT,
+    };
+  }
+
+  public static void Enter(this IPositionable movingObj, ICanvas canvas)
+  {    
+    lastCanvas = canvas;
+    lastDir = movingObj.Direction;
+    lastPos = movingObj.Position;
     movingObj.Canvas = canvas;
     movingObj.Position = canvas.StartPosition;
     movingObj.Direction = canvas.StartDirection;
+
+  }
+
+  public static void Leave(this IPositionable movingObj)
+  {
+    movingObj.Canvas = lastCanvas;
+    movingObj.Direction = lastDir.GetOpposite();
+    movingObj.Position = lastPos;
   }
 
   public static void PrintCanvas(this Screen.Screen screen, IPositionable movingObj, string textF = "")
