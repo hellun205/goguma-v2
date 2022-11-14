@@ -15,25 +15,23 @@ public abstract class Field : IManageable, ICanvas, ICanvasItem
   public Pair<byte> Position { get; set; }
   
   public char Icon { get; init; }
+  
+  public string CanvasDescriptions { get; set; }
+  
+  public ConsoleColor Color { get; set; }
 
   public IEnumerable<ICanvasItem> CanvasChild { get; set; }
   
-  public IPositionable? MovingObject { get; private set; }
+  public Pair<byte> StartPosition { get; set; }
+  
+  public IEnumerable<Pair<byte>> MoveablePosition { get; set; }
+  
+  public Direction StartDirection { get; set; }
 
   protected Field(string worldCode, string code, char icon)
   {
     Code = $"{Type}:{worldCode}.{code}";
     Icon = icon;
-  }
-
-  public void Enter(IPositionable player)
-  {
-    MovingObject = player;
-  }
-
-  public void Leave()
-  {
-    MovingObject = null;
   }
 
 }

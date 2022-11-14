@@ -16,8 +16,12 @@ public sealed class World : IManageable, ICanvas
 
   public IEnumerable<ICanvasItem> CanvasChild => Fields.Select(fieldCode => fieldCode.GetField());
   
-  public IPositionable? MovingObject { get; private set; }
+  public Pair<byte> StartPosition { get; set; }
   
+  public IEnumerable<Pair<byte>> MoveablePosition { get; set; }
+  
+  public Direction StartDirection { get; set; }
+
   public IEnumerable<string> Fields { get; set; }
 
   public World(string code)
@@ -25,13 +29,4 @@ public sealed class World : IManageable, ICanvas
     Code = $"{Type}:{code}";
   }
 
-  public void Enter(IPositionable player)
-  {
-    MovingObject = player;
-  }
-
-  public void Leave()
-  {
-    MovingObject = null;
-  }
 }

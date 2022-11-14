@@ -1,11 +1,10 @@
-using System;
-using System.Linq;
+﻿using System.Drawing;
 using System.Text;
-using System.Windows;
-using System.Windows.Media;
-using GogumaWPF.Engine.Map.Field;
+using GogumaConsole.Console;
+using GogumaConsole.Engine.Map.Field;
+using static GogumaConsole.Console.ConsoleUtil;
 
-namespace GogumaWPF.Engine.Map;
+namespace GogumaConsole.Engine.Map;
 
 public static class MapExtensions
 {
@@ -52,28 +51,26 @@ public static class MapExtensions
     movingObj.Position = lastPos;
   }
 
-  public static void PrintCanvas(this Screen.Screen screen, IPositionable movingObj, string textF = "") =>
-    PrintCanvas(screen, movingObj, null, textF);
+  public static void PrintCanvas(IPositionable movingObj, string textF = "") => PrintCanvas(movingObj, null, textF);
 
-  public static void PrintCanvas(this Screen.Screen screen, IPositionable movingObj, Pair<byte>? selectPosition,
-    string textF = "")
+  public static void PrintCanvas(IPositionable movingObj, Pair<byte>? selectPosition, string textF = "")
   {
     string[] texts = textF.Split("\n");
     var canvas = movingObj.Canvas;
 
-    screen.Clear();
+    Clear();
     StringBuilder sb;
 
     sb = new StringBuilder()
       .Append("┌ ")
       .Append(string.Empty.GetSep(canvas.CanvasSize.X + 1, "─ "))
       .Append('┐');
-    screen.Print(sb.ToString());
-    screen.Print("\n");
+    Print(sb.ToString());
+    Print("\n");
 
     for (byte y = 0; y <= canvas.CanvasSize.Y; y++)
     {
-      screen.Print("│ ");
+      Print("│ ");
       for (byte x = 0; x <= canvas.CanvasSize.X; x++)
       {
         var position = new Pair<byte>(x, y);
@@ -82,30 +79,32 @@ public static class MapExtensions
 
         if (movingObj != null && movingObj.Position == new Pair<byte>(x, y))
         {
-          screen.Print($"{movingObj.Direction.GetIcon()} ", new Pair<Brush>(Brushes.Firebrick, screen.BGColor));
+          Print($"{movingObj.Direction.GetIcon()} ",
+            new Pair<ConsoleColor>(Color.Firebrick.ToConsoleColor(), ConsoleUtil.DefaultColor.Y));
         }
         else if (moveable) // if moveable position
-          screen.Print($"ㆍ ", new Pair<Brush>(Utils.GetARGB(50, 255, 255, 255), screen.BGColor));
+          Print("• ",
+            new Pair<ConsoleColor>(Color.DimGray.ToConsoleColor(), ConsoleUtil.DefaultColor.Y));
         else
         {
           if (item == null) // if nothing item
-            screen.Print($"■ ", new Pair<Brush>(Utils.GetARGB(1, 255, 255, 255), screen.BGColor));
+            Print("  ");
           else // if has item
           {
-            var clr = new Pair<Brush>(item.Color, screen.BGColor);
+            Pair<ConsoleColor> clr = new(item.Color, DefaultColor.Y);
             if (selectPosition != null && selectPosition == item.Position &&
                 item is IRequirable reqItem) // check requirable
-              clr.X = (reqItem.Check ? Brushes.DarkGreen : Brushes.DarkRed);
+              clr.X = (reqItem.Check ? Color.DarkGreen.ToConsoleColor() : Color.DarkRed.ToConsoleColor());
 
-            screen.Print($"{item.Icon} ", clr);
+            Print($"{item.Icon} ", clr);
           }
         }
       }
 
-      screen.Print("│  ");
+      Print("│  ");
       if (texts.Length > y)
-        screen.Print(texts[y]);
-      screen.Print("\n");
+        Print(texts[y]);
+      Println();
     }
 
     sb = new StringBuilder()
@@ -113,13 +112,13 @@ public static class MapExtensions
       .Append(string.Empty.GetSep(canvas.CanvasSize.X + 1, "─ "))
       .Append('┘')
       .Append('\n');
-    screen.Print(sb.ToString());
+    Print(sb.ToString());
   }
 
-  public static void OpenCanvas(this Screen.Screen screen, IPositionable movingObj, Action<ICanvasItem> callBack)
+  public static ICanvasItem OpenCanvas(IPositionable movingObj)
   {
     ICanvas canvas = movingObj.Canvas;
-    string text = String.Empty;
+    string text = "";
     Pair<byte> tempPos = movingObj.Position;
 
     bool CheckMoveable(Pair<byte> position)
@@ -132,54 +131,46 @@ public static class MapExtensions
 
     ICanvasItem TryGetItem(Pair<byte> position) => canvas.CanvasChild.FirstOrDefault(x => x.Position == position);
 
-    void While()
+    while (true)
     {
-      screen.PrintCanvas(movingObj, tempPos, text);
+      PrintCanvas(movingObj, tempPos, text);
 
-      screen.ReadKey(key =>
+      var key = ReadKey();
+
+      Pair<byte> position = movingObj.Position;
+
+      if (key == KeySet.Enter)
       {
-        Pair<byte> position = movingObj.Position;
+        var res = TryGetItem(tempPos);
+        if (res != null)
+          return res;
+      }
+      else if (key == KeySet.Up)
+      {
+        position.Y -= 1;
+        movingObj.Direction = Direction.UP;
+      }
+      else if (key == KeySet.Down)
+      {
+        position.Y += 1;
+        movingObj.Direction = Direction.DOWN;
+      }
+      else if (key == KeySet.Left)
+      {
+        position.X -= 1;
+        movingObj.Direction = Direction.LEFT;
+      }
+      else if (key == KeySet.Right)
+      {
+        position.X += 1;
+        movingObj.Direction = Direction.RIGHT;
+      }
 
-        if (key == screen.KeySet.Enter)
-        {
-          var res = TryGetItem(tempPos);
-          if (res != null)
-          {
-            callBack(res);
-            return;
-          }
-        }
-        else if (key == screen.KeySet.Up)
-        {
-          position.Y -= 1;
-          movingObj.Direction = Direction.UP;
-        }
-        else if (key == screen.KeySet.Down)
-        {
-          position.Y += 1;
-          movingObj.Direction = Direction.DOWN;
-        }
-        else if (key == screen.KeySet.Left)
-        {
-          position.X -= 1;
-          movingObj.Direction = Direction.LEFT;
-        }
-        else if (key == screen.KeySet.Right)
-        {
-          position.X += 1;
-          movingObj.Direction = Direction.RIGHT;
-        }
+      if (CheckMoveable(position)) movingObj.Position = position;
 
-        if (CheckMoveable(position)) movingObj.Position = position;
-
-        var item = TryGetItem(position);
-        text = (item != null ? item.CanvasDescriptions : string.Empty);
-        tempPos = position;
-
-        While();
-      });
+      var item = TryGetItem(position);
+      text = (item != null ? item.CanvasDescriptions : string.Empty);
+      tempPos = position;
     }
-
-    While();
   }
 }

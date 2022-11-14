@@ -1,4 +1,5 @@
-﻿using GogumaConsole.Console;
+﻿using System.Drawing;
+using GogumaConsole.Console;
 
 namespace GogumaConsole;
 
@@ -23,7 +24,8 @@ internal class Program
       catch (Exception ex)
       {
         ConsoleUtil.Print(
-          $"{AnsiColor.RED + AnsiColor.WHITE_BG}\nERROR: {ex.Message}\nSOURCE: {ex.Source ?? ""}\nTARGETSITE: {ex.TargetSite}\nSTACKTRACE ---\n{ex.StackTrace ?? ""}");
+          $"\nERROR: {ex.Message}\nSOURCE: {ex.Source ?? ""}\nTARGETSITE: {ex.TargetSite}\nSTACKTRACE ---\n{ex.StackTrace ?? ""}",
+          new(Color.DarkRed.ToConsoleColor(), ConsoleUtil.ConsoleClrFromRGB(125, 125, 125)));
         ConsoleUtil.Pause();
         Environment.Exit(0);
       }

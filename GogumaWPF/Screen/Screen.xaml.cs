@@ -8,123 +8,132 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace GogumaWPF.Screen
+namespace GogumaWPF.Screen;
+
+/// <summary>
+/// Interaction logic for Screen.xaml
+/// </summary>
+public partial class Screen : UserControl
 {
-  /// <summary>
-  /// Interaction logic for Screen.xaml
-  /// </summary>
-  public partial class Screen : UserControl
+  public object Font => FindResource("Galmuri11");
+
+  public Brush BGColor => RTBMain.Background;
+
+  public Brush FGColor => RTBMain.Foreground;
+
+  public Brush BGColorWhenReadText { get; set; } = Brushes.DimGray;
+
+  public KeySet<Key> KeySet { get; set; } = new KeySet<Key>(Key.Up, Key.Down, Key.Left, Key.Right, Key.Enter);
+
+  private bool isReadingText = false;
+  private bool isReadingKey = false;
+  private Action<string> CallAfterReadingText;
+  private Action<Key> CallAfterReadingKey;
+  private string tempRTF;
+  private Key? keyToPress;
+  private Pair<bool, Key> keyDown;
+
+  public Screen()
   {
-    public object Font => FindResource("Galmuri11");
-    public Brush BGColor => RTBMain.Background;
-    public Brush FGColor => RTBMain.Foreground;
-    public Brush BGColorWhenReadText { get; set; } = Brushes.DimGray;
+    InitializeComponent();
+  }
 
-    private bool isReadingText = false;
-    private bool isReadingKey = false;
-    private Action<string> CallAfterReadingText;
-    private Action<Key> CallAfterReadingKey;
-    private string tempRTF;
-    private Key? keyToPress;
+  private void RTBMain_GotFocus(object sender, RoutedEventArgs e)
+  {
+    TBInput.Focus();
+  }
 
-    public Screen()
+  public void Print(string text)
+  {
+    Print(text, new Pair<Brush>(FGColor, BGColor));
+  }
+
+  public void Print(string text, Pair<Brush> color)
+  {
+    TextRange tr = new TextRange(RTBMain.Document.ContentEnd, RTBMain.Document.ContentEnd);
+    tr.Text = text;
+    tr.ApplyPropertyValue(TextElement.FontFamilyProperty, Font);
+    tr.ApplyPropertyValue(TextElement.ForegroundProperty, color.X);
+    tr.ApplyPropertyValue(TextElement.BackgroundProperty, color.Y);
+  }
+
+  private void RTBMain_TextChanged(object sender, TextChangedEventArgs e)
+  {
+    // RTBMain.ScrollToEnd();
+  }
+
+  private void SaveRTF()
+  {
+    using (MemoryStream ms = new MemoryStream())
     {
-      InitializeComponent();
-    }
-
-    private void RTBMain_GotFocus(object sender, RoutedEventArgs e)
-    {
-      TBInput.Focus();
-    }
-
-    public void Print(string text)
-    {
-      Print(text, new Pair<Brush>(FGColor, BGColor));
-    }
-
-    public void Print(string text, Pair<Brush> color)
-    {
-      TextRange tr = new TextRange(RTBMain.Document.ContentEnd, RTBMain.Document.ContentEnd);
-      tr.Text = text;
-      tr.ApplyPropertyValue(TextElement.FontFamilyProperty, Font);
-      tr.ApplyPropertyValue(TextElement.ForegroundProperty, color.X);
-      tr.ApplyPropertyValue(TextElement.BackgroundProperty, color.Y);
-    }
-
-    private void RTBMain_TextChanged(object sender, TextChangedEventArgs e)
-    {
-      // RTBMain.ScrollToEnd();
-    }
-
-    private void SaveRTF()
-    {
-      using (MemoryStream ms = new MemoryStream())
+      TextRange range2 = new TextRange(RTBMain.Document.ContentStart, RTBMain.Document.ContentEnd);
+      range2.Save(ms, DataFormats.Rtf);
+      ms.Seek(0, SeekOrigin.Begin);
+      using (StreamReader sr = new StreamReader(ms))
       {
-        TextRange range2 = new TextRange(RTBMain.Document.ContentStart, RTBMain.Document.ContentEnd);
-        range2.Save(ms, DataFormats.Rtf);
-        ms.Seek(0, SeekOrigin.Begin);
-        using (StreamReader sr = new StreamReader(ms))
-        {
-          tempRTF = sr.ReadToEnd();
-        }
+        tempRTF = sr.ReadToEnd();
       }
     }
+  }
 
-    private void LoadRTF()
+  private void LoadRTF()
+  {
+    MemoryStream stream = new MemoryStream(ASCIIEncoding.Default.GetBytes(tempRTF));
+    TextRange range = new TextRange(RTBMain.Document.ContentStart, RTBMain.Document.ContentEnd);
+    range.Load(stream, DataFormats.Rtf);
+    range.ApplyPropertyValue(TextElement.FontFamilyProperty, Font);
+  }
+
+  public void ReadText(Action<string> callBack)
+  {
+    if (!isReadingText && !isReadingKey)
     {
-      MemoryStream stream = new MemoryStream(ASCIIEncoding.Default.GetBytes(tempRTF));
-      TextRange range = new TextRange(RTBMain.Document.ContentStart, RTBMain.Document.ContentEnd);
-      range.Load(stream, DataFormats.Rtf);
-      range.ApplyPropertyValue(TextElement.FontFamilyProperty, Font);
+      isReadingText = true;
+      TBInput.Clear();
+      CallAfterReadingText = callBack;
+      SaveRTF();
+      Print("  ", new Pair<Brush>(BGColor, BGColorWhenReadText));
     }
+    else if (isReadingText)
+      throw new Exception("이미 텍스트를 읽고 있습니다.");
+    else if (isReadingKey)
+      throw new Exception("현재 키를 읽고 있으므로 텍스트를 읽을 수 없습니다.");
+  }
 
-    public void ReadText(Action<string> callBack)
+  public void ReadKey(Action<Key> callBack) => ReadKey(null, callBack);
+
+  public void ReadKey(Key? press, Action<Key> callBack)
+  {
+    if (!isReadingText && !isReadingKey)
     {
-      if (!isReadingText && !isReadingKey)
-      {
-        isReadingText = true;
-        TBInput.Clear();
-        CallAfterReadingText = callBack;
-        SaveRTF();
-        Print("  ", new Pair<Brush>(BGColor, BGColorWhenReadText));
-      }
-      else if (isReadingText)
-        throw new Exception("이미 텍스트를 읽고 있습니다.");
-      else if (isReadingKey)
-        throw new Exception("현재 키를 읽고 있으므로 텍스트를 읽을 수 없습니다.");
+      isReadingKey = true;
+      keyToPress = press;
+      CallAfterReadingKey = callBack;
     }
+    else if (isReadingKey)
+      throw new Exception("이미 키를 읽고 있습니다.");
+    else if (isReadingText)
+      throw new Exception("현재 텍스트를 읽고 있으므로 키를 읽을 수 없습니다.");
+  }
 
-    public void ReadKey(Action<Key> callBack) => ReadKey(null, callBack);
-
-    public void ReadKey(Key? press, Action<Key> callBack)
+  public void Clear()
+  {
+    if (!isReadingText && !isReadingKey)
     {
-      if (!isReadingText && !isReadingKey)
-      {
-        isReadingKey = true;
-        keyToPress = press;
-        CallAfterReadingKey = callBack;
-      }
-      else if (isReadingKey)
-        throw new Exception("이미 키를 읽고 있습니다.");
-      else if (isReadingText)
-        throw new Exception("현재 텍스트를 읽고 있으므로 키를 읽을 수 없습니다.");
+      RTBMain.Document.Blocks.Clear();
     }
+    else if (isReadingText)
+      throw new Exception("텍스트를 읽는 중에는 모든 텍스트를 지울 수 없습니다.");
+    else if (isReadingKey)
+      throw new Exception("키를 읽는 중에는 모든 텍스트를 지울 수 없습니다.");
+  }
 
-    public void Clear()
+  private void TBInput_KeyDown(object sender, KeyEventArgs e)
+  {
+    if (!keyDown.X)
     {
-      if (!isReadingText && !isReadingKey)
-      {
-        RTBMain.Document.Blocks.Clear();
-      }
-      else if (isReadingText)
-        throw new Exception("텍스트를 읽는 중에는 모든 텍스트를 지울 수 없습니다.");
-      else if (isReadingKey)
-        throw new Exception("키를 읽는 중에는 모든 텍스트를 지울 수 없습니다.");
-
-    }
-
-    private void TBInput_KeyDown(object sender, KeyEventArgs e)
-    {
+      keyDown.X = true;
+      keyDown.Y = e.Key;
       if (isReadingKey)
       {
         if (keyToPress != null && e.Key != keyToPress) return;
@@ -141,14 +150,22 @@ namespace GogumaWPF.Screen
         }
       }
     }
+  }
 
-    private void TBInput_TextChanged(object sender, TextChangedEventArgs e)
+  private void TBInput_PreviewKeyUp(object sender, KeyEventArgs e)
+  {
+    if (keyDown.Y == e.Key)
     {
-      if (isReadingText)
-      {
-        LoadRTF();
-        Print($" {TBInput.Text} ", new Pair<Brush>(BGColor, BGColorWhenReadText));
-      }
+      keyDown.X = false;
+    }
+  }
+
+  private void TBInput_TextChanged(object sender, TextChangedEventArgs e)
+  {
+    if (isReadingText)
+    {
+      LoadRTF();
+      Print($" {TBInput.Text} ", new Pair<Brush>(BGColor, BGColorWhenReadText));
     }
   }
 }

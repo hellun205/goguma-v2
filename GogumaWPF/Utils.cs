@@ -44,4 +44,6 @@ public static class Utils
 
     return sb.ToString();
   }
+
+  public static Brush GetARGB(byte a, byte r, byte g, byte b) => new SolidColorBrush(Color.FromArgb(a, r, g, b));
 }

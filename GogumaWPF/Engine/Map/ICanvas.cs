@@ -8,5 +8,9 @@ public interface ICanvas
   
   public IEnumerable<ICanvasItem> CanvasChild { get; }
 
-  public IPositionable? MovingObject { get; }
+  public Pair<byte> StartPosition { get; }
+  
+  public IEnumerable<Pair<byte>> MoveablePosition { get; }
+  
+  public Direction StartDirection { get; }
 }

@@ -8,12 +8,20 @@ namespace GogumaWPF.Engine.Player;
 public sealed partial class Player : IPositionable
 {
   public string Name { get; private set; }
+  
   public string Class { get; private set; } = "없음";
+  
   public Inventory Inventory { get; set; }
+  
   public Equipment Equipment { get; set; }
+  
   public PlayerStatus PlayerStatus { get; set; }
   
   public Pair<byte> Position { get; set; }
+  
+  public ICanvas Canvas { get; set; }
+
+  public Direction Direction { get; set; }
 
   public Player(string name)
   {

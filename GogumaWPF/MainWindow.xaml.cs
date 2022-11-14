@@ -27,10 +27,12 @@ namespace GogumaWPF
     public MainWindow()
     {
       InitializeComponent();
+      Main.screen = Screen;
 
       void Play()
       {
         Initialize(Screen);
+        Screen.Focus();
         Start();
       }
 
@@ -42,10 +44,10 @@ namespace GogumaWPF
         }
         catch (Exception ex)
         {
-          Main.ScreenUtil.Print(
+          Main.screen.Print(
             $"\nERROR: {ex.Message}\nSOURCE: {ex.Source ?? ""}\nTARGETSITE: {ex.TargetSite}\nSTACKTRACE ---\n{ex.StackTrace ?? ""}",
-            new Pair<Brush>(Brushes.DarkRed, Main.ScreenUtil.MainScreen.FGColor));
-          Main.ScreenUtil.Pause(key => { Application.Current.Shutdown(); });
+            new Pair<Brush>(Brushes.DarkRed, Main.screen.FGColor));
+          Main.screen.Pause(key => { Application.Current.Shutdown(); });
         }
       }
       else
@@ -54,7 +56,7 @@ namespace GogumaWPF
 
     private void Window_Loaded(object sender, RoutedEventArgs e)
     {
-      Screen.RTBMain.Focus();
+      Screen.Focus();
     }
   }
 }

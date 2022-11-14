@@ -13,6 +13,12 @@ public sealed partial class Player : IPositionable
   public PlayerStatus PlayerStatus { get; set; }
   
   public Pair<byte> Position { get; set; }
+  
+  public ICanvas Canvas { get; set; }
+  
+  public Direction Direction { get; set; }
+
+  public void Enter(ICanvas canvas) => Canvas = canvas;
 
   public Player(string name)
   {

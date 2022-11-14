@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Drawing;
+using System.Text;
 using GogumaConsole.Engine.Map;
 using GogumaConsole.Engine.Map.Field;
 
@@ -7,18 +8,25 @@ namespace GogumaConsole.Console;
 
 public static class ConsoleUtil
 {
-  public static readonly string ColorOnSelect = AnsiColor.BLACK_BG + AnsiColor.WHITE;
+  public static readonly Pair<ConsoleColor> DefaultColor =
+    new(System.Console.ForegroundColor, System.Console.BackgroundColor);
 
-  public static readonly string ColorOnNoSelect = AnsiColor.WHITE_BG + AnsiColor.BLACK;
+  public static readonly Pair<ConsoleColor> ColorOnSelect =
+    new Pair<ConsoleColor>(DefaultColor.Y, ConsoleClrFromRGB(125, 125, 125));
+
+  public static readonly Pair<ConsoleColor> ColorOnNoSelect =
+    new Pair<ConsoleColor>(ConsoleClrFromRGB(125, 125, 125), DefaultColor.Y);
 
   public static KeySet<ConsoleKey> KeySet { get; set; } = new KeySet<ConsoleKey>(ConsoleKey.UpArrow,
     ConsoleKey.DownArrow, ConsoleKey.LeftArrow, ConsoleKey.RightArrow, ConsoleKey.Enter);
 
   public static string ReadText()
   {
-    Print($"{AnsiColor.WHITE_BG}{AnsiColor.BLACK} ");
+    SetColor(ColorOnSelect);
+    Print(" ");
     var res = System.Console.ReadLine();
-    Print($" {AnsiColor.RESET}");
+    Print(" ");
+    SetColor(DefaultColor);
     return res;
   }
 
@@ -44,7 +52,20 @@ public static class ConsoleUtil
 
   public static void Clear() => System.Console.Clear();
 
-  public static void Print(string text) => System.Console.Write($"{AnsiColor.RESET}{text}");
+  public static void Print(string text) => System.Console.Write(text);
+
+  public static void Print(string text, Pair<ConsoleColor> color)
+  {
+    SetColor(color);
+    System.Console.Write(text);
+    SetColor(DefaultColor);
+  }
+
+  public static void SetColor(Pair<ConsoleColor> color)
+  {
+    System.Console.ForegroundColor = color.X;
+    System.Console.BackgroundColor = color.Y;
+  }
 
   public static void Println() => Print("\n");
 
@@ -80,7 +101,7 @@ public static class ConsoleUtil
 
       for (int i = 0; i < queue.Count + (cancellable ? 1 : 0); i++)
       {
-        string color = ColorOnNoSelect;
+        Pair<ConsoleColor> color = ColorOnNoSelect;
         if (i == selectingIndex)
         {
           color = ColorOnSelect;
@@ -131,7 +152,7 @@ public static class ConsoleUtil
 
       for (int i = 0; i < rows.Count + (cancellable ? 1 : 0); i++)
       {
-        string color = ColorOnNoSelect;
+        Pair<ConsoleColor> color = ColorOnNoSelect;
         if (i == selectingIndexs.X)
         {
           color = ColorOnSelect;
@@ -146,7 +167,7 @@ public static class ConsoleUtil
       if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
         for (int i = 0; i < queue[rows[selectingIndexs.X]].Count; i++)
         {
-          string color = ColorOnNoSelect;
+          Pair<ConsoleColor> color = ColorOnNoSelect;
           if (i == selectingIndexs.Y)
           {
             color = ColorOnSelect;
@@ -213,64 +234,15 @@ public static class ConsoleUtil
     return ReadKey(press);
   }
 
-  public static void PrintCanvas(ICanvas canvas, string textF = "")
+  public static ConsoleColor ConsoleClrFromRGB(byte r, byte g, byte b)
   {
-    const char PlayerIcon = '●';
-    const char NothingIcon = '■';
-    string NothingClr = AnsiColor.GetRGBFG(50, 50, 50);
-    string PlayerClr = AnsiColor.GetRGBFG(178, 34, 34);
+    int index = (r > 128 | g > 128 | b > 128) ? 8 : 0; // Bright bit
+    index |= (r > 64) ? 4 : 0; // Red bit
+    index |= (g > 64) ? 2 : 0; // Green bit
+    index |= (b > 64) ? 1 : 0; // Blue bit
 
-    string[] texts = textF.Split("\n");
-
-    Clear();
-    StringBuilder sb;
-
-    sb = new StringBuilder()
-      .Append("┌ ")
-      .Append(string.Empty.GetSep(canvas.CanvasSize.X + 1, "─ "))
-      .Append('┐');
-    Print(sb.ToString());
-    Print("\n");
-
-    for (byte y = 0; y <= canvas.CanvasSize.Y; y++)
-    {
-      Print("│ ");
-      for (byte x = 0; x <= canvas.CanvasSize.X; x++)
-      {
-        var item = canvas.CanvasChild.FirstOrDefault(item => item.Position == new Pair<byte>(x, y));
-
-        if (canvas.MovingObject != null && canvas.MovingObject.Position == new Pair<byte>(x, y))
-        {
-          Print($"{PlayerClr}{PlayerIcon} ");
-        }
-        else
-        {
-          if (item == null)
-            Print($"{NothingClr}{NothingIcon} ");
-          else
-          {
-            string clr = AnsiColor.GREEN;
-            if (item is IRequirable reqItem)
-            {
-              clr = (reqItem.Check ? clr : AnsiColor.RED);
-            }
-
-            Print($"{clr}{item.Icon} ");
-          }
-        }
-      }
-
-      Print("│  ");
-      if (texts.Length > y)
-        Print(texts[y]);
-      Println();
-    }
-
-    sb = new StringBuilder()
-      .Append("└ ")
-      .Append(string.Empty.GetSep(canvas.CanvasSize.X + 1, "─ "))
-      .Append('┘')
-      .Append('\n');
-    Print(sb.ToString());
+    return (System.ConsoleColor) index;
   }
+
+  public static ConsoleColor ToConsoleColor(this Color color) => ConsoleClrFromRGB(color.R, color.G, color.B);
 }
