@@ -44,7 +44,8 @@ public sealed partial class Player
     void While() 
     {
       Main.screen.Clear();
-      Main.screen.Select("캐릭터를 선택하세요.", new Dictionary<string, string>()
+      Main.screen.Print("캐릭터를 선택하세요");
+      Main.screen.Select(new Dictionary<string, string>()
       {
         {"새로 만들기", "new"},
         {"세이브 불러오기", "load"},
@@ -54,6 +55,7 @@ public sealed partial class Player
         switch (selection)
         {
           case "new":
+            Main.screen.Clear();
             Main.screen.Print("캐릭터의 이름을 정해주세요\n");
             Main.screen.ReadText(playerName =>
             {
@@ -67,7 +69,9 @@ public sealed partial class Player
             FileInfo[] fInfos = dInfo.GetFiles("*.json");
             Dictionary<string, string> datas = fInfos.Select(file => PlayerData.Load(file.FullName)).ToDictionary(pData => pData.ToString(), pData => pData.Name);
             
-            Main.screen.Select("불러올 캐릭터를 선택하세요.", datas, "취소", playerName =>
+            Main.screen.Clear();
+            Main.screen.Print("불러올 캐릭터를 선택하세요.");
+            Main.screen.Select(datas, "취소", playerName =>
             {
                if (!string.IsNullOrEmpty(playerName)) callBack(Load(playerName));
                else While();

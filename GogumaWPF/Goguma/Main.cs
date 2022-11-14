@@ -1,6 +1,8 @@
 using System.Windows;
 using System.Windows.Input;
 using GogumaWPF.Engine;
+using GogumaWPF.Engine.Entity;
+using GogumaWPF.Engine.Entity.Dialog;
 using GogumaWPF.Engine.Map;
 using GogumaWPF.Engine.Player;
 
@@ -20,7 +22,8 @@ public static partial class Main
     InitSkillManager();
     InitFieldManager();
     InitWorldManager();
-  }
+    InitEntityManager();
+  } 
 
   public static void Start()
   {
@@ -30,14 +33,18 @@ public static partial class Main
     // });
     player = new Player("test");
 
-    var world = "world:test_world".GetWorld();
-    player.Position = new Pair<byte>(5, 5);
-    player.Enter(world);
-    screen.OpenCanvas(player, field =>
-    {
-      var fld = field as Field.TestField;
-      screen.Clear();
-      screen.Print($"{fld.Icon} {fld.Name}\n{fld.Descriptions}");
-    });
+    // var world = "world:test_world".GetWorld();
+    // player.Position = new Pair<byte>(5, 5);
+    // player.Enter(world);
+    // screen.OpenCanvas(player, field =>
+    // {
+    //   var fld = field as Field.TestField;
+    //   screen.Clear();
+    //   screen.Print($"{fld.Icon} {fld.Name}\n{fld.Descriptions}");
+    // });
+
+    var entity = "entity:test".GetEntity();
+
+    screen.ShowDialogs(((INeutrality) entity).MeetDialogs, entity, player, () => { });
   }
 }

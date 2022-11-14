@@ -19,6 +19,8 @@ public static class Utils
   public static double Limit(this double value, double min, double max) => Math.Max(min, Math.Min(max, value));
   public static float Limit(this float value, float min, float max) => Math.Max(min, Math.Min(max, value));
 
+  public static decimal Lim(decimal value, decimal min, decimal max) => Limit(value, min, max);
+
   public static string GetSep(this string txt, int length, string sep)
   {
     var sb = new StringBuilder();

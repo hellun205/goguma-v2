@@ -7,7 +7,7 @@ public abstract class Field : IManageable, ICanvas, ICanvasItem
 {
   public string Type => Manager.Types.Field;
   
-  public string Code { get; init; }
+  public string Code { get; set; }
   
   public string Name { get; set; }
   
@@ -33,7 +33,7 @@ public abstract class Field : IManageable, ICanvas, ICanvasItem
 
   protected Field(string worldCode, string code, char icon)
   {
-    Code = $"{Type}:{worldCode}.{code}";
+    this.Init($"{worldCode}.{code}");
     Icon = icon;
   }
 

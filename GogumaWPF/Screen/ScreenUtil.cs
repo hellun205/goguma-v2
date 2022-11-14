@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Windows.Input;
 using System.Windows.Media;
-using GogumaWPF.Engine.Map;
-using GogumaWPF.Screen;
 
 namespace GogumaWPF;
 
@@ -14,7 +13,18 @@ public static class ScreenUtil
 
   public static void PrintF(this Screen.Screen screen, string formattedText)
   {
-    //<fg='' bg=''>
+    var ftxts = screen.GetFTxts(formattedText);
+
+    foreach (var ftxt in ftxts)
+      screen.Print(ftxt.Y, ftxt.X);
+  }
+
+  public static Pair<Pair<Brush>, string>[] GetFTxts(this Screen.Screen screen, string formattedText)
+  {
+    var defaultRes = new[]
+      {new Pair<Pair<Brush>, string>(new(screen.FGColor, screen.BGColor), formattedText)};
+    var result = new List<Pair<Pair<Brush>, string>>();
+
     if (formattedText.Contains('<'))
     {
       string[] split = formattedText.Split('<');
@@ -27,36 +37,43 @@ public static class ScreenUtil
         {
           Pair<Brush> color = new(screen.FGColor, screen.BGColor);
 
-          if (tagSplit[0].Contains("fg='"))
+          if (!tagSplit[0].Contains("reset"))
           {
-            color.X = (Brush) new BrushConverter().ConvertFromString(tagSplit[0].Split("fg='")[1].Split("'")[0]);
+            if (tagSplit[0].Contains("fg='"))
+            {
+              color.X = (Brush) new BrushConverter().ConvertFromString(tagSplit[0].Split("fg='")[1].Split("'")[0]);
+            }
+
+            if (tagSplit[0].Contains("bg='"))
+            {
+              color.Y = (Brush) new BrushConverter().ConvertFromString(tagSplit[0].Split("bg='")[1].Split("'")[0]);
+            }
           }
 
-          if (tagSplit[0].Contains("bg='"))
-          {
-            color.Y = (Brush) new BrushConverter().ConvertFromString(tagSplit[0].Split("bg='")[1].Split("'")[0]);
-          }
-
-          screen.Print(tagSplit[1], color);
+          result.Add(new Pair<Pair<Brush>, string>(color, tagSplit[1]));
         }
         catch
         {
-          screen.Print(tagSplit[1]);
+          return defaultRes;
         }
       }
+
+      return result.ToArray();
     }
     else
-      screen.Print(formattedText);
+      return defaultRes;
   }
 
-  public static void Select(this Screen.Screen screen, string title, Dictionary<string, Action> queue) => Select(screen, title, queue, string.Empty, null);
+  public static void Select(this Screen.Screen screen, string title, Dictionary<string, Action> queue) =>
+    Select(screen, title, queue, string.Empty, null);
 
-  public static void Select(this Screen.Screen screen, string title, Dictionary<string, Action> queue, string cancelText, Action? cancelCallBack)
+  public static void Select(this Screen.Screen screen, string title, Dictionary<string, Action> queue,
+    string cancelText, Action? cancelCallBack)
   {
     bool cancellable = !string.IsNullOrEmpty(cancelText);
     Dictionary<string, string> dict = queue.ToDictionary(x => x.Key, x => x.Key);
 
-    Select(screen, title, dict, cancelText, value =>
+    Select(screen, dict, cancelText, value =>
     {
       if (cancellable && string.IsNullOrEmpty(value))
         cancelCallBack?.Invoke();
@@ -65,10 +82,12 @@ public static class ScreenUtil
     });
   }
 
-  public static void Select(this Screen.Screen screen, string title, Dictionary<string, string> queue, Action<string> callBack) =>
-    Select(screen, title, queue, null, callBack);
+  public static void Select(this Screen.Screen screen, Dictionary<string, string> queue,
+    Action<string> callBack) =>
+    Select(screen, queue, null, callBack);
 
-  public static void Select(this Screen.Screen screen, string title, Dictionary<string, string> queue, string cancelText, Action<string> callBack)
+  public static void Select(this Screen.Screen screen, Dictionary<string, string> queue,
+    string cancelText, Action<string> callBack)
   {
     if (!isSelecting)
     {
@@ -78,10 +97,11 @@ public static class ScreenUtil
       int maxIndex = queue.Count - (cancellable ? 0 : 1);
       string[] options = queue.Keys.ToArray();
 
+      screen.SaveRTF();
+
       void While()
       {
-        screen.Clear();
-        screen.PrintF(title);
+        screen.LoadRTF();
         screen.Println();
 
         for (int i = 0; i < queue.Count + (cancellable ? 1 : 0); i++)
@@ -89,7 +109,7 @@ public static class ScreenUtil
           Pair<Brush> color = new(screen.FGColor, screen.BGColor);
           if (i == selectingIndex)
           {
-            color = new(screen.BGColor,screen.FGColor);
+            color = new(screen.BGColor, screen.FGColor);
           }
 
           screen.Print($" [ {(cancellable && i == maxIndex ? cancelText : options[i])} ] ", color);
@@ -132,8 +152,8 @@ public static class ScreenUtil
     else throw new Exception("이미 선택중 입니다.");
   }
 
-  public static void Select2d(this Screen.Screen screen, string title, Dictionary<string, List<string>> queue, string cancelText,
-    Action<Pair<int>?> callBack)
+  public static void Select2d(this Screen.Screen screen, Dictionary<string, List<string>> queue,
+    string cancelText, Action<Pair<int>?> callBack)
   {
     if (!isSelecting)
     {
@@ -142,11 +162,13 @@ public static class ScreenUtil
       List<string> rows = queue.Keys.ToList();
       Pair<int> selectingIndexs = new();
       Pair<int> maxIndexs = new(rows.Count - (cancellable ? 0 : 1), 0);
+      
+      screen.SaveRTF();
 
       void While()
       {
-        screen.Clear();
-        screen.PrintF($"{title}\n\n");
+        screen.LoadRTF();
+        screen.Println();
 
         for (int i = 0; i < rows.Count + (cancellable ? 1 : 0); i++)
         {
@@ -240,7 +262,8 @@ public static class ScreenUtil
     screen.ReadKey(callBack);
   }
 
-  public static void Pause(this Screen.Screen screen, Action<Key> callBack) => screen.Pause("계속하려면 아무 키나 누르십시오...", callBack);
+  public static void Pause(this Screen.Screen screen, Action<Key> callBack) =>
+    screen.Pause("계속하려면 아무 키나 누르십시오...", callBack);
 
   public static void Pause(this Screen.Screen screen, string text, Key press, Action<Key> callBack)
   {
@@ -249,7 +272,16 @@ public static class ScreenUtil
     screen.ReadKey(press, callBack);
   }
 
-  public static void Pause(this Screen.Screen screen, Key press, Action<Key> callBack) => screen.Pause($"계속하려면 {press}키를 누르십시오...", press, callBack);
+  public static void Pause(this Screen.Screen screen, Key press, Action<Key> callBack) =>
+    screen.Pause($"계속하려면 {press}키를 누르십시오...", press, callBack);
 
-  public static void Println(this Screen.Screen screen) => screen.Print("\n");
+  public static void Println(this Screen.Screen screen, uint count = 1)
+  {
+    if (count == 0) return;
+    var sb = new StringBuilder();
+    for (var i = 0; i < count; i++)
+      sb.Append('\n');
+
+    screen.Print(sb.ToString());
+  }
 }

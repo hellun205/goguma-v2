@@ -10,7 +10,7 @@ public sealed class World : IManageable, ICanvas
   
   public string Name { get; set; }
   
-  public string Code { get; init; }
+  public string Code { get; set; }
   
   public string Descriptions { get; set; }
 
@@ -28,7 +28,7 @@ public sealed class World : IManageable, ICanvas
 
   public World(string code)
   {
-    Code = $"{Type}:{code}";
+    this.Init(code);
   }
   
 }

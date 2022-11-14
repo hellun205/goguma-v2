@@ -49,5 +49,12 @@ public static class Manager
     public const string Field = "field";
 
     public const string World = "world";
+
+    public const string Entity = "entity";
+  }
+
+  public static void Init(this IManageable obj, string code)
+  {
+    obj.Code = $"{obj.Type}:{code}";
   }
 }

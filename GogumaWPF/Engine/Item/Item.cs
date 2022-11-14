@@ -8,7 +8,7 @@ public abstract class Item : IEquatable<Item>, ISellable, IPurchasable, IManagea
 {
   public string Type => Manager.Types.Item;
   
-  public string Code { get; init; } // format = "[test|game_name]:[item_name]"
+  public string Code { get; set; } // format = "[test|game_name]:[item_name]"
   
   public string Name { get; set; } = "none";
   
@@ -39,7 +39,7 @@ public abstract class Item : IEquatable<Item>, ISellable, IPurchasable, IManagea
 
   protected Item(string code)
   {
-    Code = code;
+    this.Init(code);
   }
 
   public event IPurchasable._OnPurchase? OnPurchase;

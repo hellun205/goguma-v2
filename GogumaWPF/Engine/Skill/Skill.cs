@@ -9,7 +9,7 @@ public abstract class Skill : IEquatable<Skill>, IManageable
 
   public string Type => Manager.Types.Skill;
   
-  public string Code { get; init; } // format = "[test|game_name]:[skill_name]"
+  public string Code { get; set; } // format = "[test|game_name]:[skill_name]"
   
   public string Name { get; set; }
 
@@ -22,7 +22,7 @@ public abstract class Skill : IEquatable<Skill>, IManageable
 
   protected Skill(string code)
   {
-    Code = code;
+    this.Init(code);
   }
 
   public bool Equals(Skill? other)

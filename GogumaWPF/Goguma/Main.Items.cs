@@ -17,7 +17,7 @@ public static partial class Main
   {
     ItemManager.AddRange(new []
     {
-      new Potion("goguma:potion")
+      new Potion("potion")
       {
         Name = "포션",
         Description = "효능이 별로 없을 것 같은 포션이다.",
