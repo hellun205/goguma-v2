@@ -8,9 +8,11 @@ namespace GogumaConsole.Engine.Map;
 
 public static class MapExtensions
 {
-  private const char NothingIcon = '■';
+  private static ICanvas lastCanvas;
+  private static Direction lastDir;
+  private static Pair<byte> lastPos;
 
-  private static char GetIcon(this Direction direction)
+  public static char GetIcon(this Direction direction)
   {
     return direction switch
     {
@@ -21,14 +23,37 @@ public static class MapExtensions
     };
   }
 
+  public static Direction GetOpposite(this Direction direction)
+  {
+    return direction switch
+    {
+      Direction.UP => Direction.DOWN,
+      Direction.DOWN => Direction.UP,
+      Direction.LEFT => Direction.RIGHT,
+      Direction.RIGHT => Direction.LEFT,
+    };
+  }
+
   public static void Enter(this IPositionable movingObj, ICanvas canvas)
   {
+    lastCanvas = canvas;
+    lastDir = movingObj.Direction;
+    lastPos = movingObj.Position;
     movingObj.Canvas = canvas;
     movingObj.Position = canvas.StartPosition;
     movingObj.Direction = canvas.StartDirection;
   }
 
-  public static void PrintCanvas(IPositionable movingObj, string textF = "")
+  public static void Leave(this IPositionable movingObj)
+  {
+    movingObj.Canvas = lastCanvas;
+    movingObj.Direction = lastDir.GetOpposite();
+    movingObj.Position = lastPos;
+  }
+
+  public static void PrintCanvas(IPositionable movingObj, string textF = "") => PrintCanvas(movingObj, null, textF);
+
+  public static void PrintCanvas(IPositionable movingObj, Pair<byte>? selectPosition, string textF = "")
   {
     string[] texts = textF.Split("\n");
     var canvas = movingObj.Canvas;
@@ -57,22 +82,21 @@ public static class MapExtensions
           Print($"{movingObj.Direction.GetIcon()} ",
             new Pair<ConsoleColor>(Color.Firebrick.ToConsoleColor(), ConsoleUtil.DefaultColor.Y));
         }
-        else if (moveable)
+        else if (moveable) // if moveable position
           Print("• ",
             new Pair<ConsoleColor>(Color.DimGray.ToConsoleColor(), ConsoleUtil.DefaultColor.Y));
         else
         {
-          if (item == null)
+          if (item == null) // if nothing item
             Print("  ");
-          else
+          else // if has item
           {
-            ConsoleColor clr = Color.DarkGreen.ToConsoleColor();
-            if (item is IRequirable reqItem)
-            {
-              clr = (reqItem.Check ? clr : Color.DarkRed.ToConsoleColor());
-            }
+            Pair<ConsoleColor> clr = new(item.Color, DefaultColor.Y);
+            if (selectPosition != null && selectPosition == item.Position &&
+                item is IRequirable reqItem) // check requirable
+              clr.X = (reqItem.Check ? Color.DarkGreen.ToConsoleColor() : Color.DarkRed.ToConsoleColor());
 
-            Print($"{item.Icon} ", new(clr, DefaultColor.Y));
+            Print($"{item.Icon} ", clr);
           }
         }
       }
@@ -91,20 +115,25 @@ public static class MapExtensions
     Print(sb.ToString());
   }
 
-  public static void OpenCanvas(IPositionable movingObj)
+  public static ICanvasItem OpenCanvas(IPositionable movingObj)
   {
-    var canvas = movingObj.Canvas;
-    var text = "";
+    ICanvas canvas = movingObj.Canvas;
+    string text = "";
+    Pair<byte> tempPos = movingObj.Position;
 
     bool CheckMoveable(Pair<byte> position)
     {
-      return canvas.MoveablePosition.Contains(position) && position.X >= 0 && position.Y >= 0 &&
+      return canvas.MoveablePosition.Contains(position) &&
+             canvas.CanvasChild.FirstOrDefault(x => x.Position == position) == null &&
+             position.X >= 0 && position.Y >= 0 &&
              position.X <= canvas.CanvasSize.X && position.Y <= canvas.CanvasSize.Y;
     }
 
+    ICanvasItem TryGetItem(Pair<byte> position) => canvas.CanvasChild.FirstOrDefault(x => x.Position == position);
+
     while (true)
     {
-      PrintCanvas(movingObj, text);
+      PrintCanvas(movingObj, tempPos, text);
 
       var key = ReadKey();
 
@@ -112,6 +141,9 @@ public static class MapExtensions
 
       if (key == KeySet.Enter)
       {
+        var res = TryGetItem(tempPos);
+        if (res != null)
+          return res;
       }
       else if (key == KeySet.Up)
       {
@@ -135,6 +167,10 @@ public static class MapExtensions
       }
 
       if (CheckMoveable(position)) movingObj.Position = position;
+
+      var item = TryGetItem(position);
+      text = (item != null ? item.CanvasDescriptions : string.Empty);
+      tempPos = position;
     }
   }
 }

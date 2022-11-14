@@ -1,3 +1,4 @@
+using System.Windows.Media;
 using GogumaWPF.Engine.Map.Field;
 using GogumaWPF.Engine;
 using GogumaWPF.Goguma.Field;
@@ -23,7 +24,8 @@ public static partial class Main
         Descriptions = "테스트용",
         Position = new Pair<byte>(4, 4),
         CanvasSize = new Pair<byte>(10, 10),
-        CanvasDescriptions = "canvas item descriptions test"
+        CanvasDescriptions = "canvas item descriptions test",
+        Color = Brushes.Gold
       }
     });
   }

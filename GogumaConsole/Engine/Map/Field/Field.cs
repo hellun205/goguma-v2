@@ -15,6 +15,10 @@ public abstract class Field : IManageable, ICanvas, ICanvasItem
   public Pair<byte> Position { get; set; }
   
   public char Icon { get; init; }
+  
+  public string CanvasDescriptions { get; set; }
+  
+  public ConsoleColor Color { get; set; }
 
   public IEnumerable<ICanvasItem> CanvasChild { get; set; }
   

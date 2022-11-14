@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Windows.Media;
 
 namespace GogumaWPF.Engine.Map.Field;
 
@@ -19,6 +20,8 @@ public abstract class Field : IManageable, ICanvas, ICanvasItem
   public char Icon { get; init; }
   
   public string CanvasDescriptions { get; set; }
+  
+  public Brush Color { get; set; }
 
   public IEnumerable<ICanvasItem> CanvasChild { get; set; }
   

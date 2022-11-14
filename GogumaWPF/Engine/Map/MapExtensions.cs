@@ -9,7 +9,6 @@ namespace GogumaWPF.Engine.Map;
 
 public static class MapExtensions
 {
-  private const char NothingIcon = '■';
   private static ICanvas lastCanvas;
   private static Direction lastDir;
   private static Pair<byte> lastPos;
@@ -37,14 +36,13 @@ public static class MapExtensions
   }
 
   public static void Enter(this IPositionable movingObj, ICanvas canvas)
-  {    
+  {
     lastCanvas = canvas;
     lastDir = movingObj.Direction;
     lastPos = movingObj.Position;
     movingObj.Canvas = canvas;
     movingObj.Position = canvas.StartPosition;
     movingObj.Direction = canvas.StartDirection;
-
   }
 
   public static void Leave(this IPositionable movingObj)
@@ -54,7 +52,11 @@ public static class MapExtensions
     movingObj.Position = lastPos;
   }
 
-  public static void PrintCanvas(this Screen.Screen screen, IPositionable movingObj, string textF = "")
+  public static void PrintCanvas(this Screen.Screen screen, IPositionable movingObj, string textF = "") =>
+    PrintCanvas(screen, movingObj, null, textF);
+
+  public static void PrintCanvas(this Screen.Screen screen, IPositionable movingObj, Pair<byte>? selectPosition,
+    string textF = "")
   {
     string[] texts = textF.Split("\n");
     var canvas = movingObj.Canvas;
@@ -82,19 +84,18 @@ public static class MapExtensions
         {
           screen.Print($"{movingObj.Direction.GetIcon()} ", new Pair<Brush>(Brushes.Firebrick, screen.BGColor));
         }
-        else if (moveable)
+        else if (moveable) // if moveable position
           screen.Print($"ㆍ ", new Pair<Brush>(Utils.GetARGB(50, 255, 255, 255), screen.BGColor));
         else
         {
-          if (item == null)
-            screen.Print($"{NothingIcon} ", new Pair<Brush>(Utils.GetARGB(1, 255, 255, 255), screen.BGColor));
-          else
+          if (item == null) // if nothing item
+            screen.Print($"■ ", new Pair<Brush>(Utils.GetARGB(1, 255, 255, 255), screen.BGColor));
+          else // if has item
           {
-            var clr = new Pair<Brush>(Brushes.DarkGreen, screen.BGColor);
-            if (item is IRequirable reqItem)
-            {
-              clr.X = (reqItem.Check ? clr.X : Brushes.DarkRed);
-            }
+            var clr = new Pair<Brush>(item.Color, screen.BGColor);
+            if (selectPosition != null && selectPosition == item.Position &&
+                item is IRequirable reqItem) // check requirable
+              clr.X = (reqItem.Check ? Brushes.DarkGreen : Brushes.DarkRed);
 
             screen.Print($"{item.Icon} ", clr);
           }
@@ -123,7 +124,9 @@ public static class MapExtensions
 
     bool CheckMoveable(Pair<byte> position)
     {
-      return canvas.MoveablePosition.Contains(position) && position.X >= 0 && position.Y >= 0 &&
+      return canvas.MoveablePosition.Contains(position) &&
+             canvas.CanvasChild.FirstOrDefault(x => x.Position == position) == null &&
+             position.X >= 0 && position.Y >= 0 &&
              position.X <= canvas.CanvasSize.X && position.Y <= canvas.CanvasSize.Y;
     }
 
@@ -131,7 +134,7 @@ public static class MapExtensions
 
     void While()
     {
-      screen.PrintCanvas(movingObj, text);
+      screen.PrintCanvas(movingObj, tempPos, text);
 
       screen.ReadKey(key =>
       {
