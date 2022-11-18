@@ -2,7 +2,7 @@
 
 namespace GogumaWPF.Engine.Entity;
 
-public interface IDropable
+public interface IDropable : IEnemy
 {
   public IEnumerable<DropItem> DropItems { get; }
 }

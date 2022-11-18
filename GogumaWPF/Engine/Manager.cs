@@ -10,9 +10,9 @@ public sealed class Manager<T> where T : IManageable
   public HashSet<T> Items { get; private set; } = new HashSet<T>();
 
   public string[] GetCodes => Items.Select(x => x.Code).ToArray();
-  
+
   public const string Empty = "global:empty";
-  
+
   public T Get(string code)
   {
     var skill = Items.FirstOrDefault(x => x.Code == code);
@@ -57,4 +57,6 @@ public static class Manager
   {
     obj.Code = $"{obj.Type}:{code}";
   }
+
+  public static void ThrowGetError(string type) => throw new Exception($"this code is not {type} code.");
 }

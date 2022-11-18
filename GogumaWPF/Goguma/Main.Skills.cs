@@ -7,14 +7,21 @@ public static partial class Main
 {
   public static Skill GetSkill(this string code)
   {
-    return SkillManager.Get(code);
+    var get = Manager.Get(code);
+    if (get is Skill skill)
+    {
+      return skill;
+    }
+    else
+    {
+      Engine.Manager.ThrowGetError("entity");
+      return null;
+    }
   }
-
-  public static Manager<Skill> SkillManager = new Manager<Skill>();
   
   private static void InitSkillManager()
   {
-    SkillManager.AddRange(new []
+    Manager.AddRange(new []
     {
       new BasicAttack(),
       

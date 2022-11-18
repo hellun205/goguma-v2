@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Windows.Media;
 using GogumaWPF.Engine;
@@ -12,14 +13,21 @@ public static partial class Main
 {
   public static Engine.Entity.Entity GetEntity(this string code)
   {
-    return EntityManager.Get(code);
+    var get = Manager.Get(code);
+    if (get is Engine.Entity.Entity entity)
+    {
+      return entity;
+    }
+    else
+    {
+      Engine.Manager.ThrowGetError("entity");
+      return null;
+    }
   }
 
-  public static Manager<Engine.Entity.Entity> EntityManager = new Manager<Engine.Entity.Entity>();
-  
   private static void InitEntityManager()
   {
-    EntityManager.AddRange(new []
+    Manager.AddRange(new []
     {
       new TestNPC("test")
       {

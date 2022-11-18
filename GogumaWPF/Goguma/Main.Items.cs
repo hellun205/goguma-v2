@@ -8,14 +8,21 @@ public static partial class Main
 {
   public static Item GetItem(this string code)
   {
-    return ItemManager.Get(code);
+    var get = Manager.Get(code);
+    if (get is Item item)
+    {
+      return item;
+    }
+    else
+    {
+      Engine.Manager.ThrowGetError("item");
+      return null;
+    }
   }
-
-  public static Manager<Item> ItemManager = new Manager<Item>();
 
   private static void InitItemManager()
   {
-    ItemManager.AddRange(new []
+    Manager.AddRange(new []
     {
       new Potion("potion")
       {

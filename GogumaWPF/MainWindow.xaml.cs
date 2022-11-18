@@ -31,7 +31,6 @@ namespace GogumaWPF
 
       void Play()
       {
-        Initialize(Screen);
         Screen.Focus();
         Start();
       }

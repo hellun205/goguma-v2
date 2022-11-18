@@ -9,14 +9,21 @@ public static partial class Main
 {
   public static Engine.Map.Field.Field GetField(this string code)
   {
-    return FieldManager.Get(code);
+    var get = Manager.Get(code);
+    if (get is Engine.Map.Field.Field field)
+    {
+      return field;
+    }
+    else
+    {
+      Engine.Manager.ThrowGetError("field");
+      return null;
+    }
   }
-
-  public static Manager<Engine.Map.Field.Field> FieldManager = new Manager<Engine.Map.Field.Field>();
 
   private static void InitFieldManager()
   {
-    FieldManager.AddRange(new[]
+    Manager.AddRange(new[]
     {
       new TestField("test_world", "test_field", '☆')
       {
