@@ -23,7 +23,7 @@ public partial class Screen : UserControl
 
   public Brush BGColorWhenReadText { get; set; } = Brushes.DimGray;
 
-  public KeySet<Key> KeySet { get; set; } = new KeySet<Key>(Key.Up, Key.Down, Key.Left, Key.Right, Key.Enter);
+  public KeySet<Key> KeySet { get; set; } = new KeySet<Key>(Key.Up, Key.Down, Key.Left, Key.Right, Key.Z);
 
   public bool IsReadingText = false;
   public bool IsReadingKey = false;
@@ -31,11 +31,10 @@ public partial class Screen : UserControl
   public Action<Key> CallAfterReadingKey;
   public string TempRTF;
   public Key? KeyToPress;
-  
-  /// <summary>
-  /// X : 키 다운 가능 여부, Y : 키 다운했던 키
-  /// </summary>
-  private Pair<bool, Key> keyDown;
+  public bool CanTask = true;
+
+  private bool keyDownAvailability = true;
+  private Key tempKey;
 
   public Screen()
   {
@@ -90,34 +89,32 @@ public partial class Screen : UserControl
 
   public void ReadText(Action<string> callBack)
   {
-    if (!IsReadingText && !IsReadingKey)
+    if (CanTask)
     {
       IsReadingText = true;
+      CanTask = false;
       TBInput.Clear();
       CallAfterReadingText = callBack;
       SaveRTF();
       Print("  ", new Pair<Brush>(BGColor, BGColorWhenReadText));
     }
-    else if (IsReadingText)
-      throw new Exception("이미 텍스트를 읽고 있습니다.");
-    else if (IsReadingKey)
-      throw new Exception("현재 키를 읽고 있으므로 텍스트를 읽을 수 없습니다.");
+    else
+      ThrowWhenCantTask();
   }
 
   public void ReadKey(Action<Key> callBack) => ReadKey(null, callBack);
 
   public void ReadKey(Key? press, Action<Key> callBack)
   {
-    if (!IsReadingText && !IsReadingKey)
+    if (CanTask)
     {
       IsReadingKey = true;
+      CanTask = false;
       KeyToPress = press;
       CallAfterReadingKey = callBack;
     }
-    else if (IsReadingKey)
-      throw new Exception("이미 키를 읽고 있습니다.");
-    else if (IsReadingText)
-      throw new Exception("현재 텍스트를 읽고 있으므로 키를 읽을 수 없습니다.");
+    else
+      ThrowWhenCantTask();
   }
 
   public void ExitRead()
@@ -126,34 +123,34 @@ public partial class Screen : UserControl
     {
       IsReadingKey = false;
       IsReadingText = false;
+      CanTask = true;
     }
-    else 
-      throw new Exception("현재 읽는 중이 아닙니다.");
+    else
+      throw new Exception("not currently reading");
   }
 
   public void Clear()
   {
-    if (!IsReadingText && !IsReadingKey)
+    if (CanTask)
     {
       RTBMain.Document.Blocks.Clear();
     }
-    else if (IsReadingText)
-      throw new Exception("텍스트를 읽는 중에는 모든 텍스트를 지울 수 없습니다.");
-    else if (IsReadingKey)
-      throw new Exception("키를 읽는 중에는 모든 텍스트를 지울 수 없습니다.");
+    else
+      ThrowWhenCantTask();
   }
 
   private void TBInput_KeyDown(object sender, KeyEventArgs e)
   {
-    if (!keyDown.X)
+    if (keyDownAvailability)
     {
-      keyDown.X = true;
-      keyDown.Y = e.Key;
+      keyDownAvailability = false;
+      tempKey = e.Key;
       if (IsReadingKey)
       {
         if (KeyToPress != null && e.Key != KeyToPress) return;
 
         IsReadingKey = false;
+        CanTask = true;
         CallAfterReadingKey(e.Key);
       }
       else if (IsReadingText)
@@ -161,6 +158,7 @@ public partial class Screen : UserControl
         if (e.Key == Key.Enter)
         {
           IsReadingText = false;
+          CanTask = true;
           CallAfterReadingText(TBInput.Text);
         }
       }
@@ -169,9 +167,9 @@ public partial class Screen : UserControl
 
   private void TBInput_PreviewKeyUp(object sender, KeyEventArgs e)
   {
-    if (keyDown.Y == e.Key)
+    if (tempKey == e.Key)
     {
-      keyDown.X = false;
+      keyDownAvailability = true;
     }
   }
 
@@ -183,4 +181,6 @@ public partial class Screen : UserControl
       Print($" {TBInput.Text} ", new Pair<Brush>(BGColor, BGColorWhenReadText));
     }
   }
+
+  public void ThrowWhenCantTask() => throw new Exception("It cannot be run while other operations are in progress.");
 }

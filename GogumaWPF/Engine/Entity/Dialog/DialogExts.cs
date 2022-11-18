@@ -33,7 +33,7 @@ public static class DialogExts
     if (!isSkip) screen.ExitRead();
   }
 
-  private static async void ShowDialog(this Screen.Screen screen, IDialog dialog, Entity entity, Player.Player player,
+  private static async Task ShowDialog(this Screen.Screen screen, IDialog dialog, Entity entity, Player.Player player,
     bool hasNextDialog, Action<string?> callBack)
   {
     if (entity is INeutrality npc)

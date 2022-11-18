@@ -9,8 +9,6 @@ namespace GogumaWPF;
 
 public static class ScreenUtil
 {
-  private static bool isSelecting = false;
-
   public static void PrintF(this Screen.Screen screen, string formattedText)
   {
     var ftxts = screen.GetFTxts(formattedText);
@@ -89,9 +87,9 @@ public static class ScreenUtil
   public static void Select(this Screen.Screen screen, Dictionary<string, string> queue,
     string cancelText, Action<string> callBack)
   {
-    if (!isSelecting)
+    if (screen.CanTask)
     {
-      isSelecting = true;
+      screen.CanTask = false;
       bool cancellable = !string.IsNullOrEmpty(cancelText);
       int selectingIndex = 0;
       int maxIndex = queue.Count - (cancellable ? 0 : 1);
@@ -120,7 +118,7 @@ public static class ScreenUtil
         {
           if (key == screen.KeySet.Enter)
           {
-            isSelecting = false;
+            screen.CanTask = true;
             callBack((((cancellable && selectingIndex == maxIndex) ? null : queue[options[selectingIndex]]) ??
                       string.Empty));
           }
@@ -149,15 +147,16 @@ public static class ScreenUtil
 
       While();
     }
-    else throw new Exception("이미 선택중 입니다.");
+    else 
+      screen.ThrowWhenCantTask();
   }
 
   public static void Select2d(this Screen.Screen screen, Dictionary<string, List<string>> queue,
     string cancelText, Action<Pair<int>?> callBack)
   {
-    if (!isSelecting)
+    if (screen.CanTask)
     {
-      isSelecting = true;
+      screen.CanTask = false;
       bool cancellable = !string.IsNullOrEmpty(cancelText);
       List<string> rows = queue.Keys.ToList();
       Pair<int> selectingIndexs = new();
@@ -202,7 +201,7 @@ public static class ScreenUtil
         {
           if (key == screen.KeySet.Enter)
           {
-            isSelecting = false;
+            screen.CanTask = true;
             callBack((!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X) ? selectingIndexs : null));
           }
           else if (key == screen.KeySet.Left)
@@ -252,7 +251,8 @@ public static class ScreenUtil
 
       While();
     }
-    else throw new Exception("이미 선택중 입니다.");
+    else 
+      screen.ThrowWhenCantTask();
   }
 
   public static void Pause(this Screen.Screen screen, string text, Action<Key> callBack)

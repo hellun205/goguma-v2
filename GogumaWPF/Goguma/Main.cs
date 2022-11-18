@@ -5,6 +5,7 @@ using GogumaWPF.Engine.Entity;
 using GogumaWPF.Engine.Entity.Dialog;
 using GogumaWPF.Engine.Map;
 using GogumaWPF.Engine.Player;
+using GogumaWPF.Screen.Writing;
 
 namespace GogumaWPF.Goguma;
 
@@ -45,6 +46,10 @@ public static partial class Main
 
     var entity = "entity:test".GetEntity();
 
-    screen.ShowDialogs(((INeutrality) entity).MeetDialogs, entity, player, () => { });
+    // screen.ShowDialogs(((INeutrality) entity).MeetDialogs, entity, player, () => { });
+    screen.ReadWritingEng(16, str =>
+    {
+      MessageBox.Show(str);
+    });
   }
 }
