@@ -12,6 +12,8 @@ public sealed class Inventory
 {
   public Dictionary<string, List<ItemBundle>> Items { get; private set; }
 
+  public uint Gold { get; set; } = 0;
+
   public Inventory(string[] groupNames)
   {
     Items = new Dictionary<string, List<ItemBundle>>();

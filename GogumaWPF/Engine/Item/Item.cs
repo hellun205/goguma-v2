@@ -1,10 +1,11 @@
 using System;
 using System.Windows.Media;
+using GogumaWPF.Goguma;
 
 namespace GogumaWPF.Engine.Item;
 
 [Serializable]
-public abstract class Item : IEquatable<Item>, ISellable, IPurchasable, IManageable
+public abstract class Item : IEquatable<Item>, ITradable, IManageable
 {
   public string Type => Manager.Types.Item;
   
@@ -16,6 +17,10 @@ public abstract class Item : IEquatable<Item>, ISellable, IPurchasable, IManagea
 
   public uint PriceOfSell { get; set; }
   
+  public event ITradable._OnPurchase? OnPurchase;
+  
+  public event ITradable._OnSell? OnSell;
+
   public uint PriceOfPurchase { get; set; }
   
   public bool Equals(Item? other)
@@ -42,17 +47,25 @@ public abstract class Item : IEquatable<Item>, ISellable, IPurchasable, IManagea
     this.Init(code);
   }
 
-  public event IPurchasable._OnPurchase? OnPurchase;
-  
   public void Purchase()
   {
     OnPurchase.Invoke(this, PriceOfPurchase);
   }
-
-  public event ISellable._OnSell? OnSell;
   
   public void Sell()
   {
     OnPurchase.Invoke(this, PriceOfSell);
+  }
+  
+  public string CheckType()
+  {
+    string type = this switch
+    {
+      IEquippable => ItemType.EquipableItem,
+      IConsumable => ItemType.ConsumableItem,
+      _ => ItemType.OtherItem
+    };
+
+    return type;
   }
 }

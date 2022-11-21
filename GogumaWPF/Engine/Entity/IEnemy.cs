@@ -1,6 +1,6 @@
 ﻿namespace GogumaWPF.Engine.Entity;
 
-public interface IEnemy
+public interface IEnemy : IManageable
 {
   public EntityStatus Status { get; }
 }

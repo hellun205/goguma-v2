@@ -14,7 +14,7 @@ public static class DialogExts
   private static async Task ShowDialogText(this Screen.Screen screen, string textF)
   {
     bool isSkip = false;
-    var ftxts = screen.GetFTxts(textF);
+    var ftxts = screen.GetFTexts(textF);
 
     screen.ReadKey(screen.KeySet.Enter, key => { isSkip = true; });
 
@@ -26,7 +26,7 @@ public static class DialogExts
       foreach (var str in strs)
       {
         screen.Print(str.ToString(), clr);
-        if (str != ' ' && !isSkip) await Task.Delay(DialogSpeed);
+        if (str != ' ' || !isSkip) await Task.Delay(DialogSpeed);
       }
     }
 

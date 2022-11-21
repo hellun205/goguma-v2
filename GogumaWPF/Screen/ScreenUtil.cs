@@ -11,13 +11,13 @@ public static class ScreenUtil
 {
   public static void PrintF(this Screen.Screen screen, string formattedText)
   {
-    var ftxts = screen.GetFTxts(formattedText);
+    var ftxts = screen.GetFTexts(formattedText);
 
     foreach (var ftxt in ftxts)
       screen.Print(ftxt.Y, ftxt.X);
   }
 
-  public static Pair<Pair<Brush>, string>[] GetFTxts(this Screen.Screen screen, string formattedText)
+  public static Pair<Pair<Brush>, string>[] GetFTexts(this Screen.Screen screen, string formattedText, bool isSymbol = false)
   {
     var defaultRes = new[]
       {new Pair<Pair<Brush>, string>(new(screen.FGColor, screen.BGColor), formattedText)};
@@ -48,7 +48,7 @@ public static class ScreenUtil
             }
           }
 
-          result.Add(new Pair<Pair<Brush>, string>(color, tagSplit[1]));
+          result.Add(new Pair<Pair<Brush>, string>(color, (isSymbol ? tagSplit[1].ToSymbol() : tagSplit[1])));
         }
         catch
         {
@@ -60,6 +60,17 @@ public static class ScreenUtil
     }
     else
       return defaultRes;
+  }
+  
+  public static string GetStringOfFText(this Screen.Screen screen, string fStr)
+  {
+    var pairs = screen.GetFTexts(fStr);
+    var sb = new StringBuilder();
+
+    foreach (var pair in pairs)
+      sb.Append(pair.Y);
+
+    return sb.ToString();
   }
 
   public static void Select(this Screen.Screen screen, string title, Dictionary<string, Action> queue) =>
@@ -147,7 +158,7 @@ public static class ScreenUtil
 
       While();
     }
-    else 
+    else
       screen.ThrowWhenCantTask();
   }
 
@@ -159,9 +170,9 @@ public static class ScreenUtil
       screen.CanTask = false;
       bool cancellable = !string.IsNullOrEmpty(cancelText);
       List<string> rows = queue.Keys.ToList();
-      Pair<int> selectingIndexs = new();
-      Pair<int> maxIndexs = new(rows.Count - (cancellable ? 0 : 1), 0);
-      
+      Pair<int> selectingIndexes = new();
+      Pair<int> maxIndexes = new(rows.Count - (cancellable ? 0 : 1), 0);
+
       screen.SaveRTF();
 
       void While()
@@ -172,7 +183,7 @@ public static class ScreenUtil
         for (int i = 0; i < rows.Count + (cancellable ? 1 : 0); i++)
         {
           Pair<Brush> color = new(screen.FGColor, screen.BGColor);
-          if (i == selectingIndexs.X)
+          if (i == selectingIndexes.X)
           {
             color = new(screen.BGColor, screen.FGColor);
           }
@@ -183,17 +194,17 @@ public static class ScreenUtil
         }
 
         screen.Print("\n");
-        if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
-          for (int i = 0; i < queue[rows[selectingIndexs.X]].Count; i++)
+        if (!cancellable || (cancellable && selectingIndexes.X != maxIndexes.X))
+          for (int i = 0; i < queue[rows[selectingIndexes.X]].Count; i++)
           {
             Pair<Brush> color = new(screen.FGColor, screen.BGColor);
-            if (i == selectingIndexs.Y)
+            if (i == selectingIndexes.Y)
             {
               color = new(screen.BGColor, screen.FGColor);
             }
 
             screen.Print("    ");
-            screen.Print($" [ {queue[rows[selectingIndexs.X]][i]} ] ", color);
+            screen.Print($" [ {queue[rows[selectingIndexes.X]][i]} ] ", color);
             screen.Println();
           }
 
@@ -202,44 +213,44 @@ public static class ScreenUtil
           if (key == screen.KeySet.Enter)
           {
             screen.CanTask = true;
-            callBack((!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X) ? selectingIndexs : null));
+            callBack((!cancellable || (cancellable && selectingIndexes.X != maxIndexes.X) ? selectingIndexes : null));
           }
           else if (key == screen.KeySet.Left)
           {
-            if (selectingIndexs.X == 0)
-              selectingIndexs.X = maxIndexs.X;
+            if (selectingIndexes.X == 0)
+              selectingIndexes.X = maxIndexes.X;
             else
-              selectingIndexs.X -= 1;
-            selectingIndexs.Y = 0;
-            if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
-              maxIndexs.Y = queue[rows[selectingIndexs.X]].Count - 1;
+              selectingIndexes.X -= 1;
+            selectingIndexes.Y = 0;
+            if (!cancellable || (cancellable && selectingIndexes.X != maxIndexes.X))
+              maxIndexes.Y = queue[rows[selectingIndexes.X]].Count - 1;
             While();
           }
           else if (key == screen.KeySet.Right)
           {
-            if (selectingIndexs.X == maxIndexs.X)
-              selectingIndexs.X = 0;
+            if (selectingIndexes.X == maxIndexes.X)
+              selectingIndexes.X = 0;
             else
-              selectingIndexs.X += 1;
-            selectingIndexs.Y = 0;
-            if (!cancellable || (cancellable && selectingIndexs.X != maxIndexs.X))
-              maxIndexs.Y = queue[rows[selectingIndexs.X]].Count - 1;
+              selectingIndexes.X += 1;
+            selectingIndexes.Y = 0;
+            if (!cancellable || (cancellable && selectingIndexes.X != maxIndexes.X))
+              maxIndexes.Y = queue[rows[selectingIndexes.X]].Count - 1;
             While();
           }
           else if (key == screen.KeySet.Up)
           {
-            if (selectingIndexs.Y == 0)
-              selectingIndexs.Y = maxIndexs.Y;
+            if (selectingIndexes.Y == 0)
+              selectingIndexes.Y = maxIndexes.Y;
             else
-              selectingIndexs.Y -= 1;
+              selectingIndexes.Y -= 1;
             While();
           }
           else if (key == screen.KeySet.Down)
           {
-            if (selectingIndexs.Y == maxIndexs.Y)
-              selectingIndexs.Y = 0;
+            if (selectingIndexes.Y == maxIndexes.Y)
+              selectingIndexes.Y = 0;
             else
-              selectingIndexs.Y += 1;
+              selectingIndexes.Y += 1;
             While();
           }
           else
@@ -251,7 +262,7 @@ public static class ScreenUtil
 
       While();
     }
-    else 
+    else
       screen.ThrowWhenCantTask();
   }
 

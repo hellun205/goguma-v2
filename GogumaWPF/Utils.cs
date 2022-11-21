@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Windows.Documents;
 using System.Windows.Media;
@@ -63,6 +65,8 @@ public static class Utils
       '9' => '９', '0' => '０', '-' => '－', '=' => '＝', '_' => '＿', '+' => '＋', '[' => '［', '{' => '｛', ']' => '］',
       '}' => '｝', '\\' => '￦', '|' => '｜', ';' => '；', ':' => '：', '\'' => '＇', '"' => '＂', ',' => '，', '<' => '＜',
       '.' => '．', '>' => '＞', '/' => '／', '?' => '？', ' ' => '　',
+      '~' => '～', '!' => '！', '@' => '＠', '#' => '＃', '$' => '＄', '%' => '％', '^' => '＾', '&' => '＆', '*' => '＊',
+      '(' => '（', ')' => '）',
       _ => character
     };
   }
@@ -81,6 +85,8 @@ public static class Utils
       '９' => '9', '０' => '0', '－' => '-', '＝' => '=', '＿' => '_', '＋' => '+', '［' => '[', '｛' => '{', '］' => ']',
       '｝' => '}', '￦' => '\\', '｜' => '|', '；' => ';', '：' => ':', '＇' => '\'', '＂' => '"', '，' => ',', '＜' => '<',
       '．' => '.', '＞' => '>', '／' => '/', '？' => '?', '　' => ' ',
+      '～' => '~', '！' => '!', '＠' => '@', '＃' => '#', '＄' => '$', '％' => '%', '＾' => '^', '＆' => '&', '＊' => '*',
+      '（' => '(', '）' => ')',
       _ => symbol
     };
   }
@@ -122,16 +128,51 @@ public static class Utils
   public static string FillEmpty(this string str, int len, char fillChr = ' ')
   {
     if (len <= str.Length)
-      return str;
-    else
     {
-      var sb = new StringBuilder(str);
-      for (var i = 0; i < len - str.Length; i++)
-      {
-        sb.Append(fillChr);
-      }
-
-      return sb.ToString();
+      str.Substring(0, str.Length - 1);
+      str.Append('…');
     }
+
+    var sb = new StringBuilder(str);
+    for (var i = 0; i < len - str.Length; i++)
+    {
+      sb.Append(fillChr);
+    }
+
+    return sb.ToString();
+  }
+
+  public static T GetRandom<T>(this IEnumerable<T> enumerable)
+  {
+    var rand = new Random();
+    return enumerable.ToArray()[rand.Next(0, enumerable.Count())];
+  }
+
+  public static string While(this string str, int index)
+  {
+    var sb = new StringBuilder();
+    for (var i = 0; i < index; i++)
+    {
+      sb.Append(str);
+    }
+
+    return sb.ToString();
+  }
+
+  public static string While(this char str, int index)
+  {
+    var sb = new StringBuilder();
+    for (var i = 0; i < index; i++)
+    {
+      sb.Append(str);
+    }
+
+    return sb.ToString();
+  }
+
+  public static string ToEvenLength(this string str)
+  {
+    if (str.Length % 2 == 0) return str;
+    else return str + " ";
   }
 }

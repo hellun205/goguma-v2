@@ -27,14 +27,14 @@ public static partial class Main
 
   private static void InitEntityManager()
   {
-    Manager.AddRange(new []
+    Manager.AddRange(new[]
     {
       new TestNPC("test")
       {
-        Name = "TEST",
+        Name = "상인",
         Color = Brushes.Yellow,
         Descriptions = "testing dialogs",
-        Position = new(3,3),
+        Position = new(3, 3),
         Level = 1,
         CanvasDescriptions = "testing dialogs npc",
         Icon = '●',
@@ -45,7 +45,7 @@ public static partial class Main
           new Say(Speaker.PLAYER, "hello, TEST NPC."),
           new Select(Speaker.ENTITY, "can you select?")
           {
-            Options = new []
+            Options = new[]
             {
               "yes",
               "no",
@@ -62,6 +62,22 @@ public static partial class Main
             }
           },
         },
+        TradingItems = new string[]
+        {
+          "item:potion", "item:potion2"
+        },
+        DialogWhenTrade = new string[]
+        {
+          "안녕하신가!!"
+        },
+        DialogWhenAfterPurchase = new string[]
+        {
+          "thx~"
+        },
+        DialogWhenAfterSell = new string[]
+        {
+          "~~"
+        }
       }
     });
   }

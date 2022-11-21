@@ -31,7 +31,21 @@ public static partial class Main
         Buff = new BuffStats()
         {
           Hp = 5
-        }
+        },
+        PriceOfPurchase = 50,
+        PriceOfSell = 15,
+      },
+      
+      new Potion("potion2")
+      {
+        Name = "강력한 포션",
+        Description = "체력을 무려 5000이나???",
+        Buff = new BuffStats()
+        {
+          Hp = 5000
+        },
+        PriceOfPurchase = 5000,
+        PriceOfSell = 2500,
       },
       
       // new ...
