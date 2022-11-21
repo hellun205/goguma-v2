@@ -47,6 +47,28 @@ public static partial class Main
         PriceOfPurchase = 5000,
         PriceOfSell = 2500,
       },
+      new Potion("potion3")
+      {
+        Name = "헤응 포션",
+        Description = "헤으응",
+        Buff = new BuffStats()
+        {
+          Hp = 500000
+        },
+        PriceOfPurchase = 5000,
+        PriceOfSell = 2500,
+      },    
+      new Potion("potion4")
+      {
+        Name = "흐음 포션",
+        Description = "흐음? 이라는 말이 나올 정도로 효과가 없다.",
+        Buff = new BuffStats()
+        {
+          Hp = 1
+        },
+        PriceOfPurchase = 5000,
+        PriceOfSell = 2500,
+      },
       
       // new ...
     });

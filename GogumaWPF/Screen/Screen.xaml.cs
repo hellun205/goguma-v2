@@ -23,7 +23,7 @@ public partial class Screen : UserControl
 
   public Brush BGColorWhenReadText { get; set; } = Brushes.DimGray;
 
-  public KeySet<Key> KeySet { get; set; } = new KeySet<Key>(Key.Up, Key.Down, Key.Left, Key.Right, Key.Z);
+  public KeySet<Key> KeySet { get; set; } = new KeySet<Key>(Key.Up, Key.Down, Key.Left, Key.Right, Key.Z, Key.X);
 
   public bool IsReadingText = false;
   public bool IsReadingKey = false;

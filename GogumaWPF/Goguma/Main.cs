@@ -64,6 +64,8 @@ public static partial class Main
     // screen.ShowDialogs(((INeutrality) entity).MeetDialogs, entity, player, () => { });
     // screen.ReadWritingEng(16, str => { MessageBox.Show(str); });
     player.Inventory.GainItem("item:potion2", 5);
+    player.Inventory.GainItem("item:potion", 56);
+    player.Inventory.GainItem("item:potion3", 15);
     screen.OpenTrader((ITrader) entity, player, () => { });
   }
 }

@@ -12,12 +12,15 @@ public class KeySet<T>
   
   public T Enter { get; set; }
   
-  public KeySet(T up, T down, T left, T right, T enter)
+  public T Exit { get; set; }
+  
+  public KeySet(T up, T down, T left, T right, T enter, T exit)
   {
     Up = up;
     Down = down;
     Left = left;
     Right = right;
     Enter = enter;
+    Exit = exit;
   }
 }

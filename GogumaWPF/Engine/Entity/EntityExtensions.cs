@@ -32,7 +32,7 @@ public static class EntityExtensions
   {
     const string purchaseTitle = "구매";
     const string sellTitle = "판매";
-    Pair<int> maxIndexes = new Pair<int>(45, 1);
+    Pair<int> maxIndexes = new Pair<int>(45, 17);
     var emptyLen = maxIndexes.X - (purchaseTitle.Length + sellTitle.Length + 6);
     var sb = new StringBuilder();
     Pair<Brush> clrOnSelect = new Pair<Brush>(screen.BGColor, screen.FGColor);
@@ -42,15 +42,17 @@ public static class EntityExtensions
     int scroll = 0;
     var randomFText = trader.DialogWhenTrade.GetRandom();
     int textLen = maxIndexes.X - (trader.Name.Length + 1);
-    string npcText =
+    var defaultText =
       $"<fg='{trader.Color}'>{trader.Name.ToSymbol()}<reset>{":".ToSymbol()}{randomFText.FillEmpty(textLen).ToSymbol()}";
+    string npcText = defaultText;
     var purchasableItems = trader.TradingItems.ToArray();
-    var sellableItems = player.Inventory.Items.Keys.SelectMany(type => player.Inventory.Items[type]).ToArray();
+    ItemBundle[] sellableItems;
 
     screen.CanTask = true;
 
     void While()
     {
+      sellableItems = player.Inventory.Items.Keys.SelectMany(type => player.Inventory.Items[type]).ToArray();
       screen.Clear();
       sb.Clear().Append('┌').Append('─'.While(maxIndexes.X)).Append('┐');
       screen.Print(sb.ToString());
@@ -66,10 +68,16 @@ public static class EntityExtensions
       sb.Clear().Append('│');
       screen.Print(sb.ToString());
       screen.Print($" {sellTitle} ".ToSymbol(), (selectedIndexes.X == 1 ? clrOnSelect : clrOnDefault));
-      sb.Clear().Append('│')
-        .Append(
-          $"{selectedIndexes.Y + scroll + 1}/{(selectedIndexes.X == 0 ? purchasableItems.Length : sellableItems.Length)} | {player.Inventory.Gold}G 소지 중"
+      sb.Clear().Append('│');
+      if (selectedIndexes.X == 0)
+        sb.Append(
+          $"{(purchasableItems.Length == 0 ? 0 : selectedIndexes.Y + scroll + 1)}/{purchasableItems.Length} | {player.Inventory.Gold}G 소지 중"
             .FillEmpty(emptyLen).ToSymbol()).Append("│\n");
+      else if (selectedIndexes.X == 1)
+        sb.Append(
+          $"{(sellableItems.Length == 0 ? 0 : selectedIndexes.Y + scroll + 1)}/{sellableItems.Length} | {player.Inventory.Gold}G 소지 중"
+            .FillEmpty(emptyLen).ToSymbol()).Append("│\n");
+
       screen.Print(sb.ToString());
       sb.Clear().Append('├').Append('─'.While(purchaseTitle.Length + 2)).Append('┴')
         .Append('─'.While(sellTitle.Length + 2))
@@ -87,7 +95,7 @@ public static class EntityExtensions
         {
           if (purchasableItems.Length > i)
           {
-            var item = purchasableItems[i].GetItem();
+            var item = purchasableItems[i + scroll].GetItem();
             screen.Print($"[{item.CheckType()}]{item.Name}".FillEmpty(maxIndexes.X - 12).ToSymbol(),
               (selectedIndexes.Y == i ? clrOnSelect : clrOnDefault));
             screen.Print($"{item.PriceOfPurchase} G".FillEmpty(12).ToSymbol(),
@@ -100,13 +108,13 @@ public static class EntityExtensions
         {
           if (sellableItems.Length > i)
           {
-            var item = sellableItems[i].Item.GetItem();
-            var count = sellableItems[i].Count;
+            var item = sellableItems[i + scroll].Item.GetItem();
+            var count = sellableItems[i + scroll].Count;
             screen.Print($"[{item.CheckType()}]{item.Name}{(count > 1 ? $" {count} 개" : "")}"
                 .FillEmpty(maxIndexes.X - 12).ToSymbol(),
-              (selectedIndexes.Y + scroll == i ? clrOnSelect : clrOnDefault));
+              (selectedIndexes.Y == i ? clrOnSelect : clrOnDefault));
             screen.Print($"{item.PriceOfSell}G".FillEmpty(12).ToSymbol(),
-              (selectedIndexes.Y + scroll == i ? clrOnSelect : clrOnDefault));
+              (selectedIndexes.Y == i ? clrOnSelect : clrOnDefault));
           }
           else
             screen.Print("".FillEmpty(maxIndexes.X).ToSymbol());
@@ -117,9 +125,12 @@ public static class EntityExtensions
 
       sb.Clear().Append('└').Append('─'.While(maxIndexes.X)).Append('┘');
       screen.Print(sb.ToString());
-      screen.Print($"\nsY:{selectedIndexes.Y}, scroll:{scroll}");
 
-      maxSelectIndexes.Y = purchasableItems.Length;
+      if (selectedIndexes.X == 0)
+        maxSelectIndexes.Y = purchasableItems.Length;
+      else if (selectedIndexes.X == 1)
+        maxSelectIndexes.Y = sellableItems.Length;
+      npcText = defaultText;
 
       screen.CanTask = true;
       screen.ReadKey(key =>
@@ -127,20 +138,12 @@ public static class EntityExtensions
         if (key == screen.KeySet.Left)
         {
           selectedIndexes.X = (selectedIndexes.X - 1 < 0 ? maxSelectIndexes.X : selectedIndexes.X - 1);
-          if (selectedIndexes.X == 0)
-            maxSelectIndexes.Y = purchasableItems.Length;
-          else if (selectedIndexes.X == 1)
-            maxSelectIndexes.Y = sellableItems.Length;
           selectedIndexes.Y = 0;
           scroll = 0;
         }
         else if (key == screen.KeySet.Right)
         {
           selectedIndexes.X = (selectedIndexes.X + 1 > maxSelectIndexes.X ? 0 : selectedIndexes.X + 1);
-          if (selectedIndexes.X == 0)
-            maxSelectIndexes.Y = purchasableItems.Length;
-          else if (selectedIndexes.X == 1)
-            maxSelectIndexes.Y = sellableItems.Length;
           selectedIndexes.Y = 0;
           scroll = 0;
         }
@@ -148,18 +151,48 @@ public static class EntityExtensions
         {
           if (selectedIndexes.Y == 0 && scroll > 0)
             scroll -= 1;
-          else if (selectedIndexes.Y - 1 > 0)
+          else if (selectedIndexes.Y > 0)
             selectedIndexes.Y -= 1;
         }
-        else if (key == screen.KeySet.Down) 
+        else if (key == screen.KeySet.Down)
         {
-          if (selectedIndexes.Y == maxIndexes.Y - 1 && selectedIndexes.Y + scroll + 1 < maxSelectIndexes.Y - 1)
+          if (selectedIndexes.Y == maxIndexes.Y - 1 && selectedIndexes.Y + scroll < maxSelectIndexes.Y - 1)
             scroll += 1;
-          else if (selectedIndexes.Y + 1 < maxIndexes.Y)
+          else if (selectedIndexes.Y + scroll + 1 < maxSelectIndexes.Y)
             selectedIndexes.Y += 1;
         }
         else if (key == screen.KeySet.Enter)
         {
+          if (selectedIndexes.Y >= 0 && selectedIndexes.Y + scroll < maxSelectIndexes.Y)
+            if (selectedIndexes.X == 0)
+            {
+              var item = purchasableItems[selectedIndexes.Y + scroll].GetItem();
+              if (player.Inventory.Gold >= item.PriceOfPurchase)
+              {
+                player.Inventory.Gold -= item.PriceOfPurchase;
+                player.Inventory.GainItem(purchasableItems[selectedIndexes.Y + scroll]);
+                npcText =
+                  $"<fg='{trader.Color}'>{trader.Name.ToSymbol()}<reset>{":".ToSymbol()}{trader.DialogWhenAfterPurchase.GetRandom().FillEmpty(textLen).ToSymbol()}";
+              }
+              else
+              {
+                npcText =
+                  $"<fg='{trader.Color}'>{trader.Name.ToSymbol()}<reset>{":".ToSymbol()}{trader.DialogWhenLackOfGold.GetRandom().FillEmpty(textLen).ToSymbol()}";
+              }
+            }
+            else if (selectedIndexes.X == 1)
+            {
+              var item = sellableItems[selectedIndexes.Y + scroll].Item.GetItem();
+              player.Inventory.Gold += item.PriceOfSell;
+              player.Inventory.LoseItem(sellableItems[selectedIndexes.Y + scroll].Item);
+              npcText =
+                $"<fg='{trader.Color}'>{trader.Name.ToSymbol()}<reset>{":".ToSymbol()}{trader.DialogWhenAfterSell.GetRandom().FillEmpty(textLen).ToSymbol()}";
+            }
+        }
+        else if (key == screen.KeySet.Exit)
+        {
+          callBack();
+          return;
         }
 
         While();

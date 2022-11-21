@@ -13,4 +13,6 @@ public interface ITrader : INeutrality
   public IEnumerable<string> DialogWhenAfterPurchase { get; }
   
   public IEnumerable<string> DialogWhenAfterSell { get; }
+  
+  public IEnumerable<string> DialogWhenLackOfGold { get; }
 }

@@ -26,4 +26,6 @@ public class TestNPC : Engine.Entity.Entity, ITrader, INeutrality
   public IEnumerable<string> DialogWhenTrade { get; set; }
   public IEnumerable<string> DialogWhenAfterPurchase { get; set; }
   public IEnumerable<string> DialogWhenAfterSell { get; set; }
+  
+  public IEnumerable<string> DialogWhenLackOfGold { get; set; }
 }
