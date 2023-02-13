@@ -76,10 +76,10 @@ public static class ScreenUtils
     return sb.ToString();
   }
 
-  public static void Select(this Screen.Screen screen, string title, Dictionary<string, Action> queue) =>
-    Select(screen, title, queue, string.Empty, null);
+  public static void Select(this Screen.Screen screen, Dictionary<string, Action> queue) =>
+    Select(screen, queue, string.Empty, null);
 
-  public static void Select(this Screen.Screen screen, string title, Dictionary<string, Action> queue,
+  public static void Select(this Screen.Screen screen, Dictionary<string, Action> queue,
     string cancelText, Action? cancelCallBack)
   {
     bool cancellable = !string.IsNullOrEmpty(cancelText);
@@ -127,7 +127,8 @@ public static class ScreenUtils
           screen.Print($" [ {(cancellable && i == maxIndex ? cancelText : options[i])} ] ", color);
           screen.Println();
         }
-
+        
+        screen.CanTask = true;
         screen.ReadKey(key =>
         {
           if (key == screen.KeySet.Enter)

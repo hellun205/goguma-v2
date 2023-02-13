@@ -103,6 +103,11 @@ public partial class Screen : UserControl
   /// </summary>
   public static bool IgnoreKeyPressEvent { get; set; } = false;
 
+  /// <summary>
+  /// 스크린의 내용이 변경 되었을 때 자동으로 맨 밑으로 스크롤 되는 지에 대한 여부입니다.
+  /// </summary>
+  public bool ScrollToEnd { get; set; } = true;
+
   private Brush BGColorWhenReadText = Brushes.DimGray;
   private bool keyDownAvailability = true;
   private Key tempKey;
@@ -121,20 +126,24 @@ public partial class Screen : UserControl
 
   private void GotFocuss(object sender, RoutedEventArgs e)
   {
-    if (!IsOpenedSubScreen)
+    if (MainScreen == null || MainScreen == this)
     {
       TBInput.Focus();
-      MainScreen = this;
     }
     else
     {
-      SubScreen.screen.TBInput.Focus();
+      MainScreen.TBInput.Focus();
     }
+  }
+
+  private void TBInput_OnGotFocus(object sender, RoutedEventArgs e)
+  {
+    // if (IsOpenedSubScreen) SubScreen.screen.TBInput.Focus();
   }
 
   private void RTBMain_TextChanged(object sender, TextChangedEventArgs e)
   {
-    RTBMain.ScrollToEnd();
+    if (ScrollToEnd) RTBMain.ScrollToEnd();
   }
 
   private void OnKeyDown(object sender, KeyEventArgs e)
@@ -338,6 +347,7 @@ public partial class Screen : UserControl
       grid.Children.Add(SubScreen);
       IsOpenedSubScreen = true;
       action(SubScreen.screen);
+      MainScreen = SubScreen.screen;
     }
     else throw new Exception("이미 보조스크린이 열려 있습니다.");
   }
@@ -355,6 +365,7 @@ public partial class Screen : UserControl
       SubScreen = null;
       IsOpenedSubScreen = false;
       if (force) callBackAfterSubScreenForceExit();
+      MainScreen = this;
     }
     else throw new Exception("보조스크린이 열려 있지 않습니다");
   }
@@ -365,12 +376,15 @@ public partial class Screen : UserControl
   /// </summary>
   /// <param name="return">부모 스크린에 보낼 값</param>
   /// <exception cref="Exception">현재 스크린이 보조스크린이 아닐 경우</exception>
-  public void ExitSub(object @return)
+  public void ExitSub(object @return = null)
   {
     if (IsSubScreen)
     {
       Parent.CloseSubScreen(false);
       Parent.callBackAfterSubScreen(@return);
+      Parent.TBInput.Focus();
+      Parent.keyDownAvailability = true;
+      MainScreen = Parent;
     }
     else throw new Exception("이 스크린은 보조스크린이 아닙니다.");
   }

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 using Goguma.Engine;
@@ -49,46 +51,59 @@ public static partial class Main
     // });
     player = new Player("test");
 
-    // var world = "world:test_world".GetWorld();
-    // player.Position = new Pair<byte>(5, 5);
-    // player.Enter(world);
-    // screen.OpenCanvas(player, field =>
-    // {
-    //   var fld = field as Field.TestField;
-    //   screen.Clear();
-    //   screen.Print($"{fld.Icon} {fld.Name}\n{fld.Descriptions}");
-    // });
-
-    // var entity = "entity:test".GetEntity();
-
-    // screen.ShowDialogs(((INeutrality) entity).MeetDialogs, entity, player, () => { });
-    // screen.ReadWritingEng(16, str => { MessageBox.Show(str); });
-    // player.Inventory.GainItem("item:potion2", 5);
-    // player.Inventory.GainItem("item:potion", 56);
-    // player.Inventory.GainItem("item:potion3", 15);
-    // screen.OpenTrader((ITrader) entity, player, () => { });
-
-    // Screen.Screen.OnKeyPress += (sender, e) =>
-    // {
-    //   Screen.Screen.MainScreen.Print($"IsSubScreen = {sender.IsSubScreen}, Key = {e.Key}\n");
-    // };
-    //
-    // screen.ReadKey(Key.A,key =>
-    // {
-    //   screen.OpenSubScreen("test sub screen", new Size(400,350), screen =>
-    //   {
-    //     screen.Print("Hello World!");
-    //     screen.Focus();
-    //     screen.ReadKey(Key.Enter, key =>
-    //     {
-    //       screen.ExitSub("cex");
-    //     });
-    //   }, result =>
-    //   {
-    //     screen.Print("Oh! get result:");
-    //     screen.Print(result.ToString());
-    //   });
-    // });
-    
+    // Menu
+    Screen.Screen.IgnoreKeyPressEvent = false;
+    Screen.Screen.OnKeyPress += (sender, e) =>
+    {
+      if (e.Key == Key.C && !screen.IsOpenedSubScreen)
+      {
+        Screen.Screen.IgnoreKeyPressEvent = true;
+        screen.OpenSubScreen("메뉴", new Size(220, 300), screen =>
+        {
+          screen.RTBMain.HorizontalContentAlignment = HorizontalAlignment.Center;
+          screen.RTBMain.VerticalContentAlignment = VerticalAlignment.Center;
+          
+          void While()
+          {
+            screen.Clear();
+            screen.Select(new Dictionary<string, Action>()
+            {
+              {"Resume", () =>
+              {
+                screen.ExitSub();
+                Screen.Screen.IgnoreKeyPressEvent = false;
+              }},
+              {"Game Exit", () =>
+              {
+                screen.OpenSubScreen("question", new Size(200,120), screen2 =>
+                {
+                  screen2.ScrollToEnd = false;
+                  screen2.Print("진짜로 종료하시겠습니까?\n");
+                  screen2.Select(new Dictionary<string, Action>()
+                  {
+                    {"아니요", () =>
+                    {
+                      screen2.ExitSub();
+                      While();
+                    }},
+                    {"예", () =>
+                    {
+                      Application.Current.Shutdown();
+                    }}
+                  });
+                }, result =>
+                {
+                    
+                });
+              }}
+            });
+          }
+          While();
+        }, result =>
+        {
+          
+        });
+      }
+    };
   }
 }
