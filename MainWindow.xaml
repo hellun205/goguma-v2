@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Goguma"
         xmlns:scr="clr-namespace:Goguma.Screen"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="goguma" Height="450" Width="800">
   <Grid>
       <scr:Screen x:Name="Screen" HorizontalAlignment="Center"/>
   </Grid>
