@@ -28,6 +28,12 @@ namespace Goguma.Screen
       screen.IsSubScreen = true;
     }
 
+    /// <summary>
+    /// 보조스크린을 새로 생성합니다.
+    /// </summary>
+    /// <param name="parent">부모 스크린</param>
+    /// <param name="title">이름</param>
+    /// <param name="size">보조스크린 크기</param>
     public SubScreen(Screen parent, string title, Size size) : this()
     {
       this.Width = size.Width;
@@ -38,6 +44,9 @@ namespace Goguma.Screen
       screen.Parent = parent;
     }
     
+    /// <summary>
+    /// 배경 색
+    /// </summary>
     public Brush BGColor
     {
       get => screen.BGColor;
@@ -48,6 +57,9 @@ namespace Goguma.Screen
       }
     }
     
+    /// <summary>
+    /// 글자 색
+    /// </summary>
     public Brush FGColor
     {
       get => screen.FGColor;
