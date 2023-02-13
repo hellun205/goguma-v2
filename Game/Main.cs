@@ -83,7 +83,7 @@ public static partial class Main
                   screen2.TextAlignment = TextAlignment.Center;
                   
                   screen2.Print("진짜로 종료하시겠습니까?\n");
-                  screen2.Select(new Dictionary<string, Action>()
+                  screen2.SelectH(new Dictionary<string, Action>()
                   {
                     {"아니요", () =>
                     {

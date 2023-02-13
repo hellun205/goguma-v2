@@ -20,7 +20,8 @@ public static class ScreenUtils
       screen.Print(ftxt.Y, ftxt.X);
   }
 
-  public static Pair<Pair<Brush>, string>[] GetFTexts(this Screen.Screen screen, string formattedText, bool isSymbol = false)
+  public static Pair<Pair<Brush>, string>[] GetFTexts(this Screen.Screen screen, string formattedText,
+    bool isSymbol = false)
   {
     var defaultRes = new[]
       {new Pair<Pair<Brush>, string>(new(screen.FGColor, screen.BGColor), formattedText)};
@@ -64,7 +65,7 @@ public static class ScreenUtils
     else
       return defaultRes;
   }
-  
+
   public static string GetStringOfFText(this Screen.Screen screen, string fStr)
   {
     var pairs = screen.GetFTexts(fStr);
@@ -98,8 +99,34 @@ public static class ScreenUtils
     Action<string> callBack) =>
     Select(screen, queue, null, callBack);
 
-  public static void Select(this Screen.Screen screen, Dictionary<string, string> queue,
-    string cancelText, Action<string> callBack)
+  public static void SelectH(this Screen.Screen screen, Dictionary<string, string> queue, string cancelText,
+    Action<string> callBack) =>
+    Select(screen, queue, cancelText, callBack, screen.KeySet.Left, screen.KeySet.Right, false);
+  
+  public static void SelectH(this Screen.Screen screen, Dictionary<string, Action> queue) =>
+    SelectH(screen, queue, string.Empty, null);
+  
+  public static void SelectH(this Screen.Screen screen, Dictionary<string, Action> queue,
+    string cancelText, Action? cancelCallBack)
+  {
+    bool cancellable = !string.IsNullOrEmpty(cancelText);
+    Dictionary<string, string> dict = queue.ToDictionary(x => x.Key, x => x.Key);
+
+    SelectH(screen, dict, cancelText, value =>
+    {
+      if (cancellable && string.IsNullOrEmpty(value))
+        cancelCallBack?.Invoke();
+      else
+        queue[value]();
+    });
+  }
+
+  public static void Select(this Screen.Screen screen, Dictionary<string, string> queue, string cancelText,
+    Action<string> callBack) =>
+    Select(screen, queue, cancelText, callBack, screen.KeySet.Up, screen.KeySet.Down, true);
+
+  private static void Select(this Screen.Screen screen, Dictionary<string, string> queue,
+    string cancelText, Action<string> callBack, Key upKey, Key downKey, bool optionsNewline)
   {
     if (screen.CanTask)
     {
@@ -125,9 +152,10 @@ public static class ScreenUtils
           }
 
           screen.Print($" [ {(cancellable && i == maxIndex ? cancelText : options[i])} ] ", color);
-          screen.Println();
+          if (optionsNewline) screen.Println();
+          else screen.Print(" ");
         }
-        
+
         screen.CanTask = true;
         screen.ReadKey(key =>
         {
@@ -137,7 +165,7 @@ public static class ScreenUtils
             callBack((((cancellable && selectingIndex == maxIndex) ? null : queue[options[selectingIndex]]) ??
                       string.Empty));
           }
-          else if (key == screen.KeySet.Up)
+          else if (key == upKey)
           {
             if (selectingIndex == 0)
               selectingIndex = maxIndex;
@@ -145,7 +173,7 @@ public static class ScreenUtils
               selectingIndex -= 1;
             While();
           }
-          else if (key == screen.KeySet.Down)
+          else if (key == downKey)
           {
             if (selectingIndex == maxIndex)
               selectingIndex = 0;
