@@ -108,6 +108,10 @@ public partial class Screen : UserControl
   /// </summary>
   public bool ScrollToEnd { get; set; } = true;
 
+  public bool AutoSetTextAlign { get; set; } = false;
+
+  public TextAlignment TextAlignment { get; set; } = TextAlignment.Left;
+
   private Brush BGColorWhenReadText = Brushes.DimGray;
   private bool keyDownAvailability = true;
   private Key tempKey;
@@ -144,6 +148,7 @@ public partial class Screen : UserControl
   private void RTBMain_TextChanged(object sender, TextChangedEventArgs e)
   {
     if (ScrollToEnd) RTBMain.ScrollToEnd();
+    if (AutoSetTextAlign) SetTextAlignment(TextAlignment);
   }
 
   private void OnKeyDown(object sender, KeyEventArgs e)
@@ -387,5 +392,11 @@ public partial class Screen : UserControl
       MainScreen = Parent;
     }
     else throw new Exception("이 스크린은 보조스크린이 아닙니다.");
+  }
+  
+  public void SetTextAlignment(TextAlignment textAlignment) {
+    BlockCollection MyBC = RTBMain.Document.Blocks;
+    foreach (Block b in MyBC)
+      b.TextAlignment = textAlignment;    
   }
 }

@@ -60,8 +60,9 @@ public static partial class Main
         Screen.Screen.IgnoreKeyPressEvent = true;
         screen.OpenSubScreen("메뉴", new Size(220, 300), screen =>
         {
-          screen.RTBMain.HorizontalContentAlignment = HorizontalAlignment.Center;
-          screen.RTBMain.VerticalContentAlignment = VerticalAlignment.Center;
+          screen.AutoSetTextAlign = true;
+          screen.TextAlignment = TextAlignment.Center;
+          
           
           void While()
           {
@@ -78,6 +79,9 @@ public static partial class Main
                 screen.OpenSubScreen("question", new Size(200,120), screen2 =>
                 {
                   screen2.ScrollToEnd = false;
+                  screen2.AutoSetTextAlign = true;
+                  screen2.TextAlignment = TextAlignment.Center;
+                  
                   screen2.Print("진짜로 종료하시겠습니까?\n");
                   screen2.Select(new Dictionary<string, Action>()
                   {
@@ -103,7 +107,12 @@ public static partial class Main
         {
           
         });
+        
+        
       }
     };
+    
+    // screen.Print("Test!");
+    // screen.SetTextAlignment(TextAlignment.Center);
   }
 }
