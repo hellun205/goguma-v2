@@ -1,6 +1,6 @@
 namespace Goguma.Engine.Item;
 
-public interface ITradable : IManageable
+public interface ITradable : IGameObject
 {
   public delegate void _OnPurchase(object sender, uint price);
   

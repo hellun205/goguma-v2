@@ -5,17 +5,17 @@ using Goguma.Engine.Skill;
 
 namespace Goguma.Engine;
 
-public sealed class Manager<T> where T : IManageable
+public sealed class GameObjectManager<T> where T : IGameObject
 {
-  public HashSet<T> Items { get; private set; } = new HashSet<T>();
+  public HashSet<T> Objects { get; private set; } = new HashSet<T>();
 
-  public string[] GetCodes => Items.Select(x => x.Code).ToArray();
+  public string[] GetCodes => Objects.Select(x => x.Code).ToArray();
 
   public const string Empty = "global:empty";
 
   public T Get(string code)
   {
-    var skill = Items.FirstOrDefault(x => x.Code == code);
+    var skill = Objects.FirstOrDefault(x => x.Code == code);
     if (code == Empty)
       throw new Exception($"{code} is empty");
     if (skill == null)
@@ -25,8 +25,8 @@ public sealed class Manager<T> where T : IManageable
 
   public void Add(T item)
   {
-    if (Items.FirstOrDefault(x => x.Code == item.Code) == null)
-      Items.Add(item);
+    if (Objects.FirstOrDefault(x => x.Code == item.Code) == null)
+      Objects.Add(item);
     else
       throw new Exception($"{typeof(T).Name} code already exists: {item.Code}");
   }
@@ -38,7 +38,7 @@ public sealed class Manager<T> where T : IManageable
   }
 }
 
-public static class Manager
+public static class GameObjectManager
 {
   public static class Types
   {
@@ -53,7 +53,7 @@ public static class Manager
     public const string Entity = "entity";
   }
 
-  public static void Init(this IManageable obj, string code)
+  public static void Init(this IGameObject obj, string code)
   {
     obj.Code = $"{obj.Type}:{code}";
   }

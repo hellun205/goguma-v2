@@ -14,17 +14,17 @@ public static partial class Main
   public static MainWindow window = (MainWindow) Application.Current.MainWindow;
   public static Screen.Screen screen;
   public static Player? player = null;
-  public static Manager<IManageable> Manager { get; set; } = new Manager<IManageable>();
+  public static GameObjectManager<IGameObject> GameObjectManager { get; set; } = new GameObjectManager<IGameObject>();
 
-  public static string EmptyCode => Manager<IManageable>.Empty;
+  public static string EmptyCode => GameObjectManager<IGameObject>.Empty;
 
-  public static IManageable GetManageable(this string code) => Manager.Get(code);
+  public static IGameObject GetManageable(this string code) => GameObjectManager.Get(code);
 
-  public static IManageable? GetManageableOrDefault(this string code, IManageable? defaultValue = null)
+  public static IGameObject? GetManageableOrDefault(this string code, IGameObject? defaultValue = null)
   {
     try
     {
-      return Manager.Get(code);
+      return GameObjectManager.Get(code);
     }
     catch
     {

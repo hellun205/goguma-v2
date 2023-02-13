@@ -13,21 +13,21 @@ public static partial class Main
 {
   public static Engine.Entity.Entity GetEntity(this string code)
   {
-    var get = Manager.Get(code);
+    var get = GameObjectManager.Get(code);
     if (get is Engine.Entity.Entity entity)
     {
       return entity;
     }
     else
     {
-      Engine.Manager.ThrowGetError("entity");
+      Engine.GameObjectManager.ThrowGetError("entity");
       return null;
     }
   }
 
   private static void InitEntityManager()
   {
-    Manager.AddRange(new[]
+    GameObjectManager.AddRange(new[]
     {
       new TestNPC("test")
       {

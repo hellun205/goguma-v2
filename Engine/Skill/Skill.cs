@@ -3,11 +3,11 @@ using System;
 namespace Goguma.Engine.Skill;
 
 [Serializable]
-public abstract class Skill : IEquatable<Skill>, IManageable
+public abstract class Skill : IEquatable<Skill>, IGameObject
 {
   public delegate void _OnUse(object sender);
 
-  public string Type => Manager.Types.Skill;
+  public string Type => GameObjectManager.Types.Skill;
   
   public string Code { get; set; } // format = "[test|game_name]:[skill_name]"
   

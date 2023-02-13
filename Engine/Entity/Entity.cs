@@ -1,8 +1,8 @@
 ﻿namespace Goguma.Engine.Entity;
 
-public class Entity : IManageable
+public class Entity : IGameObject
 {
-  public string Type => Manager.Types.Entity;
+  public string Type => GameObjectManager.Types.Entity;
 
   public string Code { get; set; }
   

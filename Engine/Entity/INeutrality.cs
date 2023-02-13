@@ -4,7 +4,7 @@ using Goguma.Engine.Map;
 
 namespace Goguma.Engine.Entity;
 
-public interface INeutrality : ICanvasItem, IManageable // NPC
+public interface INeutrality : ICanvasItem, IGameObject // NPC
 {
   public string Name { get; }
   

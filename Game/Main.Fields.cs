@@ -9,21 +9,21 @@ public static partial class Main
 {
   public static Engine.Map.Field.Field GetField(this string code)
   {
-    var get = Manager.Get(code);
+    var get = GameObjectManager.Get(code);
     if (get is Engine.Map.Field.Field field)
     {
       return field;
     }
     else
     {
-      Engine.Manager.ThrowGetError("field");
+      Engine.GameObjectManager.ThrowGetError("field");
       return null;
     }
   }
 
   private static void InitFieldManager()
   {
-    Manager.AddRange(new[]
+    GameObjectManager.AddRange(new[]
     {
       new TestField("test_world", "test_field", '☆')
       {
