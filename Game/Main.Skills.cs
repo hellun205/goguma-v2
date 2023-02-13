@@ -1,7 +1,7 @@
-using GogumaWPF.Engine;
-using GogumaWPF.Engine.Skill;
+using Goguma.Engine.Skill;
+using Goguma.Engine;
 
-namespace GogumaWPF.Goguma;
+namespace Goguma.Game;
 
 public static partial class Main
 {

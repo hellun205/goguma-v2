@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
 
-namespace GogumaWPF.Screen.Writing;
+namespace Goguma.Screen.Writing;
 
 public static class Writings
 {

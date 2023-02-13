@@ -4,10 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows;
-using GogumaWPF.Goguma;
-using static GogumaWPF.Goguma.Main;
+using Goguma.Game;
+using static Goguma.Game.Main;
 
-namespace GogumaWPF.Engine.Player;
+namespace Goguma.Engine.Player;
 
 public sealed partial class Player
 {

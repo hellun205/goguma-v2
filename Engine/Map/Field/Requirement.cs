@@ -1,6 +1,6 @@
-using GogumaWPF.Engine.Player;
+using Goguma.Engine.Player;
 
-namespace GogumaWPF.Engine.Map.Field;
+namespace Goguma.Engine.Map.Field;
 
 public struct Requirement
 {

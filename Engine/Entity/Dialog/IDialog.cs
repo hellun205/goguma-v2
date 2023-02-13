@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace GogumaWPF.Engine.Entity.Dialog;
+namespace Goguma.Engine.Entity.Dialog;
 
 public interface IDialog
 {

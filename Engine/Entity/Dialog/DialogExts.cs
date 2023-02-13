@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
 
-namespace GogumaWPF.Engine.Entity.Dialog;
+namespace Goguma.Engine.Entity.Dialog;
 
 public static class DialogExts
 {

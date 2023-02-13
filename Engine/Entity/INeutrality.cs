@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using GogumaWPF.Engine.Entity.Dialog;
-using GogumaWPF.Engine.Map;
+using Goguma.Engine.Entity.Dialog;
+using Goguma.Engine.Map;
 
-namespace GogumaWPF.Engine.Entity;
+namespace Goguma.Engine.Entity;
 
 public interface INeutrality : ICanvasItem, IManageable // NPC
 {

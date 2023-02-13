@@ -1,4 +1,4 @@
-﻿namespace GogumaWPF.Screen;
+﻿namespace Goguma.Screen;
 
 public class KeySet<T>
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GogumaWPF;
+namespace Goguma;
 
 public struct Pair<T> : IEquatable<Pair<T>>
 {

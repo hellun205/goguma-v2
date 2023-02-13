@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Windows.Media;
 
-namespace GogumaWPF.Engine.Map.Field;
+namespace Goguma.Engine.Map.Field;
 
 public abstract class Field : IManageable, ICanvas, ICanvasItem
 {

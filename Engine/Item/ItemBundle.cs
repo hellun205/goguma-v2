@@ -1,7 +1,7 @@
 using System;
-using GogumaWPF.Goguma;
+using Goguma.Game;
 
-namespace GogumaWPF.Engine.Item;
+namespace Goguma.Engine.Item;
 
 public sealed class ItemBundle : IEquatable<ItemBundle>
 {

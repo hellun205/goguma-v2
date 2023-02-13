@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Media;
-using GogumaWPF.Engine.Entity.Dialog;
-using GogumaWPF.Engine.Item;
-using GogumaWPF.Goguma;
+using Goguma.Engine.Item;
+using Goguma.Engine.Entity.Dialog;
+using Goguma.Game;
 
-namespace GogumaWPF.Engine.Entity;
+namespace Goguma.Engine.Entity;
 
 public static class EntityExtensions
 {

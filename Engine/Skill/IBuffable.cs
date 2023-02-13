@@ -1,4 +1,4 @@
-namespace GogumaWPF.Engine.Skill;
+namespace Goguma.Engine.Skill;
 
 public interface IBuffable
 {

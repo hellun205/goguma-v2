@@ -1,6 +1,6 @@
-using GogumaWPF.Engine.Map.Field;
+using Goguma.Engine.Map.Field;
 
-namespace GogumaWPF.Goguma.Field;
+namespace Goguma.Game.Field;
 
 public class TestField : Engine.Map.Field.Field, IRequirable
 {

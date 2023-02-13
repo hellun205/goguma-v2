@@ -3,9 +3,9 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Media;
-using GogumaWPF.Engine.Map.Field;
+using Goguma.Engine.Map.Field;
 
-namespace GogumaWPF.Engine.Map;
+namespace Goguma.Engine.Map;
 
 public static class MapExtensions
 {

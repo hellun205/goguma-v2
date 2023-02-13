@@ -1,4 +1,4 @@
-namespace GogumaWPF.Engine.Map.Field;
+namespace Goguma.Engine.Map.Field;
 
 public interface IRequirable
 {

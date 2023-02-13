@@ -1,8 +1,8 @@
-using GogumaWPF.Engine;
-using GogumaWPF.Engine.Item;
-using GogumaWPF.Engine.Item.Consumable;
+using Goguma.Engine.Item;
+using Goguma.Engine.Item.Consumable;
+using Goguma.Engine;
 
-namespace GogumaWPF.Goguma;
+namespace Goguma.Game;
 
 public static partial class Main
 {

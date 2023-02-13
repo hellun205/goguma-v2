@@ -1,6 +1,6 @@
 using System;
 
-namespace GogumaWPF.Engine.Player;
+namespace Goguma.Engine.Player;
 
 [Serializable]
 public sealed class PlayerStatus
