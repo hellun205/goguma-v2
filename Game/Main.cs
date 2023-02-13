@@ -67,14 +67,19 @@ public static partial class Main
     // player.Inventory.GainItem("item:potion", 56);
     // player.Inventory.GainItem("item:potion3", 15);
     // screen.OpenTrader((ITrader) entity, player, () => { });
-    
-    // screen.ReadKey(key =>
+
+    // Screen.Screen.OnKeyPress += (sender, e) =>
+    // {
+    //   Screen.Screen.MainScreen.Print($"IsSubScreen = {sender.IsSubScreen}, Key = {e.Key}\n");
+    // };
+    //
+    // screen.ReadKey(Key.A,key =>
     // {
     //   screen.OpenSubScreen("test sub screen", new Size(400,350), screen =>
     //   {
     //     screen.Print("Hello World!");
     //     screen.Focus();
-    //     screen.ReadKey(key =>
+    //     screen.ReadKey(Key.Enter, key =>
     //     {
     //       screen.ExitSub("cex");
     //     });
