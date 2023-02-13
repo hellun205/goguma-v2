@@ -71,11 +71,11 @@ public static class DialogExts
         case Select select:
           await screen.ShowDialogText(dialog.Text);
 
-          var tempRTF = screen.TempRTF;
+          var tempRTF = screen.SavedRTF;
           Dictionary<string, string> dict = select.Options.ToDictionary<string, string>(x => x);
           screen.Select(dict, result =>
           {
-            screen.TempRTF = tempRTF;
+            screen.SavedRTF = tempRTF;
             Fin(false, result);
           });
           break;

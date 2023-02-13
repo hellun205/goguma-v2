@@ -1,6 +1,6 @@
 ﻿namespace Goguma.Engine.Entity;
 
-public interface IEnemy : IManageable
+public interface IEnemy : IGameObject
 {
   public EntityStatus Status { get; }
 }

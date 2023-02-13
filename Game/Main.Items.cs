@@ -8,21 +8,21 @@ public static partial class Main
 {
   public static Item GetItem(this string code)
   {
-    var get = Manager.Get(code);
+    var get = GameObjectManager.Get(code);
     if (get is Item item)
     {
       return item;
     }
     else
     {
-      Engine.Manager.ThrowGetError("item");
+      Engine.GameObjectManager.ThrowGetError("item");
       return null;
     }
   }
 
   private static void InitItemManager()
   {
-    Manager.AddRange(new []
+    GameObjectManager.AddRange(new []
     {
       new Potion("potion")
       {

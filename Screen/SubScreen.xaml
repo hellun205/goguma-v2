@@ -9,7 +9,9 @@
              d:DesignHeight="450" d:DesignWidth="800" Focusable="False"
              BorderThickness="0" Loaded="SubScreen_OnLoaded">
   <Grid>
-    <GroupBox x:Name="borderBox" Margin="5,5,5,5" Header="asd" FontFamily="{StaticResource Galmuri11}" Foreground="White">
+    <GroupBox x:Name="borderBox" Margin="5,5,5,5" Header="asd"
+              FontFamily="{StaticResource Galmuri11}" Foreground="#FF8585B9"
+              BorderThickness="0.3">
       <scr:Screen x:Name="screen" Margin="0,0,0,0"/>
     </GroupBox>
     

@@ -4,9 +4,9 @@ using Goguma.Game;
 
 namespace Goguma.Engine.Map;
 
-public sealed class World : IManageable, ICanvas
+public sealed class World : IGameObject, ICanvas
 {
-  public string Type => Manager.Types.World;
+  public string Type => GameObjectManager.Types.World;
   
   public string Name { get; set; }
   

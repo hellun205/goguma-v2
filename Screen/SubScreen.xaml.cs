@@ -42,6 +42,7 @@ namespace Goguma.Screen
       BGColor = parent.BGColor;
       FGColor = parent.FGColor;
       screen.Parent = parent;
+      screen.KeySet = parent.KeySet;
     }
     
     /// <summary>

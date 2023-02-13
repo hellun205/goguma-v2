@@ -7,7 +7,10 @@ using System.Windows.Media;
 
 namespace Goguma;
 
-public static class ScreenUtil
+/// <summary>
+/// 스크린 확장 기능
+/// </summary>
+public static class ScreenUtils
 {
   public static void PrintF(this Screen.Screen screen, string formattedText)
   {

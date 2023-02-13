@@ -8,21 +8,21 @@ public static partial class Main
 {
   public static World GetWorld(this string code)
   {
-    var get = Manager.Get(code);
+    var get = GameObjectManager.Get(code);
     if (get is World world)
     {
       return world;
     }
     else
     {
-      Engine.Manager.ThrowGetError("entity");
+      Engine.GameObjectManager.ThrowGetError("entity");
       return null;
     }
   }
 
   private static void InitWorldManager()
   {
-    Manager.AddRange(new[]
+    GameObjectManager.AddRange(new[]
     {
       new World("test_world")
       {

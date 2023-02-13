@@ -1,6 +1,6 @@
 namespace Goguma.Engine;
 
-public interface IManageable
+public interface IGameObject
 {
   public string Name { get; }
   

@@ -3,9 +3,9 @@ using System.Windows.Media;
 
 namespace Goguma.Engine.Map.Field;
 
-public abstract class Field : IManageable, ICanvas, ICanvasItem
+public abstract class Field : IGameObject, ICanvas, ICanvasItem
 {
-  public string Type => Manager.Types.Field;
+  public string Type => GameObjectManager.Types.Field;
   
   public string Code { get; set; }
   

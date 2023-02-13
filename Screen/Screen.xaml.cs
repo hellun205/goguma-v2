@@ -16,50 +16,172 @@ namespace Goguma.Screen;
 /// </summary>
 public partial class Screen : UserControl
 {
+  /// <summary>
+  /// 현재 포커싱 되어 있는 스크린입니다.
+  /// </summary>
+  public static Screen? MainScreen;
+
+  /// <summary>
+  /// 스크린의 폰트입니다.
+  /// </summary>
   public object Font => FindResource("Galmuri11");
 
+  /// <summary>
+  /// 스크린의 키 셋팅입니다.
+  /// </summary>
+  public KeySet<Key> KeySet { get; set; } = new KeySet<Key>(Key.Up, Key.Down, Key.Left, Key.Right, Key.Z, Key.X);
+
+  /// <summary>
+  /// 배경 색
+  /// </summary>
   public Brush BGColor
   {
     get => RTBMain.Background;
     set => RTBMain.Background = value;
   }
 
+  /// <summary>
+  /// 글자 색
+  /// </summary>
   public Brush FGColor
   {
     get => RTBMain.Foreground;
     set => RTBMain.Foreground = value;
   }
 
-  public Brush BGColorWhenReadText { get; set; } = Brushes.DimGray;
+  /// <summary>
+  /// 현재 텍스트를 읽고 있는 지에 대한 여부입니다.
+  /// </summary>
+  public bool IsReadingText { get; private set; } = false;
 
-  public KeySet<Key> KeySet { get; set; } = new KeySet<Key>(Key.Up, Key.Down, Key.Left, Key.Right, Key.Z, Key.X);
+  /// <summary>
+  /// 현재 키를 읽고 있는 지에 대한 여부입니다.
+  /// </summary>
+  public bool IsReadingKey { get; private set; } = false;
 
-  public bool IsReadingText = false;
-  public bool IsReadingKey = false;
-  public Action<string> CallAfterReadingText;
-  public Action<Key> CallAfterReadingKey;
-  public string TempRTF;
-  public Key? KeyToPress;
-  public bool CanTask = true;
-  public SubScreen SubScreen;
-  public bool IsSubScreen = false;
-  public bool IsOpenedSubScreen = false;
-  public Action<object> CallBackAfterSubScreen;
-  public Action? CallBackAfterSubScreenForceExit;
-  public Screen Parent;
+  /// <summary>
+  /// 현재 보조스크린이 열려 있는 지에 대한 여부입니다.
+  /// </summary>
+  public bool IsOpenedSubScreen { get; private set; } = false;
 
+  /// <summary>
+  /// (확장 기능 전용)
+  /// 저장 된 스크린의 내용입니다. 
+  /// </summary>
+  public string SavedRTF { get; set; }
+
+  /// <summary>
+  /// 현재 이 스크린이 다른 작업을 시행 중인지에 대한 여부입니다.
+  /// </summary>
+  public bool CanTask { get; set; } = true;
+
+  /// <summary>
+  /// 현재 스크린의 보조스크린 입니다.
+  /// </summary>
+  public SubScreen? SubScreen { get; private set; }
+
+  /// <summary>
+  /// 현재 스크린이 보조스크린인 지에 대한 여부입니다.
+  /// </summary>
+  public bool IsSubScreen { get; set; } = false;
+
+  /// <summary>
+  /// (현재 스크린이 보조스크린인 경우)
+  /// 이 스크린의 부모 스크린입니다.
+  /// </summary>
+  public Screen? Parent { get; set; }
+
+  public delegate void _onKeyPress(Screen sender, KeyEventArgs keyEventArgs);
+
+  /// <summary>
+  /// 키가 입력 받았을 때 호출 됩니다.
+  /// </summary>
+  public static event _onKeyPress? OnKeyPress;
+
+  /// <summary>
+  /// 키가 입력 받았을 때 호출되는 이벤트를 무시합니다.
+  /// </summary>
+  public static bool IgnoreKeyPressEvent { get; set; } = false;
+
+  private Brush BGColorWhenReadText = Brushes.DimGray;
   private bool keyDownAvailability = true;
   private Key tempKey;
+  private Key? keyToPress;
+  private Action<string> callBackAfterReadingText;
+  private Action<Key> callBackAfterReadingKey;
+  private Action<object> callBackAfterSubScreen;
+  private Action? callBackAfterSubScreenForceExit;
 
   public Screen()
   {
     InitializeComponent();
   }
 
-  private void RTBMain_GotFocus(object sender, RoutedEventArgs e)
+  #region event
+
+  private void GotFocuss(object sender, RoutedEventArgs e)
   {
-    if (!IsOpenedSubScreen) TBInput.Focus();
+    if (!IsOpenedSubScreen)
+    {
+      TBInput.Focus();
+      MainScreen = this;
+    }
+    else
+    {
+      SubScreen.screen.TBInput.Focus();
+    }
   }
+
+  private void RTBMain_TextChanged(object sender, TextChangedEventArgs e)
+  {
+    RTBMain.ScrollToEnd();
+  }
+
+  private void OnKeyDown(object sender, KeyEventArgs e)
+  {
+    if (keyDownAvailability)
+    {
+      keyDownAvailability = false;
+      tempKey = e.Key;
+      if (!IgnoreKeyPressEvent) OnKeyPress?.Invoke(this, e);
+      if (IsReadingKey)
+      {
+        if (keyToPress != null && e.Key != keyToPress) return;
+
+        IsReadingKey = false;
+        CanTask = true;
+        callBackAfterReadingKey(e.Key);
+      }
+      else if (IsReadingText)
+      {
+        if (e.Key == Key.Enter)
+        {
+          IsReadingText = false;
+          CanTask = true;
+          callBackAfterReadingText(TBInput.Text);
+        }
+      }
+    }
+  }
+
+  private void OnKeyUp(object sender, KeyEventArgs e)
+  {
+    if (tempKey == e.Key)
+    {
+      keyDownAvailability = true;
+    }
+  }
+
+  private void OnTextChanged(object sender, TextChangedEventArgs e)
+  {
+    if (IsReadingText)
+    {
+      LoadRTF();
+      Print($" {TBInput.Text} ", new Pair<Brush>(BGColor, BGColorWhenReadText));
+    }
+  }
+
+  #endregion
 
   /// <summary>
   /// 스크린에 글자를 출력합니다.
@@ -84,11 +206,6 @@ public partial class Screen : UserControl
     tr.ApplyPropertyValue(TextElement.BackgroundProperty, color.Y);
   }
 
-  private void RTBMain_TextChanged(object sender, TextChangedEventArgs e)
-  {
-    // RTBMain.ScrollToEnd();
-  }
-
   /// <summary>
   /// 현재 스크린의 내용을 저장합니다.
   /// </summary>
@@ -101,7 +218,7 @@ public partial class Screen : UserControl
       ms.Seek(0, SeekOrigin.Begin);
       using (StreamReader sr = new StreamReader(ms))
       {
-        TempRTF = sr.ReadToEnd();
+        SavedRTF = sr.ReadToEnd();
       }
     }
   }
@@ -112,9 +229,9 @@ public partial class Screen : UserControl
   /// <exception cref="Exception">저장 된 내용이 없을 경우</exception>
   public void LoadRTF()
   {
-    if (!String.IsNullOrEmpty(TempRTF))
+    if (!String.IsNullOrEmpty(SavedRTF))
     {
-      MemoryStream stream = new MemoryStream(ASCIIEncoding.Default.GetBytes(TempRTF));
+      MemoryStream stream = new MemoryStream(ASCIIEncoding.Default.GetBytes(SavedRTF));
       TextRange range = new TextRange(RTBMain.Document.ContentStart, RTBMain.Document.ContentEnd);
       range.Load(stream, DataFormats.Rtf);
       range.ApplyPropertyValue(TextElement.FontFamilyProperty, Font);
@@ -134,7 +251,7 @@ public partial class Screen : UserControl
       IsReadingText = true;
       CanTask = false;
       TBInput.Clear();
-      CallAfterReadingText = callBack;
+      callBackAfterReadingText = callBack;
       SaveRTF();
       Print("  ", new Pair<Brush>(BGColor, BGColorWhenReadText));
     }
@@ -161,8 +278,8 @@ public partial class Screen : UserControl
     {
       IsReadingKey = true;
       CanTask = false;
-      KeyToPress = key;
-      CallAfterReadingKey = callBack;
+      keyToPress = key;
+      callBackAfterReadingKey = callBack;
     }
     else
       ThrowWhenCantTask();
@@ -171,7 +288,7 @@ public partial class Screen : UserControl
   /// <summary>
   /// 읽어오는 것을 취소합니다.
   /// </summary>
-  /// <exception cref="Exception">현재 읽고있지 않을 경우</exception>
+  /// <exception cref="Exception">현재 읽고 있지 않을 경우</exception>
   public void ExitRead()
   {
     if (IsReadingKey || IsReadingText)
@@ -197,51 +314,8 @@ public partial class Screen : UserControl
       ThrowWhenCantTask();
   }
 
-  private void TBInput_KeyDown(object sender, KeyEventArgs e)
-  {
-    if (keyDownAvailability)
-    {
-      keyDownAvailability = false;
-      tempKey = e.Key;
-      if (IsReadingKey)
-      {
-        if (KeyToPress != null && e.Key != KeyToPress) return;
-
-        IsReadingKey = false;
-        CanTask = true;
-        CallAfterReadingKey(e.Key);
-      }
-      else if (IsReadingText)
-      {
-        if (e.Key == Key.Enter)
-        {
-          IsReadingText = false;
-          CanTask = true;
-          CallAfterReadingText(TBInput.Text);
-        }
-      }
-    }
-  }
-
-  private void TBInput_PreviewKeyUp(object sender, KeyEventArgs e)
-  {
-    if (tempKey == e.Key)
-    {
-      keyDownAvailability = true;
-    }
-  }
-
-  private void TBInput_TextChanged(object sender, TextChangedEventArgs e)
-  {
-    if (IsReadingText)
-    {
-      LoadRTF();
-      Print($" {TBInput.Text} ", new Pair<Brush>(BGColor, BGColorWhenReadText));
-    }
-  }
-
   /// <summary>
-  /// (추가 기능 전용) 스크린이 이미 작업 중일 경우 새로운 작업을 수행하려 시도 할 때 예외 합니다.
+  /// (추가 기능 전용) 스크린이 이미 다른 작업을 시행 중일 경우 새로운 작업을 수행하려 할 때 예외 합니다.
   /// </summary>
   public void ThrowWhenCantTask() => throw new Exception("It cannot be run while other operations are in progress.");
 
@@ -250,7 +324,7 @@ public partial class Screen : UserControl
   /// </summary>
   /// <param name="title">이름</param>
   /// <param name="size">크기</param>
-  /// <param name="action">보조스크린</param>
+  /// <param name="action">보조스크린에 대한 작업</param>
   /// <param name="callBack">보조스크린이 종료된 후 리턴 값을 가지고 콜백합니다.</param>
   /// <param name="callBackOnForceExit">보조스크린이 강제로 종료될 경우 콜백합니다.</param>
   /// <exception cref="Exception">이미 보조스크린이 열려 있는 경우</exception>
@@ -259,7 +333,7 @@ public partial class Screen : UserControl
   {
     if (!IsOpenedSubScreen)
     {
-      CallBackAfterSubScreen = callBack;
+      callBackAfterSubScreen = callBack;
       SubScreen = new SubScreen(this, title, size);
       grid.Children.Add(SubScreen);
       IsOpenedSubScreen = true;
@@ -271,7 +345,7 @@ public partial class Screen : UserControl
   /// <summary>
   /// 열려 있는 보조스크린을 종료합니다.
   /// </summary>
-  /// <param name="force">강제로 닫을지 여부</param>
+  /// <param name="force">강제로 닫을지에 대한 여부</param>
   /// <exception cref="Exception">보조스크린이 열려 있지 않은 경우</exception>
   public void CloseSubScreen(bool force = true)
   {
@@ -280,7 +354,7 @@ public partial class Screen : UserControl
       grid.Children.Remove(SubScreen);
       SubScreen = null;
       IsOpenedSubScreen = false;
-      if (force) CallBackAfterSubScreenForceExit();
+      if (force) callBackAfterSubScreenForceExit();
     }
     else throw new Exception("보조스크린이 열려 있지 않습니다");
   }
@@ -296,7 +370,7 @@ public partial class Screen : UserControl
     if (IsSubScreen)
     {
       Parent.CloseSubScreen(false);
-      Parent.CallBackAfterSubScreen(@return);
+      Parent.callBackAfterSubScreen(@return);
     }
     else throw new Exception("이 스크린은 보조스크린이 아닙니다.");
   }

@@ -5,9 +5,9 @@ using Goguma.Game;
 namespace Goguma.Engine.Item;
 
 [Serializable]
-public abstract class Item : IEquatable<Item>, ITradable, IManageable
+public abstract class Item : IEquatable<Item>, ITradable, IGameObject
 {
-  public string Type => Manager.Types.Item;
+  public string Type => GameObjectManager.Types.Item;
   
   public string Code { get; set; } // format = "[test|game_name]:[item_name]"
   

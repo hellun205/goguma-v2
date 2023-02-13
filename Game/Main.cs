@@ -14,17 +14,17 @@ public static partial class Main
   public static MainWindow window = (MainWindow) Application.Current.MainWindow;
   public static Screen.Screen screen;
   public static Player? player = null;
-  public static Manager<IManageable> Manager { get; set; } = new Manager<IManageable>();
+  public static GameObjectManager<IGameObject> GameObjectManager { get; set; } = new GameObjectManager<IGameObject>();
 
-  public static string EmptyCode => Manager<IManageable>.Empty;
+  public static string EmptyCode => GameObjectManager<IGameObject>.Empty;
 
-  public static IManageable GetManageable(this string code) => Manager.Get(code);
+  public static IGameObject GetManageable(this string code) => GameObjectManager.Get(code);
 
-  public static IManageable? GetManageableOrDefault(this string code, IManageable? defaultValue = null)
+  public static IGameObject? GetManageableOrDefault(this string code, IGameObject? defaultValue = null)
   {
     try
     {
-      return Manager.Get(code);
+      return GameObjectManager.Get(code);
     }
     catch
     {
@@ -67,14 +67,19 @@ public static partial class Main
     // player.Inventory.GainItem("item:potion", 56);
     // player.Inventory.GainItem("item:potion3", 15);
     // screen.OpenTrader((ITrader) entity, player, () => { });
-    
-    // screen.ReadKey(key =>
+
+    // Screen.Screen.OnKeyPress += (sender, e) =>
+    // {
+    //   Screen.Screen.MainScreen.Print($"IsSubScreen = {sender.IsSubScreen}, Key = {e.Key}\n");
+    // };
+    //
+    // screen.ReadKey(Key.A,key =>
     // {
     //   screen.OpenSubScreen("test sub screen", new Size(400,350), screen =>
     //   {
     //     screen.Print("Hello World!");
     //     screen.Focus();
-    //     screen.ReadKey(key =>
+    //     screen.ReadKey(Key.Enter, key =>
     //     {
     //       screen.ExitSub("cex");
     //     });
