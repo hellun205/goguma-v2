@@ -10,12 +10,18 @@
     <Compile Update="Screen\Screen.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Screen\SubScreen.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Update="MainWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Screen\Screen.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Screen\SubScreen.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

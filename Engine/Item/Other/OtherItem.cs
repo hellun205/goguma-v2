@@ -1,6 +1,6 @@
 using System;
 
-namespace GogumaWPF.Engine.Item.Other;
+namespace Goguma.Engine.Item.Other;
 
 [Serializable]
 public sealed class OtherItem : Item

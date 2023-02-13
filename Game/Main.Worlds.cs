@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using GogumaWPF.Engine;
-using GogumaWPF.Engine.Map;
+using Goguma.Engine.Map;
+using Goguma.Engine;
 
-namespace GogumaWPF.Goguma;
+namespace Goguma.Game;
 
 public static partial class Main
 {

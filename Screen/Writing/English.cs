@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows;
 
-namespace GogumaWPF.Screen.Writing;
+namespace Goguma.Screen.Writing;
 
 public sealed class English : Writing
 {

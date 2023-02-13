@@ -1,13 +1,13 @@
 using System.Windows;
 using System.Windows.Input;
-using GogumaWPF.Engine;
-using GogumaWPF.Engine.Entity;
-using GogumaWPF.Engine.Entity.Dialog;
-using GogumaWPF.Engine.Map;
-using GogumaWPF.Engine.Player;
-using GogumaWPF.Screen.Writing;
+using Goguma.Engine;
+using Goguma.Engine.Entity;
+using Goguma.Engine.Player;
+using Goguma.Engine.Entity.Dialog;
+using Goguma.Engine.Map;
+using Goguma.Screen.Writing;
 
-namespace GogumaWPF.Goguma;
+namespace Goguma.Game;
 
 public static partial class Main
 {
@@ -59,13 +59,31 @@ public static partial class Main
     //   screen.Print($"{fld.Icon} {fld.Name}\n{fld.Descriptions}");
     // });
 
-    var entity = "entity:test".GetEntity();
+    // var entity = "entity:test".GetEntity();
 
     // screen.ShowDialogs(((INeutrality) entity).MeetDialogs, entity, player, () => { });
     // screen.ReadWritingEng(16, str => { MessageBox.Show(str); });
-    player.Inventory.GainItem("item:potion2", 5);
-    player.Inventory.GainItem("item:potion", 56);
-    player.Inventory.GainItem("item:potion3", 15);
-    screen.OpenTrader((ITrader) entity, player, () => { });
+    // player.Inventory.GainItem("item:potion2", 5);
+    // player.Inventory.GainItem("item:potion", 56);
+    // player.Inventory.GainItem("item:potion3", 15);
+    // screen.OpenTrader((ITrader) entity, player, () => { });
+    
+    // screen.ReadKey(key =>
+    // {
+    //   screen.OpenSubScreen("test sub screen", new Size(400,350), screen =>
+    //   {
+    //     screen.Print("Hello World!");
+    //     screen.Focus();
+    //     screen.ReadKey(key =>
+    //     {
+    //       screen.ExitSub("cex");
+    //     });
+    //   }, result =>
+    //   {
+    //     screen.Print("Oh! get result:");
+    //     screen.Print(result.ToString());
+    //   });
+    // });
+    
   }
 }

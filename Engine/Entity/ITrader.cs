@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using GogumaWPF.Engine.Entity.Dialog;
-using GogumaWPF.Engine.Item;
+using Goguma.Engine.Entity.Dialog;
+using Goguma.Engine.Item;
 
-namespace GogumaWPF.Engine.Entity;
+namespace Goguma.Engine.Entity;
 
 public interface ITrader : INeutrality
 {

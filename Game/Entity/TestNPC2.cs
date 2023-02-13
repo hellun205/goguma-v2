@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Media;
-using GogumaWPF.Engine.Entity;
-using GogumaWPF.Engine.Entity.Dialog;
+using Goguma.Engine.Entity;
+using Goguma.Engine.Entity.Dialog;
 
-namespace GogumaWPF.Goguma.Entity;
+namespace Goguma.Game.Entity;
 
 public class TestNPC2 : Engine.Entity.Entity, IEnemy, IDroppable
 {

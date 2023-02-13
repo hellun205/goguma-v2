@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GogumaWPF.Engine.Item;
-using GogumaWPF.Goguma;
-using static GogumaWPF.Goguma.Main;
+using Goguma.Engine.Item;
+using Goguma.Game;
+using static Goguma.Game.Main;
 
-namespace GogumaWPF.Engine.Player;
+namespace Goguma.Engine.Player;
 
 [Serializable]
 public sealed class Inventory

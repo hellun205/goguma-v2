@@ -1,8 +1,8 @@
 using System;
-using GogumaWPF.Engine.Item;
-using GogumaWPF.Engine.Map;
+using Goguma.Engine.Item;
+using Goguma.Engine.Map;
 
-namespace GogumaWPF.Engine.Player;
+namespace Goguma.Engine.Player;
 
 [Serializable]
 public sealed partial class Player : IPositionable

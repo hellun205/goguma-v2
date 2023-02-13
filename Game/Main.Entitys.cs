@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Media;
-using GogumaWPF.Engine;
-using GogumaWPF.Engine.Entity;
-using GogumaWPF.Engine.Entity.Dialog;
-using GogumaWPF.Engine.Skill;
-using GogumaWPF.Goguma.Entity;
+using Goguma.Engine.Entity.Dialog;
+using Goguma.Engine;
+using Goguma.Engine.Entity;
+using Goguma.Engine.Skill;
+using Goguma.Game.Entity;
 
-namespace GogumaWPF.Goguma;
+namespace Goguma.Game;
 
 public static partial class Main
 {

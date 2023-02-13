@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GogumaWPF.Engine.Skill;
+using Goguma.Engine.Skill;
 
-namespace GogumaWPF.Engine;
+namespace Goguma.Engine;
 
 public sealed class Manager<T> where T : IManageable
 {

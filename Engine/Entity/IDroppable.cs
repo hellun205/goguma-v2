@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace GogumaWPF.Engine.Entity;
+namespace Goguma.Engine.Entity;
 
 public interface IDroppable : IEnemy
 {

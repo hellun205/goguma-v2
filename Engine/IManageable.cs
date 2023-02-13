@@ -1,4 +1,4 @@
-namespace GogumaWPF.Engine;
+namespace Goguma.Engine;
 
 public interface IManageable
 {

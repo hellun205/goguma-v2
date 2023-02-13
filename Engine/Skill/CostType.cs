@@ -1,6 +1,6 @@
 using System;
 
-namespace GogumaWPF.Engine.Skill;
+namespace Goguma.Engine.Skill;
 
 [Serializable]
 public enum CostType

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace GogumaWPF.Engine.Entity.Dialog;
+namespace Goguma.Engine.Entity.Dialog;
 
 public sealed class MultiSay : IDialog
 {

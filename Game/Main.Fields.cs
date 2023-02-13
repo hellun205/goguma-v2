@@ -1,9 +1,9 @@
 using System.Windows.Media;
-using GogumaWPF.Engine.Map.Field;
-using GogumaWPF.Engine;
-using GogumaWPF.Goguma.Field;
+using Goguma.Engine.Map.Field;
+using Goguma.Engine;
+using Goguma.Game.Field;
 
-namespace GogumaWPF.Goguma;
+namespace Goguma.Game;
 
 public static partial class Main
 {

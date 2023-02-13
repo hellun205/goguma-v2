@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GogumaWPF.Engine.Entity.Dialog;
+namespace Goguma.Engine.Entity.Dialog;
 
 [Obsolete("TO DO", true)]
 public sealed class ReadInt : IDialog

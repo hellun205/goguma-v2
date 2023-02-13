@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Media;
-using GogumaWPF.Engine.Entity;
-using GogumaWPF.Engine.Entity.Dialog;
-using GogumaWPF.Engine.Item;
+using Goguma.Engine.Entity;
+using Goguma.Engine.Entity.Dialog;
+using Goguma.Engine.Item;
 
-namespace GogumaWPF.Goguma.Entity;
+namespace Goguma.Game.Entity;
 
 public class TestNPC : Engine.Entity.Entity, ITrader, INeutrality
 {

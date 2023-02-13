@@ -1,4 +1,4 @@
-namespace GogumaWPF.Engine.Player;
+namespace Goguma.Engine.Player;
 
 public struct Status
 {

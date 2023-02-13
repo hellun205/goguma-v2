@@ -1,4 +1,4 @@
-﻿namespace GogumaWPF.Engine.Entity.Dialog;
+﻿namespace Goguma.Engine.Entity.Dialog;
 
 public sealed class Say : IDialog
 {

@@ -1,4 +1,4 @@
-namespace GogumaWPF.Engine.Map;
+namespace Goguma.Engine.Map;
 
 public interface IPositionable
 {

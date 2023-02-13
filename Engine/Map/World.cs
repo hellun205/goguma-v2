@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using GogumaWPF.Goguma;
+using Goguma.Game;
 
-namespace GogumaWPF.Engine.Map;
+namespace Goguma.Engine.Map;
 
 public sealed class World : IManageable, ICanvas
 {

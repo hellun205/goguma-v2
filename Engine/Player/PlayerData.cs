@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace GogumaWPF.Engine.Player;
+namespace Goguma.Engine.Player;
 
 public sealed class PlayerData
 {

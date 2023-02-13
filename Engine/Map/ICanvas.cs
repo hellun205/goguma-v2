@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace GogumaWPF.Engine.Map;
+namespace Goguma.Engine.Map;
 
 public interface ICanvas
 {

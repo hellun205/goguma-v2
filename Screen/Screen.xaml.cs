@@ -1,4 +1,4 @@
-﻿using GogumaWPF;
+﻿using Goguma;
 using System;
 using System.IO;
 using System.Text;
@@ -8,7 +8,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace GogumaWPF.Screen;
+namespace Goguma.Screen;
 
 /// <summary>
 /// Interaction logic for Screen.xaml
@@ -17,9 +17,17 @@ public partial class Screen : UserControl
 {
   public object Font => FindResource("Galmuri11");
 
-  public Brush BGColor => RTBMain.Background;
+  public Brush BGColor
+  {
+    get => RTBMain.Background;
+    set => RTBMain.Background = value;
+  }
 
-  public Brush FGColor => RTBMain.Foreground;
+  public Brush FGColor
+  {
+    get => RTBMain.Foreground;
+    set => RTBMain.Foreground = value;
+  }
 
   public Brush BGColorWhenReadText { get; set; } = Brushes.DimGray;
 
@@ -32,6 +40,12 @@ public partial class Screen : UserControl
   public string TempRTF;
   public Key? KeyToPress;
   public bool CanTask = true;
+  public SubScreen SubScreen;
+  public bool IsSubScreen = false;
+  public bool IsOpenedSubScreen = false;
+  public Action<object> CallBackAfterSubScreen;
+  public Action? CallBackAfterSubScreenForceExit;
+  public Screen Parent;
 
   private bool keyDownAvailability = true;
   private Key tempKey;
@@ -43,7 +57,7 @@ public partial class Screen : UserControl
 
   private void RTBMain_GotFocus(object sender, RoutedEventArgs e)
   {
-    TBInput.Focus();
+    if (!IsOpenedSubScreen) TBInput.Focus();
   }
 
   public void Print(string text)
@@ -183,4 +197,32 @@ public partial class Screen : UserControl
   }
 
   public void ThrowWhenCantTask() => throw new Exception("It cannot be run while other operations are in progress.");
+
+  public void OpenSubScreen(string title, Size size, Action<Screen> action, Action<object> callBack, Action callBackOnForceExit = null)
+  {
+    CallBackAfterSubScreen = callBack;
+    SubScreen = new SubScreen(this, title, size);
+    grid.Children.Add(SubScreen);
+    IsOpenedSubScreen = true;
+    action(SubScreen.screen);
+  }
+
+  public void CloseSubScreen(bool force = true)
+  {
+    if (IsOpenedSubScreen)
+    {
+      grid.Children.Remove(SubScreen);
+      SubScreen = null;
+      IsOpenedSubScreen = false;
+      if (force) CallBackAfterSubScreenForceExit();
+    }
+    else throw new Exception("SubScreen(은)는 열려 있지 않습니다");
+  }
+
+  public void ExitSub(object value)
+  {
+    Parent.CloseSubScreen(false);
+    Parent.CallBackAfterSubScreen(value);
+  }
+  
 }

@@ -1,6 +1,6 @@
 using System;
 
-namespace GogumaWPF.Engine.Item.Equippable;
+namespace Goguma.Engine.Item.Equippable;
 
 [Serializable]
 public sealed class EquipmentItem : Item, IEquippable

@@ -1,4 +1,4 @@
-﻿namespace GogumaWPF.Engine.Entity;
+﻿namespace Goguma.Engine.Entity;
 
 public class Entity : IManageable
 {

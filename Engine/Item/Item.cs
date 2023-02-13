@@ -1,8 +1,8 @@
 using System;
 using System.Windows.Media;
-using GogumaWPF.Goguma;
+using Goguma.Game;
 
-namespace GogumaWPF.Engine.Item;
+namespace Goguma.Engine.Item;
 
 [Serializable]
 public abstract class Item : IEquatable<Item>, ITradable, IManageable

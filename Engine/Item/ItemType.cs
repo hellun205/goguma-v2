@@ -1,4 +1,4 @@
-namespace GogumaWPF.Engine.Item;
+namespace Goguma.Engine.Item;
 
 public static class ItemType
 {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GogumaWPF.Screen.Writing;
+namespace Goguma.Screen.Writing;
 
 public class Writing
 {

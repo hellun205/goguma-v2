@@ -5,7 +5,7 @@ using System.Text;
 using System.Windows.Documents;
 using System.Windows.Media;
 
-namespace GogumaWPF;
+namespace Goguma;
 
 public static class Utils
 {

@@ -1,6 +1,6 @@
 using System;
 
-namespace GogumaWPF.Engine.Item;
+namespace Goguma.Engine.Item;
 
 [Serializable]
 public struct BuffStats

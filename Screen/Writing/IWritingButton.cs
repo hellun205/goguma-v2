@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GogumaWPF.Screen.Writing;
+namespace Goguma.Screen.Writing;
 
 public interface IWritingButton
 {

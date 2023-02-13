@@ -12,10 +12,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using GogumaWPF.Goguma;
-using static GogumaWPF.Goguma.Main;
+using Goguma.Game;
+using static Goguma.Game.Main;
 
-namespace GogumaWPF
+namespace Goguma
 {
   /// <summary>
   /// Interaction logic for MainWindow.xaml
@@ -28,7 +28,7 @@ namespace GogumaWPF
     {
       InitializeComponent();
       Main.screen = Screen;
-
+      
       void Play()
       {
         Screen.Focus();
@@ -51,11 +51,6 @@ namespace GogumaWPF
       }
       else
         Play();
-    }
-
-    private void Window_Loaded(object sender, RoutedEventArgs e)
-    {
-      Screen.Focus();
     }
   }
 }
