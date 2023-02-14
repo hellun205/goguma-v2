@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:Goguma.Screen"
              mc:Ignorable="d" GotFocus="GotFocuss" Focusable="True"
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid x:Name="grid">
+    <Grid>
         <TextBox x:Name="TBInput" Focusable="True" Text="" PreviewKeyDown="OnKeyDown"
                  PreviewKeyUp="OnKeyUp" TextChanged="OnTextChanged" GotFocus="TBInput_OnGotFocus" />
         <RichTextBox x:Name="RTBMain" Padding="10,10,10,10" Background="#FF202030"

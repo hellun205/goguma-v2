@@ -58,7 +58,7 @@ public static partial class Main
       if (e.Key == Key.C && !screen.IsOpenedSubScreen)
       {
         Screen.Screen.IgnoreKeyPressEvent = true;
-        screen.OpenSubScreen("메뉴", new Size(220, 300), screen =>
+        screen.OpenSubScreen("메뉴", new Size(220, 120), screen =>
         {
           screen.AutoSetTextAlign = true;
           screen.TextAlignment = TextAlignment.Center;
@@ -76,7 +76,7 @@ public static partial class Main
               }},
               {"Game Exit", () =>
               {
-                screen.OpenSubScreen("question", new Size(200,120), screen2 =>
+                screen.OpenSubScreen("question", new Size(200,100), screen2 =>
                 {
                   screen2.ScrollToEnd = false;
                   screen2.AutoSetTextAlign = true;

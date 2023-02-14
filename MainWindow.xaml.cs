@@ -28,6 +28,7 @@ namespace Goguma
     {
       InitializeComponent();
       Main.screen = Screen;
+      Goguma.Screen.Screen.ParentGrid = mainGrid;
       
       void Play()
       {

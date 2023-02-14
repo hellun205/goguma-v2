@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Markup;
 using System.Windows.Media;
 
 namespace Goguma.Screen;
@@ -20,6 +21,8 @@ public partial class Screen : UserControl
   /// 현재 포커싱 되어 있는 스크린입니다.
   /// </summary>
   public static Screen? MainScreen;
+
+  public static Panel ParentGrid;
 
   /// <summary>
   /// 스크린의 폰트입니다.
@@ -349,7 +352,7 @@ public partial class Screen : UserControl
     {
       callBackAfterSubScreen = callBack;
       SubScreen = new SubScreen(this, title, size);
-      grid.Children.Add(SubScreen);
+      ParentGrid.Children.Add(SubScreen);
       IsOpenedSubScreen = true;
       action(SubScreen.screen);
       MainScreen = SubScreen.screen;
@@ -366,7 +369,7 @@ public partial class Screen : UserControl
   {
     if (IsOpenedSubScreen)
     {
-      grid.Children.Remove(SubScreen);
+      ParentGrid.Children.Remove(SubScreen);
       SubScreen = null;
       IsOpenedSubScreen = false;
       if (force) callBackAfterSubScreenForceExit();
