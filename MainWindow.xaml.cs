@@ -12,7 +12,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Goguma.Engine.Player;
 using Goguma.Game;
+using Goguma.Screen;
 using static Goguma.Game.Main;
 
 namespace Goguma
@@ -29,18 +31,22 @@ namespace Goguma
       InitializeComponent();
       Main.screen = Screen;
       Goguma.Screen.Screen.ParentGrid = mainGrid;
-      
-      void Play()
-      {
-        Screen.Focus();
-        Start();
-      }
+    }
+
+    private void StartGame()
+    {
+      Start();
+    }
+
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+      Screen.Focus();
 
       if (PrintErrorOnScreen)
       {
         try
         {
-          Play();
+          StartGame();
         }
         catch (Exception ex)
         {
@@ -51,7 +57,7 @@ namespace Goguma
         }
       }
       else
-        Play();
+        StartGame();
     }
   }
 }

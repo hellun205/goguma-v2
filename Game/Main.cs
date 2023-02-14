@@ -7,6 +7,7 @@ using Goguma.Engine.Entity;
 using Goguma.Engine.Player;
 using Goguma.Engine.Entity.Dialog;
 using Goguma.Engine.Map;
+using Goguma.Screen;
 using Goguma.Screen.Writing;
 
 namespace Goguma.Game;
@@ -55,10 +56,10 @@ public static partial class Main
     Screen.Screen.IgnoreKeyPressEvent = false;
     Screen.Screen.OnKeyPress += (sender, e) =>
     {
-      if (e.Key == Key.C && !screen.IsOpenedSubScreen)
+      if (e.Key == Key.C)
       {
         Screen.Screen.IgnoreKeyPressEvent = true;
-        screen.OpenSubScreen("메뉴", new Size(220, 120), screen =>
+        Screen.Screen.MainScreen.OpenSubScreen("메뉴", new Size(150, 100), screen =>
         {
           screen.AutoSetTextAlign = true;
           screen.TextAlignment = TextAlignment.Center;
@@ -67,7 +68,7 @@ public static partial class Main
           void While()
           {
             screen.Clear();
-            screen.Select(new Dictionary<string, Action>()
+            screen.SelectV(new Dictionary<string, Action>()
             {
               {"Resume", () =>
               {

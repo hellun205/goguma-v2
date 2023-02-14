@@ -1,13 +1,10 @@
-﻿using Goguma;
-using System;
+﻿using System;
 using System.IO;
-using System.Reflection.Metadata;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Markup;
 using System.Windows.Media;
 
 namespace Goguma.Screen;
@@ -135,6 +132,7 @@ public partial class Screen : UserControl
   {
     if (MainScreen == null || MainScreen == this)
     {
+      MainScreen = this;
       TBInput.Focus();
     }
     else
