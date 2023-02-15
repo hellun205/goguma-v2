@@ -59,12 +59,12 @@ public static partial class ScreenUtils
           {
             if (tagSplit[0].Contains(FGChr))
             {
-              color.X = (Brush) (new BrushConverter().ConvertFromString(tagSplit[0].Split('#')[1]) ?? screen.FGColor);
+              color.X = (Brush) (new BrushConverter().ConvertFromString(tagSplit[0].Split(FGChr)[1]) ?? screen.FGColor);
             }
 
             if (tagSplit[0].Contains(BGChr))
             {
-              color.Y = (Brush) (new BrushConverter().ConvertFromString(tagSplit[0].Split('*')[1]) ?? screen.BGColor);
+              color.Y = (Brush) (new BrushConverter().ConvertFromString(tagSplit[0].Split(BGChr)[1]) ?? screen.BGColor);
             }
           }
 

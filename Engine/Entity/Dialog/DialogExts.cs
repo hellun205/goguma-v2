@@ -53,7 +53,7 @@ public static class DialogExts
           string speakerPrefix = dialogs[currentIndex].Speaker switch
           {
             Speaker.ENTITY => $"&{{%{opponent.Color}%}}{opponent.Name}",
-            Speaker.PLAYER => $"&{{%{Brushes.DarkGreen}%}}{player.Name}",
+            Speaker.PLAYER => $"&{{%{Brushes.DarkGreen}%}}{player.Name} (you)",
             Speaker.UNKNOWN => $"&{{%{Brushes.Goldenrod}%}}???",
             _ => $"not implement"
           };
