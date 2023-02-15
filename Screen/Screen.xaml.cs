@@ -166,6 +166,7 @@ public partial class Screen
   {
     if (keyDownAvailability)
     {
+      Main.Logger.Log($"IsReadingKey: {IsReadingKey}");
       keyDownAvailability = false;
       tempKey = e.Key;
       if (!IgnoreKeyPressEvent) OnKeyPress?.Invoke(this, e);
