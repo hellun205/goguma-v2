@@ -44,9 +44,9 @@ public sealed partial class Player
   {
     void While()
     {
-      Main.screen.Clear();
-      Main.screen.Print("캐릭터를 선택하세요");
-      Main.screen.SelectV(new Dictionary<string, string>()
+      Main.Screen.Clear();
+      Main.Screen.Print("캐릭터를 선택하세요");
+      Main.Screen.SelectV(new Dictionary<string, string>()
       {
         {"새로 만들기", "new"},
         {"세이브 불러오기", "load"},
@@ -56,13 +56,13 @@ public sealed partial class Player
         switch (selection)
         {
           case "new":
-            Main.screen.Clear();
-            Main.screen.Print("캐릭터의 이름을 정해주세요\n");
-            Main.screen.ReadText(playerName =>
+            Main.Screen.Clear();
+            Main.Screen.Print("캐릭터의 이름을 정해주세요\n");
+            Main.Screen.ReadText(playerName =>
             {
               callBack(new Player(playerName));
               ;
-              Save(player);
+              Save(Main.Player);
             });
             break;
 
@@ -72,9 +72,9 @@ public sealed partial class Player
             Dictionary<string, string> datas = fInfos.Select(file => PlayerData.Load(file.FullName))
               .ToDictionary(pData => pData.ToString(), pData => pData.Name);
 
-            Main.screen.Clear();
-            Main.screen.Print("불러올 캐릭터를 선택하세요.");
-            Main.screen.SelectV(datas, "취소", playerName => callBack(Load(playerName)), () => While());
+            Main.Screen.Clear();
+            Main.Screen.Print("불러올 캐릭터를 선택하세요.");
+            Main.Screen.SelectV(datas, "취소", playerName => callBack(Load(playerName)), () => While());
             break;
 
           case "cancel":

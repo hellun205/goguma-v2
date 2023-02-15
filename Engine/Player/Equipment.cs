@@ -31,7 +31,7 @@ public sealed class Equipment
   {
     Dictionary<string, List<string>> dict = Items.Keys.ToDictionary(group => group, group => new List<string>() {(Items[group] == EmptyCode ? "없음" : Items[group].GetItem().Name)});
 
-    Main.screen.Select2d(dict, "취소", selection =>
+    Main.Screen.Select2d(dict, "취소", selection =>
     {
       callBack((selection != null ? Items[Items.Keys.ToList()[selection.Value.X]] : null) ?? string.Empty);
     });

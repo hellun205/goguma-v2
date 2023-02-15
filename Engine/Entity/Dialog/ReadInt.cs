@@ -2,7 +2,7 @@
 
 namespace Goguma.Engine.Entity.Dialog;
 
-[Obsolete("TO DO", true)]
+[Obsolete("not implement", true)]
 public sealed class ReadInt : IDialog
 {
   public string Text { get; }

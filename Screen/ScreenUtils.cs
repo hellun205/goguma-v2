@@ -12,8 +12,12 @@ namespace Goguma.Screen;
 /// </summary>
 public static partial class ScreenUtils
 {
+  public static readonly char BGChr = '*';
+  public static readonly char FGChr = '%';
+  public static readonly char ResetChr = '!';
+  
   /// <summary>
-  /// 글자 색 정보를 가진 텍스트를 변환하여 글자를 출력합니다. (배경 색: '*', 글자 색: '#')
+  /// 글자 색 정보를 가진 텍스트를 변환하여 글자를 출력합니다.
   /// </summary>
   /// <param name="screen">글자를 출력할 스크린</param>
   /// <param name="coloredText">글자 색 정보를 가진 텍스트</param>
@@ -51,14 +55,14 @@ public static partial class ScreenUtils
         {
           Pair<Brush> color = new(screen.FGColor, screen.BGColor);
 
-          if (!tagSplit[0].Contains("reset"))
+          if (!tagSplit[0].Contains(ResetChr))
           {
-            if (tagSplit[0].Contains("#"))
+            if (tagSplit[0].Contains(FGChr))
             {
               color.X = (Brush) (new BrushConverter().ConvertFromString(tagSplit[0].Split('#')[1]) ?? screen.FGColor);
             }
 
-            if (tagSplit[0].Contains("*"))
+            if (tagSplit[0].Contains(BGChr))
             {
               color.Y = (Brush) (new BrushConverter().ConvertFromString(tagSplit[0].Split('*')[1]) ?? screen.BGColor);
             }
@@ -77,7 +81,6 @@ public static partial class ScreenUtils
     else
       return defaultRes;
   }
-
 
   /// <summary>
   /// 글자 색 정보를 가진 텍스트의 텍스트 부분을 가져옵니다.

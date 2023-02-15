@@ -10,7 +10,7 @@ public sealed class Select : IDialog
   public Speaker Speaker { get; }
 
   [NotNull]
-  public IEnumerable<string> Options { get; set; }
+  public IEnumerable<string>? Options { get; set; }
 
   public Select(Speaker speaker, string text)
   {

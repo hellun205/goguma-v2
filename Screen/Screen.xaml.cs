@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using Goguma.Game;
 
 namespace Goguma.Screen;
 
@@ -110,8 +111,17 @@ public partial class Screen
 
   public bool AutoSetTextAlign { get; set; }
 
-  public TextAlignment TextAlignment { get; set; } = TextAlignment.Left;
+  public TextAlignment TextAlignment
+  {
+    get => textAlignment;
+    set
+    {
+      AutoSetTextAlign = (value != TextAlignment.Left);
+      textAlignment = value;
+    } 
+  }
 
+  private TextAlignment textAlignment = TextAlignment.Left;
   private Brush BGColorWhenReadText = Brushes.DimGray;
   private bool keyDownAvailability = true;
   private Key tempKey;
@@ -143,7 +153,7 @@ public partial class Screen
 
   private void TBInput_OnGotFocus(object sender, RoutedEventArgs e)
   {
-    // if (IsOpenedSubScreen) SubScreen.screen.TBInput.Focus();
+    // if (IsOpenedSubScreen) SubScreen.Screen.TBInput.Focus();
   }
 
   private void RTBMain_TextChanged(object sender, TextChangedEventArgs e)
@@ -165,6 +175,8 @@ public partial class Screen
 
         IsReadingKey = false;
         CanTask = true;
+        
+        Main.Logger.Log($"successful key reading: {e.Key}");
         callBackAfterReadingKey?.Invoke(e.Key);
       }
       else if (IsReadingText)
@@ -173,6 +185,8 @@ public partial class Screen
         {
           IsReadingText = false;
           CanTask = true;
+          
+          Main.Logger.Log($"successful string reading: {TBInput.Text}");
           callBackAfterReadingText?.Invoke(TBInput.Text);
         }
       }
@@ -263,6 +277,7 @@ public partial class Screen
   {
     if (CanTask)
     {
+      Main.Logger.Log("start Read: string");
       IsReadingText = true;
       CanTask = false;
       TBInput.Clear();
@@ -291,6 +306,7 @@ public partial class Screen
   {
     if (CanTask)
     {
+      Main.Logger.Log("start Read: Key");
       IsReadingKey = true;
       CanTask = false;
       keyToPress = key;
@@ -308,6 +324,7 @@ public partial class Screen
   {
     if (IsReadingKey || IsReadingText)
     {
+      Main.Logger.Log("Force Exit: Read");
       IsReadingKey = false;
       IsReadingText = false;
       CanTask = true;
@@ -323,6 +340,7 @@ public partial class Screen
   {
     if (CanTask)
     {
+      Main.Logger.Log("clear screen");
       RTBMain.Document.Blocks.Clear();
     }
     else
@@ -341,6 +359,7 @@ public partial class Screen
   /// <param name="size">크기</param>
   /// <param name="action">보조스크린에 대한 작업</param>
   /// <param name="callBackOnForceExit">보조스크린이 강제로 종료될 경우 작업</param>
+  /// <exception cref="Exception">이미 보조스크린이 열려 있는 경우</exception>
   public void OpenSubScreen(string title, Size size, Action<Screen> action, Action? callBackOnForceExit = null) =>
     OpenSubScreen(title, size, action, null, callBackOnForceExit);
   
@@ -359,6 +378,7 @@ public partial class Screen
   {
     if (!IsOpenedSubScreen)
     {
+      Main.Logger.Log($"open SubScreen: {title} ({size})");
       callBackAfterSubScreen = callBack;
       SubScreen = new SubScreen(this, title, size);
       if (ParentGrid != null) ParentGrid.Children.Add(SubScreen);
@@ -378,6 +398,7 @@ public partial class Screen
   {
     if (IsOpenedSubScreen)
     {
+      Main.Logger.Log($"close SubScreen");
       if (ParentGrid != null) ParentGrid.Children.Remove(SubScreen);
       SubScreen = null;
       IsOpenedSubScreen = false;
@@ -397,6 +418,7 @@ public partial class Screen
   {
     if (IsSubScreen && Parent != null)
     { 
+      Main.Logger.Log($"exit SubScreen result: {@return}");
       Parent.CloseSubScreen(false);
       Parent.callBackAfterSubScreen?.Invoke(@return);
       Parent.TBInput.Focus();
@@ -411,6 +433,6 @@ public partial class Screen
   public void SetTextAlignment(TextAlignment textAlignment) {
     BlockCollection MyBC = RTBMain.Document.Blocks;
     foreach (Block b in MyBC)
-      b.TextAlignment = textAlignment;    
+      b.TextAlignment = textAlignment;
   }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
+using Goguma.Game;
 
 namespace Goguma.Screen;
 
@@ -19,14 +20,16 @@ public static partial class ScreenUtils
   /// <param name="upKey">-index key</param>
   /// <param name="downKey">+index key</param>
   /// <param name="optionsNewline">선택지 간 줄 바꿈 여부</param>
-  private static void Select(this Screen screen, Dictionary<string, string> queue,
-    string cancelText, bool hasCancelKey, Action<string> callBack, Key upKey, Key downKey, bool optionsNewline)
+  /// <param name="startIndex">시작 선택지 인덱스</param>
+  private static void Select(this Screen screen, Dictionary<string, string> queue, string cancelText, bool hasCancelKey,
+    Action<string> callBack, Key upKey, Key downKey, bool optionsNewline, int startIndex = 0)
   {
     if (screen.CanTask)
     {
+      Main.Logger.Log($"start select({(optionsNewline ? "V" : "H")})");
       screen.CanTask = false;
       bool cancellable = !string.IsNullOrEmpty(cancelText);
-      int selectingIndex = 0;
+      int selectingIndex = startIndex;
       int maxIndex = queue.Count - (cancellable ? 0 : 1);
       string[] options = queue.Keys.ToArray();
 
@@ -100,8 +103,9 @@ public static partial class ScreenUtils
   /// <param name="cancelText">취소 선택지 표기</param>
   /// <param name="hasCancelKey">취소 키 여부</param>
   /// <param name="cancelCallBack">취소 시 작업</param>
+  /// <param name="startIndex">시작 선택지 인덱스</param>
   private static void SelectV(this Screen screen, Dictionary<string, Action> queue,
-    string cancelText, bool hasCancelKey, Action? cancelCallBack)
+    string cancelText, bool hasCancelKey, Action? cancelCallBack, int startIndex = 0)
   {
     bool cancellable = !string.IsNullOrEmpty(cancelText);
     Dictionary<string, string> dict = queue.ToDictionary(x => x.Key, x => x.Key);
@@ -112,7 +116,7 @@ public static partial class ScreenUtils
         cancelCallBack?.Invoke();
       else
         queue[value]();
-    });
+    }, startIndex);
   }
 
   /// <summary>
@@ -123,8 +127,9 @@ public static partial class ScreenUtils
   /// <param name="cancelText">취소 선택지 표기</param>
   /// <param name="hasCancelKey">취소 키 여부</param>
   /// <param name="cancelCallBack">취소 시 작업</param>
+  /// <param name="startIndex">시작 선택지 인덱스</param>
   private static void SelectH(this Screen screen, Dictionary<string, Action> queue,
-    string cancelText, bool hasCancelKey, Action? cancelCallBack)
+    string cancelText, bool hasCancelKey, Action? cancelCallBack, int startIndex = 0)
   {
     bool cancellable = !string.IsNullOrEmpty(cancelText);
     Dictionary<string, string> dict = queue.ToDictionary(x => x.Key, x => x.Key);
@@ -135,7 +140,7 @@ public static partial class ScreenUtils
         cancelCallBack?.Invoke();
       else
         queue[value]();
-    });
+    }, startIndex);
   }
 
   /// <summary>
@@ -146,9 +151,10 @@ public static partial class ScreenUtils
   /// <param name="cancelText">취소 선택지 표기</param>
   /// <param name="hasCancelKey">취소 키 여부</param>
   /// <param name="callBack">선택 완료 후 작업</param>
+  /// <param name="startIndex">시작 선택지 인덱스</param>
   private static void SelectV(this Screen screen, Dictionary<string, string> queue, string cancelText,
-    bool hasCancelKey, Action<string> callBack) =>
-    Select(screen, queue, cancelText, hasCancelKey, callBack, screen.KeySet.Up, screen.KeySet.Down, true);
+    bool hasCancelKey, Action<string> callBack, int startIndex = 0) =>
+    Select(screen, queue, cancelText, hasCancelKey, callBack, screen.KeySet.Up, screen.KeySet.Down, true, startIndex);
 
   /// <summary>
   /// 가로 선택 시작
@@ -158,9 +164,11 @@ public static partial class ScreenUtils
   /// <param name="cancelText">취소 선택지 표기</param>
   /// <param name="hasCancelKey">취소 키 여부</param>
   /// <param name="callBack">선택 완료 후 작업</param>
+  /// <param name="startIndex">시작 선택지 인덱스</param>
   private static void SelectH(this Screen screen, Dictionary<string, string> queue, string cancelText,
-    bool hasCancelKey, Action<string> callBack) =>
-    Select(screen, queue, cancelText, hasCancelKey, callBack, screen.KeySet.Left, screen.KeySet.Right, false);
+    bool hasCancelKey, Action<string> callBack, int startIndex = 0) =>
+    Select(screen, queue, cancelText, hasCancelKey, callBack, screen.KeySet.Left, screen.KeySet.Right, false,
+      startIndex);
 
   /// <summary>
   /// 해당 스크린에서 세로 선택 작업을 시작합니다.
@@ -168,8 +176,9 @@ public static partial class ScreenUtils
   /// </summary>
   /// <param name="screen">작업을 시작할 스크린</param>
   /// <param name="queue">선택지, Key: 표기 / Value: 작업</param>
-  public static void SelectV(this Screen screen, Dictionary<string, Action> queue) =>
-    SelectV(screen, queue, string.Empty, false, null);
+  /// <param name="startIndex">시작 선택지 인덱스</param>
+  public static void SelectV(this Screen screen, Dictionary<string, Action> queue, int startIndex = 0) =>
+    SelectV(screen, queue, string.Empty, false, null, startIndex);
 
 
   /// <summary>
@@ -181,9 +190,10 @@ public static partial class ScreenUtils
   /// <param name="cancelText">취소 선택지 표기</param>
   /// <param name="callWhenCancel">취소 시 작업</param>
   /// <param name="hasCancelKey">취소 키 여부</param>
+  /// <param name="startIndex">시작 선택지 인덱스</param>
   public static void SelectV(this Screen screen, Dictionary<string, Action> queue
-    , string cancelText, Action callWhenCancel, bool hasCancelKey = true) =>
-    SelectV(screen, queue, cancelText, hasCancelKey, callWhenCancel);
+    , string cancelText, Action callWhenCancel, bool hasCancelKey = true, int startIndex = 0) =>
+    SelectV(screen, queue, cancelText, hasCancelKey, callWhenCancel, startIndex);
 
   /// <summary>
   /// 해당 스크린에서 취소 키를 포함 한 세로 선택 작업을 시작합니다.
@@ -192,8 +202,10 @@ public static partial class ScreenUtils
   /// <param name="screen">작업을 시작할 스크린</param>
   /// <param name="queue">선택지, Key: 표기 / Value: 작업</param>
   /// <param name="queueIndexWhenCancelKey">취소 키를 입력 받을 경우 행할 작업 인덱스</param>
-  public static void SelectV(this Screen screen, Dictionary<string, Action> queue, int queueIndexWhenCancelKey) =>
-    SelectV(screen, queue, string.Empty, true, queue.Values.ToList()[queueIndexWhenCancelKey]);
+  /// <param name="startIndex">시작 선택지 인덱스</param>
+  public static void SelectV(this Screen screen, Dictionary<string, Action> queue, int queueIndexWhenCancelKey,
+    int startIndex = 0) =>
+    SelectV(screen, queue, string.Empty, true, queue.Values.ToList()[queueIndexWhenCancelKey], startIndex);
 
   /// <summary>
   /// 해당 스크린에서 취소 키를 포함 한 세로 선택 작업을 시작합니다.
@@ -202,8 +214,10 @@ public static partial class ScreenUtils
   /// <param name="screen">작업을 시작할 스크린</param>
   /// <param name="queue">선택지, Key: 표기 / Value: 작업</param>
   /// <param name="callWhenCancelKey">취소 시 작업</param>
-  public static void SelectV(this Screen screen, Dictionary<string, Action> queue, Action callWhenCancelKey) =>
-    SelectV(screen, queue, string.Empty, true, callWhenCancelKey);
+  /// <param name="startIndex">시작 선택지 인덱스</param>
+  public static void SelectV(this Screen screen, Dictionary<string, Action> queue, Action callWhenCancelKey,
+    int startIndex = 0) =>
+    SelectV(screen, queue, string.Empty, true, callWhenCancelKey, startIndex);
 
 
   /// <summary>
@@ -213,8 +227,10 @@ public static partial class ScreenUtils
   /// <param name="screen">작업을 시작할 스크린</param>
   /// <param name="queue">선택지, Key: 표기 / Value: 선택지에 따른 반환 값</param>
   /// <param name="callBack">선택 완료 후 작업</param>
-  public static void SelectV(this Screen screen, Dictionary<string, string> queue, Action<string> callBack) =>
-    SelectV(screen, queue, string.Empty, false, callBack);
+  /// <param name="startIndex">시작 선택지 인덱스</param>
+  public static void SelectV(this Screen screen, Dictionary<string, string> queue, Action<string> callBack,
+    int startIndex = 0) =>
+    SelectV(screen, queue, string.Empty, false, callBack, startIndex);
 
   /// <summary>
   /// 해당 스크린에서 취소 키를 포함 한 세로 선택 작업을 시작합니다. 
@@ -224,15 +240,16 @@ public static partial class ScreenUtils
   /// <param name="queue">선택지, Key: 표기 / Value: 반환 값</param>
   /// <param name="callBack">선택을 완료 했을 때 행할 작업</param>
   /// <param name="callWhenCancel">취소 키를 입력 받았을 때 행할 작업</param>
+  /// <param name="startIndex">시작 선택지 인덱스</param>
   public static void SelectV(this Screen screen, Dictionary<string, string> queue, Action<string> callBack,
-    Action callWhenCancel) =>
+    Action callWhenCancel, int startIndex = 0) =>
     SelectV(screen, queue, string.Empty, true, result =>
     {
       if (string.IsNullOrEmpty(result))
         callWhenCancel();
       else
         callBack(result);
-    });
+    }, startIndex);
 
   /// <summary>
   /// 해당 스크린에서 취소 선택지를 포함 한 세로 선택 작업을 시작합니다. 
@@ -244,15 +261,16 @@ public static partial class ScreenUtils
   /// <param name="callBack">선택 완료 후 작업</param>
   /// <param name="callWhenCancel">취소 시 작업</param>
   /// <param name="hasCancelKey">취소 키 여부</param>
+  /// <param name="startIndex">시작 선택지 인덱스</param>
   public static void SelectV(this Screen screen, Dictionary<string, string> queue, string cancelText,
-    Action<string> callBack, Action callWhenCancel, bool hasCancelKey = true) =>
+    Action<string> callBack, Action callWhenCancel, bool hasCancelKey = true, int startIndex = 0) =>
     SelectV(screen, queue, cancelText, hasCancelKey, result =>
     {
       if (string.IsNullOrEmpty(result))
         callWhenCancel();
       else
         callBack(result);
-    });
+    }, startIndex);
 
 
   /// <summary>
@@ -261,8 +279,9 @@ public static partial class ScreenUtils
   /// </summary>
   /// <param name="screen">작업을 시작할 스크린</param>
   /// <param name="queue">선택지, Key: 표기 / Value: 작업</param>
-  public static void SelectH(this Screen screen, Dictionary<string, Action> queue) =>
-    SelectH(screen, queue, string.Empty, false, null);
+  /// <param name="startIndex">시작 선택지 인덱스</param>
+  public static void SelectH(this Screen screen, Dictionary<string, Action> queue, int startIndex = 0) =>
+    SelectH(screen, queue, string.Empty, false, null, startIndex);
 
 
   /// <summary>
@@ -274,9 +293,10 @@ public static partial class ScreenUtils
   /// <param name="cancelText">취소 선택지 표기</param>
   /// <param name="callWhenCancel">취소 시 작업</param>
   /// <param name="hasCancelKey">취소 키 여부</param>
+  /// <param name="startIndex">시작 선택지 인덱스</param>
   public static void SelectH(this Screen screen, Dictionary<string, Action> queue
-    , string cancelText, Action callWhenCancel, bool hasCancelKey = true) =>
-    SelectH(screen, queue, cancelText, hasCancelKey, callWhenCancel);
+    , string cancelText, Action callWhenCancel, bool hasCancelKey = true, int startIndex = 0) =>
+    SelectH(screen, queue, cancelText, hasCancelKey, callWhenCancel, startIndex);
 
   /// <summary>
   /// 해당 스크린에서 취소 키를 포함 한 가로 선택 작업을 시작합니다.
@@ -285,8 +305,10 @@ public static partial class ScreenUtils
   /// <param name="screen">작업을 시작할 스크린</param>
   /// <param name="queue">선택지, Key: 표기 / Value: 작업</param>
   /// <param name="queueIndexWhenCancelKey">취소 키를 입력 받을 경우 행할 작업 인덱스</param>
-  public static void SelectH(this Screen screen, Dictionary<string, Action> queue, int queueIndexWhenCancelKey) =>
-    SelectH(screen, queue, string.Empty, true, queue.Values.ToList()[queueIndexWhenCancelKey]);
+  /// <param name="startIndex">시작 선택지 인덱스</param>
+  public static void SelectH(this Screen screen, Dictionary<string, Action> queue, int queueIndexWhenCancelKey,
+    int startIndex = 0) =>
+    SelectH(screen, queue, string.Empty, true, queue.Values.ToList()[queueIndexWhenCancelKey], startIndex);
 
   /// <summary>
   /// 해당 스크린에서 취소 키를 포함 한 가로 선택 작업을 시작합니다.
@@ -295,8 +317,10 @@ public static partial class ScreenUtils
   /// <param name="screen">작업을 시작할 스크린</param>
   /// <param name="queue">선택지, Key: 표기 / Value: 작업</param>
   /// <param name="callWhenCancelKey">취소 키 입력 시 작업</param>
-  public static void SelectH(this Screen screen, Dictionary<string, Action> queue, Action callWhenCancelKey) =>
-    SelectH(screen, queue, string.Empty, true, callWhenCancelKey);
+  /// <param name="startIndex">시작 선택지 인덱스</param>
+  public static void SelectH(this Screen screen, Dictionary<string, Action> queue, Action callWhenCancelKey,
+    int startIndex = 0) =>
+    SelectH(screen, queue, string.Empty, true, callWhenCancelKey, startIndex);
 
 
   /// <summary>
@@ -306,8 +330,10 @@ public static partial class ScreenUtils
   /// <param name="screen">작업을 시작할 스크린</param>
   /// <param name="queue">선택지, Key: 표기 / Value: 반환 값</param>
   /// <param name="callBack">선택 완료 후 작업</param>
-  public static void SelectH(this Screen screen, Dictionary<string, string> queue, Action<string> callBack) =>
-    SelectH(screen, queue, string.Empty, false, callBack);
+  /// <param name="startIndex">시작 선택지 인덱스</param>
+  public static void SelectH(this Screen screen, Dictionary<string, string> queue, Action<string> callBack,
+    int startIndex = 0) =>
+    SelectH(screen, queue, string.Empty, false, callBack, startIndex);
 
   /// <summary>
   /// 해당 스크린에서 취소 키를 포함 한 가로 선택 작업을 시작합니다.
@@ -317,15 +343,16 @@ public static partial class ScreenUtils
   /// <param name="queue">선택지, Key: 표기 / Value: 반환 값</param>
   /// <param name="callBack">선택 완료 후 작업</param>
   /// <param name="callWhenCancel">취소 키 입력 시 작업</param>
+  /// <param name="startIndex">시작 선택지 인덱스</param>
   public static void SelectH(this Screen screen, Dictionary<string, string> queue, Action<string> callBack,
-    Action callWhenCancel) =>
+    Action callWhenCancel, int startIndex = 0) =>
     SelectH(screen, queue, string.Empty, true, result =>
     {
       if (string.IsNullOrEmpty(result))
         callWhenCancel();
       else
         callBack(result);
-    });
+    }, startIndex);
 
   /// <summary>
   /// 해당 스크린에서 취소 선택지를 포함 한 가로 선택 작업을 시작합니다.
@@ -337,13 +364,14 @@ public static partial class ScreenUtils
   /// <param name="callBack">선택 완료 후 작업</param>
   /// <param name="callWhenCancel">선택 취소 시 작업</param>
   /// <param name="hasCancelKey">취소 키 여부</param>
+  /// <param name="startIndex">시작 선택지 인덱스</param>
   public static void SelectH(this Screen screen, Dictionary<string, string> queue, string cancelText,
-    Action<string> callBack, Action callWhenCancel, bool hasCancelKey = true) =>
+    Action<string> callBack, Action callWhenCancel, bool hasCancelKey = true, int startIndex = 0) =>
     SelectH(screen, queue, cancelText, hasCancelKey, result =>
     {
       if (string.IsNullOrEmpty(result))
         callWhenCancel();
       else
         callBack(result);
-    });
+    }, startIndex);
 }

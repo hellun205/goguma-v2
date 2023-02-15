@@ -1,23 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
+using Goguma.Game;
 using Goguma.Screen;
 
 namespace Goguma.Engine.Entity.Dialog;
 
 public static class DialogExts
 {
-  public static int DialogSpeed { get; set; } = 50;
+  public static int DialogSpeed { get; set; } = 300;
 
-  private static async Task ShowDialogText(this Screen.Screen screen, string textF)
+  private static async Task ShowDialogText(this IDialog dialog, Screen.Screen screen)
   {
     bool isSkip = false;
-    var ftxts = screen.GetFTexts(textF);
-
-    screen.ReadKey(screen.KeySet.Enter, key => { isSkip = true; });
+    var ftxts = screen.GetFTexts(dialog.Text);
+    
+    // screen.ReadKey(screen.KeySet.Enter, key => { isSkip = true; });
 
     foreach (var ftxt in ftxts)
     {
@@ -31,98 +32,76 @@ public static class DialogExts
       }
     }
 
-    if (!isSkip) screen.ExitRead();
+    // if (!isSkip) screen.ExitRead();
   }
 
-  private static async Task ShowDialog(this Screen.Screen screen, IDialog dialog, Entity entity, Player.Player player,
-    bool hasNextDialog, Action<string?> callBack)
+  public static async void ShowDialogs(this IEnumerable<IDialog> dialog, INeutrality opponent, Action callBack)
   {
-    if (entity is INeutrality npc)
-    {
-      string prefixF = dialog.Speaker switch
-      {
-        Speaker.ENTITY => $"<fg='{npc.Color}'>{entity.Name}",
-        Speaker.PLAYER => $"<fg='{Brushes.DarkGreen}'>{player.Name}",
-        _ => $"<fg='{Utils.GetARGB(100, 255, 255, 255)}'>알 수 없음"
-      };
+    Screen.Screen? screen = Main.Screen;
+    Player.Player? player = Main.Player;
+    if (screen == null) throw new Exception("메인 스크린이 존재하지 않습니다.");
+    if (player == null) throw new Exception("플레이어가 존재하지 않습니다.");
 
-      void Fin(bool hasHelpText = true, string? res = null)
-      {
-        if (hasHelpText)
-        {
-          screen.Println(2);
-          screen.PrintF(
-            $"<fg='{Brushes.DimGray}'>[ {screen.KeySet.Enter} ] {(hasNextDialog ? "다음" : "대화 종료")}");
-          screen.ReadKey(screen.KeySet.Enter, key => { callBack(res); });
-        }
-        else
-          callBack(res);
-      }
-
-      screen.PrintF($"{prefixF}<reset> : ");
-
-      switch (dialog)
-      {
-        case MultiSay multiSay:
-        case Say:
-          await screen.ShowDialogText(dialog.Text);
-          Fin();
-          break;
-
-        case Select select:
-          await screen.ShowDialogText(dialog.Text);
-
-          var tempRTF = screen.SavedRTF;
-          Dictionary<string, string> dict = select.Options.ToDictionary<string, string>(x => x);
-          screen.SelectV(dict, result =>
-          {
-            screen.SavedRTF = tempRTF;
-            Fin(false, result);
-          });
-          break;
-
-        // case ReadInt readInt:
-        //   throw new NotImplementedException();
-        //   break;
-        //
-        // case ReadText readStr:
-        //   throw new NotImplementedException();
-        //   break;
-      }
-    }
-  }
-
-  public static void ShowDialogs(this Screen.Screen screen, IEnumerable<IDialog> dialogs, Entity entity,
-    Player.Player player, Action callBack)
-  {
-    int maxIndex = dialogs.Count();
-    int index = 0;
-    var list = dialogs.ToArray();
-    string? tmp = null;
-    
-    screen.SaveRTF();
+    IDialog[] dialogs = dialog.ToArray();
+    int currentIndex = 0;
 
     void While()
     {
-      if (index < maxIndex)
+      string speakerPrefix = dialogs[currentIndex].Speaker switch
       {
-        IDialog dialog = list[index];
+        Speaker.ENTITY => $"&{{%{opponent.Color}%}}{opponent.Name}",
+        Speaker.PLAYER => $"&{{%{Brushes.DarkGreen}%}}{player.Name}",
+        Speaker.UNKNOWN => $"&{{%{Brushes.Goldenrod}%}}???",
+        _ => $"not implement"
+      };
 
-        if (dialog is MultiSay multiSay)
-          multiSay.PreviousText = tmp;
+      screen.OpenSubScreen("dialog", new Size(300, 200), async dialogWindow =>
+      {
+        dialogWindow.ScrollToEnd = false;
+        dialogWindow.TextAlignment = TextAlignment.Center;
 
-        screen.LoadRTF();
-        screen.ShowDialog(dialog, entity, player, index < maxIndex, res =>
+        dialogWindow.PrintF(speakerPrefix);
+        dialogWindow.Println(2);
+
+        await ShowDialogText(dialogs[currentIndex], dialogWindow);
+        dialogWindow.Println();
+        
+        if (currentIndex == 0)
         {
-          tmp = res;
-          index += 1;
-          While();
-        });
-      }
-      else
+          dialogWindow.SelectH(new Dictionary<string, Action>()
+          {
+            {"대화 종료", () => dialogWindow.ExitSub("exit")},
+            {"다음", () => dialogWindow.ExitSub("next")}
+          }, 0, 1);
+        }
+        else
+        {
+          dialogWindow.SelectH(new Dictionary<string, Action>()
+          {
+            {"대화 종료", () => dialogWindow.ExitSub("exit")},
+            {"이전", () => dialogWindow.ExitSub("previous")},
+            {"다음", () => dialogWindow.ExitSub("next")}
+          }, 0, 2);
+        }
+      }, result =>
       {
-        callBack();
-      }
+        switch (result)
+        {
+          case "next":
+            currentIndex++;
+            While();
+            break;
+          case "previous":
+            currentIndex--;
+            While();
+            break;
+          case "exit":
+            callBack.Invoke();
+            break;
+          default:
+            throw new ArgumentOutOfRangeException(nameof(result));
+        }
+      });
     }
 
     While();

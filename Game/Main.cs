@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 using Goguma.Engine;
+using Goguma.Engine.Entity;
+using Goguma.Engine.Entity.Dialog;
 using Goguma.Engine.Player;
 using Goguma.Screen;
 
@@ -10,17 +12,18 @@ namespace Goguma.Game;
 
 public static partial class Main
 {
-  public static MainWindow window = (MainWindow) Application.Current.MainWindow;
-  public static Screen.Screen? screen;
-  public static Player? player;
+  // public static MainWindow Window = (MainWindow) Application.Current.MainWindow;
+  public static Screen.Screen? Screen;
+  public static Player? Player;
+  public static Logger.Logger Logger = new Logger.Logger();
   public static bool CanOpenMenu { get; set; } = true;
   public static GameObjectManager<IGameObject> GameObjectManager { get; set; } = new GameObjectManager<IGameObject>();
 
   public static string EmptyCode => GameObjectManager<IGameObject>.Empty;
 
-  public static IGameObject GetManageable(this string code) => GameObjectManager.Get(code);
+  public static IGameObject GetGameObject(this string code) => GameObjectManager.Get(code);
 
-  public static IGameObject? GetManageableOrDefault(this string code, IGameObject? defaultValue = null)
+  public static IGameObject? GetGameObjectOrDefault(this string code, IGameObject? defaultValue = null)
   {
     try
     {
@@ -47,20 +50,20 @@ public static partial class Main
     // {
     //   
     // });
-    player = new Player("test");
+    Player = new Player("test");
 
     // Menu
-    Screen.Screen.IgnoreKeyPressEvent = false;
-    Screen.Screen.OnKeyPress += (sender, e) =>
+    Goguma.Screen.Screen.IgnoreKeyPressEvent = false;
+    Goguma.Screen.Screen.OnKeyPress += (sender, e) =>
     {
       if (e.Key == Key.C && CanOpenMenu)
       {
-        Screen.Screen.IgnoreKeyPressEvent = true;
+        Goguma.Screen.Screen.IgnoreKeyPressEvent = true;
         sender.OpenSubScreen("메뉴", new Size(150, 100), menu =>
         {
           menu.AutoSetTextAlign = true;
           menu.TextAlignment = TextAlignment.Center;
-          
+
           void While()
           {
             menu.Clear();
@@ -70,7 +73,7 @@ public static partial class Main
                 "Resume", () =>
                 {
                   menu.ExitSub();
-                  Screen.Screen.IgnoreKeyPressEvent = false;
+                  Goguma.Screen.Screen.IgnoreKeyPressEvent = false;
                 }
               },
               {
@@ -79,7 +82,6 @@ public static partial class Main
                   menu.OpenSubScreen("question", new Size(200, 100), question =>
                   {
                     question.ScrollToEnd = false;
-                    question.AutoSetTextAlign = true;
                     question.TextAlignment = TextAlignment.Center;
 
                     question.Print("진짜로 종료하시겠습니까?\n");
@@ -113,7 +115,14 @@ public static partial class Main
       }
     };
 
-    // screen.Print("Test!");
-    // screen.SetTextAlignment(TextAlignment.Center);
+    INeutrality npc = (INeutrality)"entity:test".GetGameObject();
+    
+    Screen.ReadKey(Key.Enter, key =>
+    {
+      npc.MeetDialogs.ShowDialogs(npc, () =>
+      {
+      
+      });
+    });
   }
 }

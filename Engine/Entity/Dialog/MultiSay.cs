@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Goguma.Engine.Entity.Dialog;
 
@@ -9,9 +8,9 @@ public sealed class MultiSay : IDialog
 
   public Speaker Speaker { get; }
 
-  [NotNull] public string DefaultText { get; set; }
+  public string DefaultText { get; set; } = string.Empty;
 
-  [NotNull] public Dictionary<string, string> Texts { get; set; }
+  public Dictionary<string, string>? Texts { get; set; }
 
   public string? PreviousText { get; set; }
 

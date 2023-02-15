@@ -60,7 +60,7 @@ public static class Writings
           screen.Println(2);
         }
 
-        // screen.Print($"s: {selectingIndex}, {queue.Location[selectingIndex.X][selectingIndex.Y]}");
+        // Screen.Print($"s: {selectingIndex}, {queue.Location[selectingIndex.X][selectingIndex.Y]}");
 
         screen.CanTask = true;
         screen.ReadKey(key =>

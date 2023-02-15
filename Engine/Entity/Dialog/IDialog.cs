@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
+﻿
 namespace Goguma.Engine.Entity.Dialog;
 
 public interface IDialog
