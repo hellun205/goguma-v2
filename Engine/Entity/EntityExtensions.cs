@@ -6,6 +6,7 @@ using System.Windows.Media;
 using Goguma.Engine.Item;
 using Goguma.Engine.Entity.Dialog;
 using Goguma.Game;
+using Goguma.Screen;
 
 namespace Goguma.Engine.Entity;
 

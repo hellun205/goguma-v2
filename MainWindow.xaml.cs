@@ -1,18 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Goguma.Game;
+using Goguma.Screen;
 using static Goguma.Game.Main;
 
 namespace Goguma
@@ -20,7 +10,7 @@ namespace Goguma
   /// <summary>
   /// Interaction logic for MainWindow.xaml
   /// </summary>
-  public partial class MainWindow : Window
+  public partial class MainWindow
   {
     private const bool PrintErrorOnScreen = false;
 
@@ -28,18 +18,23 @@ namespace Goguma
     {
       InitializeComponent();
       Main.screen = Screen;
-      
-      void Play()
-      {
-        Screen.Focus();
-        Start();
-      }
+      Goguma.Screen.Screen.ParentGrid = mainGrid;
+    }
+
+    private void StartGame()
+    {
+      Start();
+    }
+
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+      Screen.Focus();
 
       if (PrintErrorOnScreen)
       {
         try
         {
-          Play();
+          StartGame();
         }
         catch (Exception ex)
         {
@@ -50,7 +45,7 @@ namespace Goguma
         }
       }
       else
-        Play();
+        StartGame();
     }
   }
 }

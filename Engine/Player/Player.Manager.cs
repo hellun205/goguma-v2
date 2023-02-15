@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows;
 using Goguma.Game;
+using Goguma.Screen;
 using static Goguma.Game.Main;
 
 namespace Goguma.Engine.Player;
@@ -12,17 +13,17 @@ namespace Goguma.Engine.Player;
 public sealed partial class Player
 {
   private static string SavePath => "./Save";
-  
+
   private static void Save(Player player)
   {
     if (!Directory.Exists(SavePath)) Directory.CreateDirectory(SavePath);
-      
+
     Stream ws = new FileStream($"{SavePath}/{player.Name}.pdt", FileMode.Create);
     BinaryFormatter serializer = new BinaryFormatter();
-      
+
     serializer.Serialize(ws, player);
     ws.Close();
-      
+
     PlayerData.Save($"{SavePath}/{player.Name}.json", player.GetData());
   }
 
@@ -31,21 +32,21 @@ public sealed partial class Player
     Stream rs = new FileStream($"{SavePath}/{name}.pdt", FileMode.Open);
     BinaryFormatter deserializer = new BinaryFormatter();
 
-    Player obj = (Player)deserializer.Deserialize(rs);
+    Player obj = (Player) deserializer.Deserialize(rs);
     rs.Close();
     return obj;
   }
-  
+
   [Obsolete]
   private static PlayerData LoadData(string name) => PlayerData.Load($"{SavePath}/{name}.json");
 
   public static void Load(Action<Player?> callBack)
   {
-    void While() 
+    void While()
     {
       Main.screen.Clear();
       Main.screen.Print("캐릭터를 선택하세요");
-      Main.screen.Select(new Dictionary<string, string>()
+      Main.screen.SelectV(new Dictionary<string, string>()
       {
         {"새로 만들기", "new"},
         {"세이브 불러오기", "load"},
@@ -59,25 +60,23 @@ public sealed partial class Player
             Main.screen.Print("캐릭터의 이름을 정해주세요\n");
             Main.screen.ReadText(playerName =>
             {
-              callBack(new Player(playerName));;
+              callBack(new Player(playerName));
+              ;
               Save(player);
             });
             break;
-          
+
           case "load":
             DirectoryInfo dInfo = new DirectoryInfo($"{SavePath}");
             FileInfo[] fInfos = dInfo.GetFiles("*.json");
-            Dictionary<string, string> datas = fInfos.Select(file => PlayerData.Load(file.FullName)).ToDictionary(pData => pData.ToString(), pData => pData.Name);
-            
+            Dictionary<string, string> datas = fInfos.Select(file => PlayerData.Load(file.FullName))
+              .ToDictionary(pData => pData.ToString(), pData => pData.Name);
+
             Main.screen.Clear();
             Main.screen.Print("불러올 캐릭터를 선택하세요.");
-            Main.screen.Select(datas, "취소", playerName =>
-            {
-               if (!string.IsNullOrEmpty(playerName)) callBack(Load(playerName));
-               else While();
-            });
+            Main.screen.SelectV(datas, "취소", playerName => callBack(Load(playerName)), () => While());
             break;
-          
+
           case "cancel":
             callBack(null);
             break;
@@ -87,6 +86,7 @@ public sealed partial class Player
         }
       });
     }
+
     While();
   }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using Goguma.Screen;
 
 namespace Goguma.Engine.Entity.Dialog;
 
@@ -73,7 +74,7 @@ public static class DialogExts
 
           var tempRTF = screen.SavedRTF;
           Dictionary<string, string> dict = select.Options.ToDictionary<string, string>(x => x);
-          screen.Select(dict, result =>
+          screen.SelectV(dict, result =>
           {
             screen.SavedRTF = tempRTF;
             Fin(false, result);

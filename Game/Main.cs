@@ -1,19 +1,19 @@
+using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 using Goguma.Engine;
-using Goguma.Engine.Entity;
 using Goguma.Engine.Player;
-using Goguma.Engine.Entity.Dialog;
-using Goguma.Engine.Map;
-using Goguma.Screen.Writing;
+using Goguma.Screen;
 
 namespace Goguma.Game;
 
 public static partial class Main
 {
   public static MainWindow window = (MainWindow) Application.Current.MainWindow;
-  public static Screen.Screen screen;
-  public static Player? player = null;
+  public static Screen.Screen? screen;
+  public static Player? player;
+  public static bool CanOpenMenu { get; set; } = true;
   public static GameObjectManager<IGameObject> GameObjectManager { get; set; } = new GameObjectManager<IGameObject>();
 
   public static string EmptyCode => GameObjectManager<IGameObject>.Empty;
@@ -49,46 +49,71 @@ public static partial class Main
     // });
     player = new Player("test");
 
-    // var world = "world:test_world".GetWorld();
-    // player.Position = new Pair<byte>(5, 5);
-    // player.Enter(world);
-    // screen.OpenCanvas(player, field =>
-    // {
-    //   var fld = field as Field.TestField;
-    //   screen.Clear();
-    //   screen.Print($"{fld.Icon} {fld.Name}\n{fld.Descriptions}");
-    // });
+    // Menu
+    Screen.Screen.IgnoreKeyPressEvent = false;
+    Screen.Screen.OnKeyPress += (sender, e) =>
+    {
+      if (e.Key == Key.C && CanOpenMenu)
+      {
+        Screen.Screen.IgnoreKeyPressEvent = true;
+        sender.OpenSubScreen("메뉴", new Size(150, 100), menu =>
+        {
+          menu.AutoSetTextAlign = true;
+          menu.TextAlignment = TextAlignment.Center;
+          
+          void While()
+          {
+            menu.Clear();
+            menu.SelectV(new Dictionary<string, Action>()
+            {
+              {
+                "Resume", () =>
+                {
+                  menu.ExitSub();
+                  Screen.Screen.IgnoreKeyPressEvent = false;
+                }
+              },
+              {
+                "Game Exit", () =>
+                {
+                  menu.OpenSubScreen("question", new Size(200, 100), question =>
+                  {
+                    question.ScrollToEnd = false;
+                    question.AutoSetTextAlign = true;
+                    question.TextAlignment = TextAlignment.Center;
 
-    // var entity = "entity:test".GetEntity();
+                    question.Print("진짜로 종료하시겠습니까?\n");
+                    question.SelectH(new Dictionary<string, Action>()
+                    {
+                      {
+                        "아니요", () =>
+                        {
+                          question.ExitSub();
+                          While();
+                        }
+                      },
+                      {"예", () => menu.ExitSub("game-exit")}
+                    });
+                  });
+                }
+              }
+            });
+          }
 
-    // screen.ShowDialogs(((INeutrality) entity).MeetDialogs, entity, player, () => { });
-    // screen.ReadWritingEng(16, str => { MessageBox.Show(str); });
-    // player.Inventory.GainItem("item:potion2", 5);
-    // player.Inventory.GainItem("item:potion", 56);
-    // player.Inventory.GainItem("item:potion3", 15);
-    // screen.OpenTrader((ITrader) entity, player, () => { });
+          While();
+        }, result =>
+        {
+          switch (result)
+          {
+            case "game-exit":
+              Application.Current.Shutdown();
+              break;
+          }
+        });
+      }
+    };
 
-    // Screen.Screen.OnKeyPress += (sender, e) =>
-    // {
-    //   Screen.Screen.MainScreen.Print($"IsSubScreen = {sender.IsSubScreen}, Key = {e.Key}\n");
-    // };
-    //
-    // screen.ReadKey(Key.A,key =>
-    // {
-    //   screen.OpenSubScreen("test sub screen", new Size(400,350), screen =>
-    //   {
-    //     screen.Print("Hello World!");
-    //     screen.Focus();
-    //     screen.ReadKey(Key.Enter, key =>
-    //     {
-    //       screen.ExitSub("cex");
-    //     });
-    //   }, result =>
-    //   {
-    //     screen.Print("Oh! get result:");
-    //     screen.Print(result.ToString());
-    //   });
-    // });
-    
+    // screen.Print("Test!");
+    // screen.SetTextAlignment(TextAlignment.Center);
   }
 }

@@ -1,7 +1,5 @@
-﻿using Goguma;
-using System;
+﻿using System;
 using System.IO;
-using System.Reflection.Metadata;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,12 +12,14 @@ namespace Goguma.Screen;
 /// <summary>
 /// Interaction logic for Screen.xaml
 /// </summary>
-public partial class Screen : UserControl
+public partial class Screen
 {
   /// <summary>
   /// 현재 포커싱 되어 있는 스크린입니다.
   /// </summary>
   public static Screen? MainScreen;
+
+  public static Panel? ParentGrid;
 
   /// <summary>
   /// 스크린의 폰트입니다.
@@ -52,23 +52,23 @@ public partial class Screen : UserControl
   /// <summary>
   /// 현재 텍스트를 읽고 있는 지에 대한 여부입니다.
   /// </summary>
-  public bool IsReadingText { get; private set; } = false;
+  public bool IsReadingText { get; private set; }
 
   /// <summary>
   /// 현재 키를 읽고 있는 지에 대한 여부입니다.
   /// </summary>
-  public bool IsReadingKey { get; private set; } = false;
+  public bool IsReadingKey { get; private set; }
 
   /// <summary>
   /// 현재 보조스크린이 열려 있는 지에 대한 여부입니다.
   /// </summary>
-  public bool IsOpenedSubScreen { get; private set; } = false;
+  public bool IsOpenedSubScreen { get; private set; }
 
   /// <summary>
   /// (확장 기능 전용)
   /// 저장 된 스크린의 내용입니다. 
   /// </summary>
-  public string SavedRTF { get; set; }
+  public string? SavedRTF { get; set; }
 
   /// <summary>
   /// 현재 이 스크린이 다른 작업을 시행 중인지에 대한 여부입니다.
@@ -83,13 +83,13 @@ public partial class Screen : UserControl
   /// <summary>
   /// 현재 스크린이 보조스크린인 지에 대한 여부입니다.
   /// </summary>
-  public bool IsSubScreen { get; set; } = false;
+  public bool IsSubScreen { get; set; }
 
   /// <summary>
   /// (현재 스크린이 보조스크린인 경우)
   /// 이 스크린의 부모 스크린입니다.
   /// </summary>
-  public Screen? Parent { get; set; }
+  public new Screen? Parent { get; set; }
 
   public delegate void _onKeyPress(Screen sender, KeyEventArgs keyEventArgs);
 
@@ -101,15 +101,24 @@ public partial class Screen : UserControl
   /// <summary>
   /// 키가 입력 받았을 때 호출되는 이벤트를 무시합니다.
   /// </summary>
-  public static bool IgnoreKeyPressEvent { get; set; } = false;
+  public static bool IgnoreKeyPressEvent { get; set; }
+
+  /// <summary>
+  /// 스크린의 내용이 변경 되었을 때 자동으로 맨 밑으로 스크롤 되는 지에 대한 여부입니다.
+  /// </summary>
+  public bool ScrollToEnd { get; set; } = true;
+
+  public bool AutoSetTextAlign { get; set; }
+
+  public TextAlignment TextAlignment { get; set; } = TextAlignment.Left;
 
   private Brush BGColorWhenReadText = Brushes.DimGray;
   private bool keyDownAvailability = true;
   private Key tempKey;
   private Key? keyToPress;
-  private Action<string> callBackAfterReadingText;
-  private Action<Key> callBackAfterReadingKey;
-  private Action<object> callBackAfterSubScreen;
+  private Action<string>? callBackAfterReadingText;
+  private Action<Key>? callBackAfterReadingKey;
+  private Action<object?>? callBackAfterSubScreen;
   private Action? callBackAfterSubScreenForceExit;
 
   public Screen()
@@ -121,20 +130,26 @@ public partial class Screen : UserControl
 
   private void GotFocuss(object sender, RoutedEventArgs e)
   {
-    if (!IsOpenedSubScreen)
+    if (MainScreen == null || MainScreen == this)
     {
-      TBInput.Focus();
       MainScreen = this;
+      TBInput.Focus();
     }
     else
     {
-      SubScreen.screen.TBInput.Focus();
+      MainScreen.TBInput.Focus();
     }
+  }
+
+  private void TBInput_OnGotFocus(object sender, RoutedEventArgs e)
+  {
+    // if (IsOpenedSubScreen) SubScreen.screen.TBInput.Focus();
   }
 
   private void RTBMain_TextChanged(object sender, TextChangedEventArgs e)
   {
-    RTBMain.ScrollToEnd();
+    if (ScrollToEnd) RTBMain.ScrollToEnd();
+    if (AutoSetTextAlign) SetTextAlignment(TextAlignment);
   }
 
   private void OnKeyDown(object sender, KeyEventArgs e)
@@ -150,7 +165,7 @@ public partial class Screen : UserControl
 
         IsReadingKey = false;
         CanTask = true;
-        callBackAfterReadingKey(e.Key);
+        callBackAfterReadingKey?.Invoke(e.Key);
       }
       else if (IsReadingText)
       {
@@ -158,7 +173,7 @@ public partial class Screen : UserControl
         {
           IsReadingText = false;
           CanTask = true;
-          callBackAfterReadingText(TBInput.Text);
+          callBackAfterReadingText?.Invoke(TBInput.Text);
         }
       }
     }
@@ -322,22 +337,34 @@ public partial class Screen : UserControl
   /// <summary>
   /// 보조스크린을 엽니다.
   /// </summary>
-  /// <param name="title">이름</param>
+  /// <param name="title">제목</param>
+  /// <param name="size">크기</param>
+  /// <param name="action">보조스크린에 대한 작업</param>
+  /// <param name="callBackOnForceExit">보조스크린이 강제로 종료될 경우 작업</param>
+  public void OpenSubScreen(string title, Size size, Action<Screen> action, Action? callBackOnForceExit = null) =>
+    OpenSubScreen(title, size, action, null, callBackOnForceExit);
+  
+
+  /// <summary>
+  /// 보조스크린을 엽니다.
+  /// </summary>
+  /// <param name="title">제목</param>
   /// <param name="size">크기</param>
   /// <param name="action">보조스크린에 대한 작업</param>
   /// <param name="callBack">보조스크린이 종료된 후 리턴 값을 가지고 콜백합니다.</param>
-  /// <param name="callBackOnForceExit">보조스크린이 강제로 종료될 경우 콜백합니다.</param>
+  /// <param name="callBackOnForceExit">보조스크린이 강제로 종료될 경우 작업</param>
   /// <exception cref="Exception">이미 보조스크린이 열려 있는 경우</exception>
-  public void OpenSubScreen(string title, Size size, Action<Screen> action, Action<object> callBack,
-    Action callBackOnForceExit = null)
+  public void OpenSubScreen(string title, Size size, Action<Screen> action, Action<object?>? callBack,
+    Action? callBackOnForceExit = null)
   {
     if (!IsOpenedSubScreen)
     {
       callBackAfterSubScreen = callBack;
       SubScreen = new SubScreen(this, title, size);
-      grid.Children.Add(SubScreen);
+      if (ParentGrid != null) ParentGrid.Children.Add(SubScreen);
       IsOpenedSubScreen = true;
       action(SubScreen.screen);
+      MainScreen = SubScreen.screen;
     }
     else throw new Exception("이미 보조스크린이 열려 있습니다.");
   }
@@ -351,10 +378,11 @@ public partial class Screen : UserControl
   {
     if (IsOpenedSubScreen)
     {
-      grid.Children.Remove(SubScreen);
+      if (ParentGrid != null) ParentGrid.Children.Remove(SubScreen);
       SubScreen = null;
       IsOpenedSubScreen = false;
-      if (force) callBackAfterSubScreenForceExit();
+      if (force) callBackAfterSubScreenForceExit?.Invoke();
+      MainScreen = this;
     }
     else throw new Exception("보조스크린이 열려 있지 않습니다");
   }
@@ -365,13 +393,24 @@ public partial class Screen : UserControl
   /// </summary>
   /// <param name="return">부모 스크린에 보낼 값</param>
   /// <exception cref="Exception">현재 스크린이 보조스크린이 아닐 경우</exception>
-  public void ExitSub(object @return)
+  public void ExitSub(object? @return = null)
   {
-    if (IsSubScreen)
-    {
+    if (IsSubScreen && Parent != null)
+    { 
       Parent.CloseSubScreen(false);
-      Parent.callBackAfterSubScreen(@return);
+      Parent.callBackAfterSubScreen?.Invoke(@return);
+      Parent.TBInput.Focus();
+      Parent.keyDownAvailability = true;
+      MainScreen = Parent;
     }
+    else if (Parent == null)
+      throw new Exception("부모 스크린이 없습니다.");
     else throw new Exception("이 스크린은 보조스크린이 아닙니다.");
+  }
+  
+  public void SetTextAlignment(TextAlignment textAlignment) {
+    BlockCollection MyBC = RTBMain.Document.Blocks;
+    foreach (Block b in MyBC)
+      b.TextAlignment = textAlignment;    
   }
 }

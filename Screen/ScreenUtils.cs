@@ -5,53 +5,66 @@ using System.Text;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace Goguma;
+namespace Goguma.Screen;
 
 /// <summary>
 /// 스크린 확장 기능
 /// </summary>
-public static class ScreenUtils
+public static partial class ScreenUtils
 {
-  public static void PrintF(this Screen.Screen screen, string formattedText)
+  /// <summary>
+  /// 글자 색 정보를 가진 텍스트를 변환하여 글자를 출력합니다. (배경 색: '*', 글자 색: '#')
+  /// </summary>
+  /// <param name="screen">글자를 출력할 스크린</param>
+  /// <param name="coloredText">글자 색 정보를 가진 텍스트</param>
+  public static void PrintF(this Screen screen, string coloredText)
   {
-    var ftxts = screen.GetFTexts(formattedText);
+    var ftxts = screen.GetFTexts(coloredText);
 
     foreach (var ftxt in ftxts)
       screen.Print(ftxt.Y, ftxt.X);
   }
 
-  public static Pair<Pair<Brush>, string>[] GetFTexts(this Screen.Screen screen, string formattedText, bool isSymbol = false)
+  /// <summary>
+  /// 글자 색 정보를 가진 텍스트를 색과 텍스트로 분리한 묶음으로 가져옵니다.
+  /// </summary>
+  /// <param name="screen">기본 색을 가져올 스크린</param>
+  /// <param name="coloredText">글자 색 정보를 가진 텍스트</param>
+  /// <param name="convertToSymbol">일반 문자를 심볼 문자로 변환 할지에 대한 여부</param>
+  /// <returns></returns>
+  public static Pair<Pair<Brush>, string>[] GetFTexts(this Screen screen, string coloredText,
+    bool convertToSymbol = false)
   {
     var defaultRes = new[]
-      {new Pair<Pair<Brush>, string>(new(screen.FGColor, screen.BGColor), formattedText)};
+      {new Pair<Pair<Brush>, string>(new(screen.FGColor, screen.BGColor), coloredText)};
     var result = new List<Pair<Pair<Brush>, string>>();
 
-    if (formattedText.Contains('<'))
+    if (coloredText.Contains("&{"))
     {
-      string[] split = formattedText.Split('<');
+      string[] split = coloredText.Split("&{");
 
       for (int i = 1; i < split.Length; i++)
       {
         string text = split[i];
-        string[] tagSplit = text.Split('>');
+        string[] tagSplit = text.Split('}');
         try
         {
           Pair<Brush> color = new(screen.FGColor, screen.BGColor);
 
           if (!tagSplit[0].Contains("reset"))
           {
-            if (tagSplit[0].Contains("fg='"))
+            if (tagSplit[0].Contains("#"))
             {
-              color.X = (Brush) new BrushConverter().ConvertFromString(tagSplit[0].Split("fg='")[1].Split("'")[0]);
+              color.X = (Brush) (new BrushConverter().ConvertFromString(tagSplit[0].Split('#')[1]) ?? screen.FGColor);
             }
 
-            if (tagSplit[0].Contains("bg='"))
+            if (tagSplit[0].Contains("*"))
             {
-              color.Y = (Brush) new BrushConverter().ConvertFromString(tagSplit[0].Split("bg='")[1].Split("'")[0]);
+              color.Y = (Brush) (new BrushConverter().ConvertFromString(tagSplit[0].Split('*')[1]) ?? screen.BGColor);
             }
           }
 
-          result.Add(new Pair<Pair<Brush>, string>(color, (isSymbol ? tagSplit[1].ToSymbol() : tagSplit[1])));
+          result.Add(new Pair<Pair<Brush>, string>(color, (convertToSymbol ? tagSplit[1].ToSymbol() : tagSplit[1])));
         }
         catch
         {
@@ -64,10 +77,17 @@ public static class ScreenUtils
     else
       return defaultRes;
   }
-  
-  public static string GetStringOfFText(this Screen.Screen screen, string fStr)
+
+
+  /// <summary>
+  /// 글자 색 정보를 가진 텍스트의 텍스트 부분을 가져옵니다.
+  /// </summary>
+  /// <param name="screen">기본 색을 가져올 스크린</param>
+  /// <param name="coloredText">글자 색 정보를 가진 텍스트</param>
+  /// <returns></returns>
+  public static string GetStringOfCText(this Screen screen, string coloredText)
   {
-    var pairs = screen.GetFTexts(fStr);
+    var pairs = screen.GetFTexts(coloredText);
     var sb = new StringBuilder();
 
     foreach (var pair in pairs)
@@ -75,97 +95,9 @@ public static class ScreenUtils
 
     return sb.ToString();
   }
+  
 
-  public static void Select(this Screen.Screen screen, string title, Dictionary<string, Action> queue) =>
-    Select(screen, title, queue, string.Empty, null);
-
-  public static void Select(this Screen.Screen screen, string title, Dictionary<string, Action> queue,
-    string cancelText, Action? cancelCallBack)
-  {
-    bool cancellable = !string.IsNullOrEmpty(cancelText);
-    Dictionary<string, string> dict = queue.ToDictionary(x => x.Key, x => x.Key);
-
-    Select(screen, dict, cancelText, value =>
-    {
-      if (cancellable && string.IsNullOrEmpty(value))
-        cancelCallBack?.Invoke();
-      else
-        queue[value]();
-    });
-  }
-
-  public static void Select(this Screen.Screen screen, Dictionary<string, string> queue,
-    Action<string> callBack) =>
-    Select(screen, queue, null, callBack);
-
-  public static void Select(this Screen.Screen screen, Dictionary<string, string> queue,
-    string cancelText, Action<string> callBack)
-  {
-    if (screen.CanTask)
-    {
-      screen.CanTask = false;
-      bool cancellable = !string.IsNullOrEmpty(cancelText);
-      int selectingIndex = 0;
-      int maxIndex = queue.Count - (cancellable ? 0 : 1);
-      string[] options = queue.Keys.ToArray();
-
-      screen.SaveRTF();
-
-      void While()
-      {
-        screen.LoadRTF();
-        screen.Println();
-
-        for (int i = 0; i < queue.Count + (cancellable ? 1 : 0); i++)
-        {
-          Pair<Brush> color = new(screen.FGColor, screen.BGColor);
-          if (i == selectingIndex)
-          {
-            color = new(screen.BGColor, screen.FGColor);
-          }
-
-          screen.Print($" [ {(cancellable && i == maxIndex ? cancelText : options[i])} ] ", color);
-          screen.Println();
-        }
-
-        screen.ReadKey(key =>
-        {
-          if (key == screen.KeySet.Enter)
-          {
-            screen.CanTask = true;
-            callBack((((cancellable && selectingIndex == maxIndex) ? null : queue[options[selectingIndex]]) ??
-                      string.Empty));
-          }
-          else if (key == screen.KeySet.Up)
-          {
-            if (selectingIndex == 0)
-              selectingIndex = maxIndex;
-            else
-              selectingIndex -= 1;
-            While();
-          }
-          else if (key == screen.KeySet.Down)
-          {
-            if (selectingIndex == maxIndex)
-              selectingIndex = 0;
-            else
-              selectingIndex += 1;
-            While();
-          }
-          else
-          {
-            While();
-          }
-        });
-      }
-
-      While();
-    }
-    else
-      screen.ThrowWhenCantTask();
-  }
-
-  public static void Select2d(this Screen.Screen screen, Dictionary<string, List<string>> queue,
+  public static void Select2d(this Screen screen, Dictionary<string, List<string>> queue,
     string cancelText, Action<Pair<int>?> callBack)
   {
     if (screen.CanTask)
@@ -269,27 +201,27 @@ public static class ScreenUtils
       screen.ThrowWhenCantTask();
   }
 
-  public static void Pause(this Screen.Screen screen, string text, Action<Key> callBack)
+  public static void Pause(this Screen screen, string text, Action<Key> callBack)
   {
     if (!string.IsNullOrEmpty(text))
       screen.Print($"\n{text}\n");
     screen.ReadKey(callBack);
   }
 
-  public static void Pause(this Screen.Screen screen, Action<Key> callBack) =>
+  public static void Pause(this Screen screen, Action<Key> callBack) =>
     screen.Pause("계속하려면 아무 키나 누르십시오...", callBack);
 
-  public static void Pause(this Screen.Screen screen, string text, Key press, Action<Key> callBack)
+  public static void Pause(this Screen screen, string text, Key press, Action<Key> callBack)
   {
     if (!string.IsNullOrEmpty(text))
       screen.Print($"\n{text}\n");
     screen.ReadKey(press, callBack);
   }
 
-  public static void Pause(this Screen.Screen screen, Key press, Action<Key> callBack) =>
+  public static void Pause(this Screen screen, Key press, Action<Key> callBack) =>
     screen.Pause($"계속하려면 {press}키를 누르십시오...", press, callBack);
 
-  public static void Println(this Screen.Screen screen, uint count = 1)
+  public static void Println(this Screen screen, uint count = 1)
   {
     if (count == 0) return;
     var sb = new StringBuilder();
