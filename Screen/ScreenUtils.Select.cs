@@ -58,6 +58,7 @@ public static partial class ScreenUtils
         {
           if (key == screen.KeySet.Enter)
           {
+            Main.Logger.Log($"successful get result from select: {selectingIndex}");
             screen.CanTask = true;
             callBack((((cancellable && selectingIndex == maxIndex) ? null : queue[options[selectingIndex]]) ??
                       string.Empty));
@@ -68,6 +69,7 @@ public static partial class ScreenUtils
               selectingIndex = maxIndex;
             else
               selectingIndex -= 1;
+            Main.Logger.Log($"select: {selectingIndex}");
             While();
           }
           else if (key == downKey)
@@ -76,10 +78,12 @@ public static partial class ScreenUtils
               selectingIndex = 0;
             else
               selectingIndex += 1;
+            Main.Logger.Log($"select: {selectingIndex}");
             While();
           }
           else if (hasCancelKey && key == screen.KeySet.Exit)
           {
+            Main.Logger.Log($"select: cancel key");
             callBack(string.Empty);
           }
           else

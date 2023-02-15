@@ -11,7 +11,7 @@ namespace Goguma.Engine.Entity.Dialog;
 
 public static class DialogExts
 {
-  public static int DialogSpeed { get; set; } = 300;
+  public static int DialogSpeed { get; set; } = 100;
 
   private static async Task ShowDialogText(this IDialog dialog, Screen.Screen screen)
   {
