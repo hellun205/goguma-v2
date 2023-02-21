@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Media;
-using Goguma.Engine.Entity.Dialog;
+using Goguma.Engine.Entity.Dialogue;
 using Goguma.Engine;
 using Goguma.Engine.Entity;
 using Goguma.Engine.Skill;
@@ -38,29 +38,26 @@ public static partial class Main
         Level = 1,
         CanvasDescriptions = "testing dialogs npc",
         Icon = '●',
-        MeetDialogs = new IDialog[]
+        MeetDialogs = new IDialogue[]
         {
-          new Say(Speaker.ENTITY, "hello?"),
-          new Say(Speaker.ENTITY, "my name is TEST!"),
-          new Say(Speaker.PLAYER, "hello, TEST NPC."),
-          new Select(Speaker.ENTITY, "can you select?")
+          new Say(Speakers.ENTITY, "hello?"),
+          new Say(Speakers.ENTITY, "my name is TEST!"),
+          new Say(Speakers.PLAYER, "hello, TEST NPC."),
+          new Select(Speakers.ENTITY, "can you speak korean?", new()
           {
-            Options = new[]
             {
-              "yes",
-              "no",
-              "hmm.."
-            }
-          },
-          new MultiSay(Speaker.ENTITY)
-          {
-            DefaultText = "...okay.",
-            Texts = new Dictionary<string, string>()
+              "yes", new[]
+              {
+                new Say(Speakers.ENTITY, "소데스네?"),
+                new Say(Speakers.ENTITY, "좋습니다.")
+              }
+            },
+            {"no", new []
             {
-              {"yes", "oh yes!"},
-              {"no", "..."}
-            }
-          },
+              new Say(Speakers.ENTITY, "hmm.")
+            }},
+          }),
+          new Say(Speakers.PLAYER, "(?? 뭐하는 사람이지?)")
         },
         TradingItems = new string[]
         {

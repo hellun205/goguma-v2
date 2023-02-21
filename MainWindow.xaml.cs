@@ -62,5 +62,11 @@ namespace Goguma
     {
       Application.Current.Shutdown(0);
     }
+
+    private void MainWindow_OnLocationChanged(object? sender, EventArgs e)
+    {
+      Main.Logger.loggerUI.Top = Top;
+      Main.Logger.loggerUI.Left = Left + Width;
+    }
   }
 }

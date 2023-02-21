@@ -5,7 +5,7 @@ namespace Goguma.Logger;
 
 public class Logger
 {
-  private LoggerUI loggerUI = new LoggerUI();
+  public LoggerUI loggerUI = new LoggerUI();
 
   public string Logs
   {

@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Input;
 using Goguma.Engine;
 using Goguma.Engine.Entity;
-using Goguma.Engine.Entity.Dialog;
+using Goguma.Engine.Entity.Dialogue;
 using Goguma.Engine.Player;
 using Goguma.Screen;
 
@@ -119,7 +119,7 @@ public static partial class Main
     
     Screen.ReadKey(Key.Enter, key =>
     {
-      npc.MeetDialogs.ShowDialogs(npc, () =>
+      npc.MeetDialogs.ShowDialogue(npc, () =>
       {
       
       });

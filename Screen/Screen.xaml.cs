@@ -22,6 +22,9 @@ public partial class Screen
 
   public static Panel? ParentGrid;
 
+  public const int FHeight = 16;
+  public const int SFHeight = 20; 
+
   /// <summary>
   /// 스크린의 폰트입니다.
   /// </summary>
@@ -91,6 +94,12 @@ public partial class Screen
   /// 이 스크린의 부모 스크린입니다.
   /// </summary>
   public new Screen? Parent { get; set; }
+  
+  /// <summary>
+  /// (현재 스크린이 보조스크린인 경우)
+  /// 보조 스크린입니다.
+  /// </summary>
+  public SubScreen? ParentSubScreen { get; set; }
 
   public delegate void _onKeyPress(Screen sender, KeyEventArgs keyEventArgs);
 
@@ -166,7 +175,6 @@ public partial class Screen
   {
     if (keyDownAvailability)
     {
-      Main.Logger.Log($"IsReadingKey: {IsReadingKey}");
       keyDownAvailability = false;
       tempKey = e.Key;
       if (!IgnoreKeyPressEvent) OnKeyPress?.Invoke(this, e);
@@ -177,7 +185,6 @@ public partial class Screen
         IsReadingKey = false;
         CanTask = true;
         
-        Main.Logger.Log($"successful key reading: {e.Key}");
         callBackAfterReadingKey?.Invoke(e.Key);
       }
       else if (IsReadingText)
@@ -187,7 +194,6 @@ public partial class Screen
           IsReadingText = false;
           CanTask = true;
           
-          Main.Logger.Log($"successful string reading: {TBInput.Text}");
           callBackAfterReadingText?.Invoke(TBInput.Text);
         }
       }
@@ -278,7 +284,6 @@ public partial class Screen
   {
     if (CanTask)
     {
-      Main.Logger.Log("start Read: string");
       IsReadingText = true;
       CanTask = false;
       TBInput.Clear();
@@ -307,7 +312,6 @@ public partial class Screen
   {
     if (CanTask)
     {
-      Main.Logger.Log("start Read: Key");
       IsReadingKey = true;
       CanTask = false;
       keyToPress = key;
@@ -325,7 +329,6 @@ public partial class Screen
   {
     if (IsReadingKey || IsReadingText)
     {
-      Main.Logger.Log("Force Exit: Read");
       IsReadingKey = false;
       IsReadingText = false;
       CanTask = true;
@@ -341,7 +344,6 @@ public partial class Screen
   {
     if (CanTask)
     {
-      Main.Logger.Log("clear screen");
       RTBMain.Document.Blocks.Clear();
     }
     else
@@ -379,7 +381,6 @@ public partial class Screen
   {
     if (!IsOpenedSubScreen)
     {
-      Main.Logger.Log($"open SubScreen: {title} ({size})");
       callBackAfterSubScreen = callBack;
       SubScreen = new SubScreen(this, title, size);
       if (ParentGrid != null) ParentGrid.Children.Add(SubScreen);
@@ -399,7 +400,6 @@ public partial class Screen
   {
     if (IsOpenedSubScreen)
     {
-      Main.Logger.Log($"close SubScreen");
       if (ParentGrid != null) ParentGrid.Children.Remove(SubScreen);
       SubScreen = null;
       IsOpenedSubScreen = false;
@@ -419,7 +419,6 @@ public partial class Screen
   {
     if (IsSubScreen && Parent != null)
     { 
-      Main.Logger.Log($"exit SubScreen result: {@return}");
       Parent.CloseSubScreen(false);
       Parent.callBackAfterSubScreen?.Invoke(@return);
       Parent.TBInput.Focus();
@@ -434,6 +433,23 @@ public partial class Screen
   public void SetTextAlignment(TextAlignment textAlignment) {
     BlockCollection MyBC = RTBMain.Document.Blocks;
     foreach (Block b in MyBC)
-      b.TextAlignment = textAlignment;
+    {
+      if (b.TextAlignment != textAlignment) b.TextAlignment = textAlignment;
+    }
   }
+
+  public void SetSize(double width, double height)
+  {
+    if (IsSubScreen)
+    {
+      ParentSubScreen?.SetSize(width, height);
+    }
+    else
+    {
+      this.Width = width;
+      this.Height = height;
+    }
+  }
+
+  public void SetProperSize(double width, int line) => SetSize(width, ScreenUtils.GetProperHeight(line));
 }

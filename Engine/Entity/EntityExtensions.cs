@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Goguma.Game;
 
 namespace Goguma.Engine.Entity;
 

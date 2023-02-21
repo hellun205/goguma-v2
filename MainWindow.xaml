@@ -3,10 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Goguma"
         xmlns:scr="clr-namespace:Goguma.Screen"
         mc:Ignorable="d"
-        Title="goguma" Height="450" Width="800" Loaded="OnLoaded" Closed="OnClosed">
+        Title="goguma" Height="450" Width="800" WindowStartupLocation="CenterScreen" LocationChanged="MainWindow_OnLocationChanged"
+        Loaded="OnLoaded" Closed="OnClosed">
   <Grid x:Name="mainGrid">
       <scr:Screen x:Name="Screen" HorizontalAlignment="Center"/>
   </Grid>

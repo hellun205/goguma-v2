@@ -233,4 +233,6 @@ public static partial class ScreenUtils
 
     screen.Print(sb.ToString());
   }
-}
+
+  public static double GetProperHeight(int line = 1) => Screen.SFHeight * 2 + Screen.FHeight * line + 31;
+} 

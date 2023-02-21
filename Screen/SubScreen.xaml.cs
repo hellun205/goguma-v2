@@ -31,6 +31,7 @@ namespace Goguma.Screen
       FGColor = parent.FGColor;
       screen.Parent = parent;
       screen.KeySet = parent.KeySet;
+      screen.ParentSubScreen = this;
     }
     
     /// <summary>
@@ -62,6 +63,12 @@ namespace Goguma.Screen
     private void SubScreen_OnLoaded(object sender, RoutedEventArgs e)
     {
       screen.Focus();
+    }
+
+    public void SetSize(double width, double height)
+    {
+      this.Width = width;
+      this.Height = height;
     }
   }
 }
