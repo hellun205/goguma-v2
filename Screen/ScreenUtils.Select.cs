@@ -110,7 +110,7 @@ public static partial class ScreenUtils
 
     SelectV(screen, dict, cancelText, hasCancelKey, value =>
     {
-      if (value == null && (cancellable || hasCancelKey))
+      if ((value == null || string.IsNullOrEmpty(value.ToString())) && (cancellable || hasCancelKey))
         cancelCallBack?.Invoke();
       else
         queue[value.ToString()]();
@@ -134,7 +134,7 @@ public static partial class ScreenUtils
 
     SelectH(screen, dict, cancelText, hasCancelKey, value =>
     {
-      if (value == null && (cancellable || hasCancelKey))
+      if ((value == null || string.IsNullOrEmpty(value.ToString())) && (cancellable || hasCancelKey))
         cancelCallBack?.Invoke();
       else
         queue[value.ToString()]();

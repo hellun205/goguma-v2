@@ -20,7 +20,7 @@ public static class DialogueExtensions
     bool isSkip = false;
     var ftxts = screen.GetFTexts(dialogue.Text);
 
-    screen.ReadKey(screen.KeySet.Enter, key => { isSkip = true; });
+    screen.ReadKey(screen.KeySet.Enter, key => isSkip = true);
 
     foreach (var ftxt in ftxts)
     {
@@ -30,7 +30,7 @@ public static class DialogueExtensions
       foreach (var str in strs)
       {
         screen.Print(str.ToString(), clr);
-        if (str != ' ' || !isSkip) await Task.Delay(DialogSpeed);
+        if (!isSkip) await Task.Delay(DialogSpeed);
       }
     }
 
@@ -68,59 +68,44 @@ public static class DialogueExtensions
         switch (dialogues[currentIndex])
         {
           case Say:
+            Dictionary<string, Action> dict = new Dictionary<string, Action>()
+            {
+              {"대화 종료", () => callBack.Invoke("exit")}
+            };
             if (currentIndex == 0)
             {
-              dialogueWindow.SelectH(new Dictionary<string, Action>()
+              dict.Add("다음", () =>
               {
-                {"대화 종료", () => callBack.Invoke("exit")},
-                {
-                  "다음", () =>
-                  {
-                    currentIndex++;
-                    While();
-                  }
-                }
-              }, 0, 1);
+                currentIndex++;
+                While();
+              });
             }
             else if (currentIndex == dialogues.Length - 1)
             {
-              dialogueWindow.SelectH(new Dictionary<string, Action>()
-              {
-                {"대화 종료", () => callBack.Invoke("exit")},
+              if (!(dialogues[currentIndex - 1] is Select))
+                dict.Add("이전", () =>
                 {
-                  "이전", () =>
-                  {
-                    currentIndex--;
-                    While();
-                  }
-                },
-                {
-                  "확인", () => callBack.Invoke("end")
-                }
-              }, 0, 2);
+                  currentIndex--;
+                  While();
+                });
+              dict.Add("확인", () => callBack.Invoke("end"));
             }
             else
             {
-              dialogueWindow.SelectH(new Dictionary<string, Action>()
+              if (!(dialogues[currentIndex - 1] is Select))
+                dict.Add("이전", () =>
+                {
+                  currentIndex--;
+                  While();
+                });
+              dict.Add("다음", () =>
               {
-                {"대화 종료", () => callBack.Invoke("exit")},
-                {
-                  "이전", () =>
-                  {
-                    currentIndex--;
-                    While();
-                  }
-                },
-                {
-                  "다음", () =>
-                  {
-                    currentIndex++;
-                    While();
-                  }
-                }
-              }, 0, 2);
+                currentIndex++;
+                While();
+              });
             }
 
+            dialogueWindow.SelectH(dict, 0, dict.Count - 1);
             break;
 
           case Select selectDialogue:
