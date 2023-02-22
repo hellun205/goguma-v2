@@ -33,6 +33,7 @@ public static partial class Main
       {
         Name = "상인",
         Color = Brushes.Yellow,
+        TraderType = "잡화상인",
         Descriptions = "testing dialogs",
         Position = new(3, 3),
         Level = 1,

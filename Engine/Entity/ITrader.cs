@@ -4,7 +4,9 @@ namespace Goguma.Engine.Entity;
 
 public interface ITrader : INeutrality
 {
-  public IEnumerable<string>? TradingItems { get; }
+  public string TraderType { get; }
+  
+  public IEnumerable<string> TradingItems { get; }
   
   public IEnumerable<string>? DialogWhenTrade { get; }
   

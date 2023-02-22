@@ -23,7 +23,7 @@ public partial class Screen
   public static Panel? ParentGrid;
 
   public const int FHeight = 16;
-  public const int SFHeight = 20; 
+  public const int SFHeight = 20;
 
   /// <summary>
   /// 스크린의 폰트입니다.
@@ -34,6 +34,8 @@ public partial class Screen
   /// 스크린의 키 셋팅입니다.
   /// </summary>
   public KeySet<Key> KeySet { get; set; } = new KeySet<Key>(Key.Up, Key.Down, Key.Left, Key.Right, Key.Z, Key.X);
+
+  public Pair<Brush> Colors => new Pair<Brush>(FGColor, BGColor);
 
   /// <summary>
   /// 배경 색
@@ -94,7 +96,7 @@ public partial class Screen
   /// 이 스크린의 부모 스크린입니다.
   /// </summary>
   public new Screen? Parent { get; set; }
-  
+
   /// <summary>
   /// (현재 스크린이 보조스크린인 경우)
   /// 보조 스크린입니다.
@@ -127,7 +129,7 @@ public partial class Screen
     {
       AutoSetTextAlign = (value != TextAlignment.Left);
       textAlignment = value;
-    } 
+    }
   }
 
   private TextAlignment textAlignment = TextAlignment.Left;
@@ -184,7 +186,7 @@ public partial class Screen
 
         IsReadingKey = false;
         CanTask = true;
-        
+
         callBackAfterReadingKey?.Invoke(e.Key);
       }
       else if (IsReadingText)
@@ -193,7 +195,7 @@ public partial class Screen
         {
           IsReadingText = false;
           CanTask = true;
-          
+
           callBackAfterReadingText?.Invoke(TBInput.Text);
         }
       }
@@ -225,7 +227,7 @@ public partial class Screen
   /// <param name="text">출력할 글자</param>
   public void Print(string text)
   {
-    Print(text, new Pair<Brush>(FGColor, BGColor));
+    Print(text, Colors);
   }
 
   /// <summary>
@@ -364,8 +366,7 @@ public partial class Screen
   /// <param name="callBackOnForceExit">보조스크린이 강제로 종료될 경우 작업</param>
   /// <exception cref="Exception">이미 보조스크린이 열려 있는 경우</exception>
   public void OpenSubScreen(string title, Size size, Action<Screen> action, Action? callBackOnForceExit = null) =>
-    OpenSubScreen(title, size, action, null, callBackOnForceExit);
-  
+    OpenSubScreen<object>(title, size, action, null, callBackOnForceExit);
 
   /// <summary>
   /// 보조스크린을 엽니다.
@@ -377,16 +378,33 @@ public partial class Screen
   /// <param name="callBackOnForceExit">보조스크린이 강제로 종료될 경우 작업</param>
   /// <exception cref="Exception">이미 보조스크린이 열려 있는 경우</exception>
   public void OpenSubScreen(string title, Size size, Action<Screen> action, Action<object?>? callBack,
+    Action? callBackOnForceExit = null) =>
+    OpenSubScreen<object>(title, size, action, callBack, callBackOnForceExit);
+
+  /// <summary>
+  /// 보조스크린을 엽니다.
+  /// </summary>
+  /// <param name="title">제목</param>
+  /// <param name="size">크기</param>
+  /// <param name="action">보조스크린에 대한 작업</param>
+  /// <param name="callBack">보조스크린이 종료된 후 리턴 값을 가지고 콜백합니다.</param>
+  /// <param name="callBackOnForceExit">보조스크린이 강제로 종료될 경우 작업</param>
+  /// <exception cref="Exception">이미 보조스크린이 열려 있는 경우</exception>
+  public void OpenSubScreen<T>(string title, Size size, Action<Screen> action, Action<T?>? callBack,
     Action? callBackOnForceExit = null)
   {
     if (!IsOpenedSubScreen)
     {
-      callBackAfterSubScreen = callBack;
+      callBackAfterSubScreen = (obj) =>
+      {
+        if (obj == null) callBack?.Invoke(default(T));
+        else callBack?.Invoke((T) obj!);
+      };
       SubScreen = new SubScreen(this, title, size);
       if (ParentGrid != null) ParentGrid.Children.Add(SubScreen);
       IsOpenedSubScreen = true;
-      action(SubScreen.screen);
       MainScreen = SubScreen.screen;
+      action.Invoke(SubScreen.screen);
     }
     else throw new Exception("이미 보조스크린이 열려 있습니다.");
   }
@@ -402,9 +420,9 @@ public partial class Screen
     {
       if (ParentGrid != null) ParentGrid.Children.Remove(SubScreen);
       SubScreen = null;
-      IsOpenedSubScreen = false;
-      if (force) callBackAfterSubScreenForceExit?.Invoke();
+      IsOpenedSubScreen = false;   
       MainScreen = this;
+      if (force) callBackAfterSubScreenForceExit?.Invoke();
     }
     else throw new Exception("보조스크린이 열려 있지 않습니다");
   }
@@ -418,19 +436,20 @@ public partial class Screen
   public void ExitSub(object? @return = null)
   {
     if (IsSubScreen && Parent != null)
-    { 
+    {
       Parent.CloseSubScreen(false);
-      Parent.callBackAfterSubScreen?.Invoke(@return);
       Parent.TBInput.Focus();
       Parent.keyDownAvailability = true;
       MainScreen = Parent;
+      Parent.callBackAfterSubScreen?.Invoke(@return);
     }
     else if (Parent == null)
       throw new Exception("부모 스크린이 없습니다.");
     else throw new Exception("이 스크린은 보조스크린이 아닙니다.");
   }
-  
-  public void SetTextAlignment(TextAlignment textAlignment) {
+
+  public void SetTextAlignment(TextAlignment textAlignment)
+  {
     BlockCollection MyBC = RTBMain.Document.Blocks;
     foreach (Block b in MyBC)
     {

@@ -54,5 +54,5 @@ public sealed class ItemBundle : IEquatable<ItemBundle>
     return HashCode.Combine(Item, Count);
   }
 
-  public override string ToString() => $"{Item.GetItem().Name}{(Count == 1 ? "" : $" {Count}개")}";
+  public override string ToString() => $"{Item.GetItem().GetDisplay()}{(Count == 1 ? "" : $" {Count}개")}";
 }

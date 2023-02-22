@@ -12,8 +12,8 @@ namespace Goguma
   /// </summary>
   public partial class MainWindow
   {
-    private const bool PrintErrorOnScreen = true;
-    private const bool ShowLogger = true;
+    private const bool PrintErrorOnScreen = false;
+    private const bool ShowLogger = false;
 
     public MainWindow()
     {
@@ -41,16 +41,21 @@ namespace Goguma
         }
         catch (Exception ex)
         {
+          Goguma.Screen.Screen.IgnoreKeyPressEvent = true;
           if (ShowLogger)
           {
             Main.Logger.Error($"{ex.Message}\n{ex.StackTrace ?? ""}");
           }
           else
           {
-            Main.Screen.Print(
-              $"\nERROR: {ex.Message}\nSOURCE: {ex.Source ?? ""}\nTARGETSITE: {ex.TargetSite}\nSTACKTRACE ---\n{ex.StackTrace ?? ""}",
-              new Pair<Brush>(Brushes.DarkRed, Main.Screen.FGColor));
-            Main.Screen.Pause(key => { Application.Current.Shutdown(); });
+            Goguma.Screen.Screen.MainScreen.OpenSubScreen("ERROR!", new Size(650, 400), errorWindow =>
+            {
+              errorWindow.Print(
+                $"\nERROR: {ex.Message}\nSOURCE: {ex.Source ?? ""}\nTARGETSITE: {ex.TargetSite}\nSTACKTRACE ---\n{ex.StackTrace ?? ""}",
+                new Pair<Brush>(Brushes.DarkRed, Main.Screen.FGColor));
+              
+              errorWindow.Pause(key => { Application.Current.Shutdown(); });
+            });
           }
         }
       }

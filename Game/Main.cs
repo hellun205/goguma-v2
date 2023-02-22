@@ -56,73 +56,68 @@ public static partial class Main
     Goguma.Screen.Screen.IgnoreKeyPressEvent = false;
     Goguma.Screen.Screen.OnKeyPress += (sender, e) =>
     {
-      if (e.Key == Key.C && CanOpenMenu)
-      {
-        Goguma.Screen.Screen.IgnoreKeyPressEvent = true;
-        sender.OpenSubScreen("메뉴", new Size(150, 100), menu =>
-        {
-          menu.AutoSetTextAlign = true;
-          menu.TextAlignment = TextAlignment.Center;
-
-          void While()
-          {
-            menu.Clear();
-            menu.SelectV(new Dictionary<string, Action>()
-            {
-              {
-                "Resume", () =>
-                {
-                  menu.ExitSub();
-                  Goguma.Screen.Screen.IgnoreKeyPressEvent = false;
-                }
-              },
-              {
-                "Game Exit", () =>
-                {
-                  menu.OpenSubScreen("question", new Size(200, 100), question =>
-                  {
-                    question.ScrollToEnd = false;
-                    question.TextAlignment = TextAlignment.Center;
-
-                    question.Print("진짜로 종료하시겠습니까?\n");
-                    question.SelectH(new Dictionary<string, Action>()
-                    {
-                      {
-                        "아니요", () =>
-                        {
-                          question.ExitSub();
-                          While();
-                        }
-                      },
-                      {"예", () => menu.ExitSub("game-exit")}
-                    });
-                  });
-                }
-              }
-            });
-          }
-
-          While();
-        }, result =>
-        {
-          switch (result)
-          {
-            case "game-exit":
-              Application.Current.Shutdown();
-              break;
-          }
-        });
-      }
+      if (e.Key == Key.C) OpenMenu();
     };
 
-    INeutrality npc = (INeutrality)"entity:test".GetGameObject();
-    
-    Screen.ReadKey(Key.Enter, key =>
+  }
+
+  private static void OpenMenu()
+  {
+    if (CanOpenMenu)
     {
-      npc.MeetDialogs.ShowDialogue(npc, () =>
+      var screen = Goguma.Screen.Screen.MainScreen;
+      Goguma.Screen.Screen.IgnoreKeyPressEvent = true;
+      screen.OpenSubScreen<string>("메뉴", new Size(150, 0), menu =>
       {
-      
+        menu.SetProperSize(150, 1);
+        menu.AutoSetTextAlign = true;
+        menu.TextAlignment = TextAlignment.Center;
+        menu.ScrollToEnd = false;
+        int index = 0;
+        
+        void While()
+        {
+          menu.Clear();
+          menu.SelectV(new Dictionary<string, Action<int>>()
+          {
+            {
+              "Resume", (i) =>
+              {
+                index = i;
+                menu.ExitSub("resume");
+                Goguma.Screen.Screen.IgnoreKeyPressEvent = false;
+              }
+            },
+            {
+              "Game Exit", (i) =>
+              {
+                index = i;
+                menu.Ask("진짜로 종료하시겠습니까?", result =>
+                {
+                  if (result == null || !result.Value)
+                  {
+                    While();
+                  } 
+                  else if (result.Value) menu.ExitSub("game-exit");
+                    
+                });
+              }
+            }
+          }, startIndex: index);
+        }
+
+        While();
+      }, result =>
+      {
+        switch (result)
+        {
+          case "resume":
+            break;
+          case "game-exit":
+            Application.Current.Shutdown();
+            break;
+        }
       });
-    });
+    }
   }
 }

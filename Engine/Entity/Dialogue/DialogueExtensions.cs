@@ -68,13 +68,13 @@ public static class DialogueExtensions
         switch (dialogues[currentIndex])
         {
           case Say:
-            Dictionary<string, Action> dict = new Dictionary<string, Action>()
+            Dictionary<string, Action<int>> dict = new Dictionary<string, Action<int>>()
             {
-              {"대화 종료", () => callBack.Invoke("exit")}
+              {"대화 종료", (i) => callBack.Invoke("exit")}
             };
             if (currentIndex == 0)
             {
-              dict.Add("다음", () =>
+              dict.Add("다음", (i) =>
               {
                 currentIndex++;
                 While();
@@ -83,22 +83,22 @@ public static class DialogueExtensions
             else if (currentIndex == dialogues.Length - 1)
             {
               if (!(dialogues[currentIndex - 1] is Select))
-                dict.Add("이전", () =>
+                dict.Add("이전", (i) =>
                 {
                   currentIndex--;
                   While();
                 });
-              dict.Add("확인", () => callBack.Invoke("end"));
+              dict.Add("확인", (i) => callBack.Invoke("end"));
             }
             else
             {
               if (!(dialogues[currentIndex - 1] is Select))
-                dict.Add("이전", () =>
+                dict.Add("이전", (i) =>
                 {
                   currentIndex--;
                   While();
                 });
-              dict.Add("다음", () =>
+              dict.Add("다음", (i) =>
               {
                 currentIndex++;
                 While();
@@ -154,7 +154,7 @@ public static class DialogueExtensions
     if (screen == null) throw new Exception("메인 스크린이 존재하지 않습니다.");
     if (player == null) throw new Exception("플레이어가 존재하지 않습니다.");
 
-    screen.OpenSubScreen("dialogue", new Size(300, ScreenUtils.GetProperHeight(4)),
+    screen.OpenSubScreen<string>("대화", new Size(300, ScreenUtils.GetProperHeight(4)),
       dialogueWindow =>
       {
         dialogueItems.StartDialogue(player, opponent, dialogueWindow, result => dialogueWindow.ExitSub(result));

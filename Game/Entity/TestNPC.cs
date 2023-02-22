@@ -22,6 +22,7 @@ public class TestNPC : Engine.Entity.Entity, ITrader, INeutrality
   
   public IEnumerable<IDialogue> MeetDialogs { get; set; }
 
+  public string TraderType { get; set; }
   public IEnumerable<string> TradingItems { get; set; }
   public IEnumerable<string> DialogWhenTrade { get; set; }
   public IEnumerable<string> DialogWhenAfterPurchase { get; set; }

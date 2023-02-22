@@ -175,4 +175,7 @@ public static class Utils
     if (str.Length % 2 == 0) return str;
     else return str + " ";
   }
+
+  public static string GetMoneyString(this uint money) => String.Format("{0:#,0}", money);
+  public static string GetMoneyString(this int money) => String.Format("{0:#,0}", money);
 }
