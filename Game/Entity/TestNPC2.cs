@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Media;
 using Goguma.Engine.Entity;
-using Goguma.Engine.Entity.Dialog;
+using Goguma.Engine.Entity.Dialogue;
 
 namespace Goguma.Game.Entity;
 

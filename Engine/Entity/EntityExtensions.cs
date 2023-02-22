@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Windows;
 using System.Windows.Media;
 using Goguma.Engine.Item;
-using Goguma.Engine.Entity.Dialog;
 using Goguma.Game;
 using Goguma.Screen;
 
@@ -29,177 +28,238 @@ public static class EntityExtensions
     return resList.ToArray();
   }
 
-  public static void OpenTrader(this Screen.Screen screen, ITrader trader, Player.Player player, Action callBack)
+  public static void OpenTrader(this ITrader trader, Action callBack)
   {
-    const string purchaseTitle = "구매";
-    const string sellTitle = "판매";
-    Pair<int> maxIndexes = new Pair<int>(45, 17);
-    var emptyLen = maxIndexes.X - (purchaseTitle.Length + sellTitle.Length + 6);
-    var sb = new StringBuilder();
-    Pair<Brush> clrOnSelect = new Pair<Brush>(screen.BGColor, screen.FGColor);
-    Pair<Brush> clrOnDefault = new Pair<Brush>(screen.FGColor, screen.BGColor);
-    Pair<int> selectedIndexes = new Pair<int>();
-    Pair<int> maxSelectIndexes = new Pair<int>(1, 0);
-    int scroll = 0;
-    var randomFText = trader.DialogWhenTrade.GetRandom();
-    int textLen = maxIndexes.X - (trader.Name.Length + 1);
-    var defaultText =
-      $"<fg='{trader.Color}'>{trader.Name.ToSymbol()}<reset>{":".ToSymbol()}{randomFText.FillEmpty(textLen).ToSymbol()}";
-    string npcText = defaultText;
-    var purchasableItems = trader.TradingItems.ToArray();
-    ItemBundle[] sellableItems;
+    var screen = Screen.Screen.MainScreen;
+    var player = Main.Player;
+    if (screen == null) throw new Exception("스크린이 존재하지 않습니다.");
+    if (player == null) throw new Exception("플레이어가 존재하지 않습니다.");
 
-    screen.CanTask = true;
-
-    void While()
+    screen.OpenSubScreen("상점", new Size(500, 0), tradeWindow =>
     {
-      sellableItems = player.Inventory.Items.Keys.SelectMany(type => player.Inventory.Items[type]).ToArray();
-      screen.Clear();
-      sb.Clear().Append('┌').Append('─'.While(maxIndexes.X)).Append('┐');
-      screen.Print(sb.ToString());
-      screen.Println();
-      sb.Clear().Append("<reset>│").Append($"{npcText}").Append("│\n");
-      screen.PrintF(sb.ToString());
-      sb.Clear().Append('├').Append('─'.While(purchaseTitle.Length + 2)).Append('┬')
-        .Append('─'.While(sellTitle.Length + 2)).Append('┬').Append('─'.While(emptyLen)).Append("┤\n");
-      screen.Print(sb.ToString());
-      sb.Clear().Append('│');
-      screen.Print(sb.ToString());
-      screen.Print($" {purchaseTitle} ".ToSymbol(), (selectedIndexes.X == 0 ? clrOnSelect : clrOnDefault));
-      sb.Clear().Append('│');
-      screen.Print(sb.ToString());
-      screen.Print($" {sellTitle} ".ToSymbol(), (selectedIndexes.X == 1 ? clrOnSelect : clrOnDefault));
-      sb.Clear().Append('│');
-      if (selectedIndexes.X == 0)
-        sb.Append(
-          $"{(purchasableItems.Length == 0 ? 0 : selectedIndexes.Y + scroll + 1)}/{purchasableItems.Length} | {player.Inventory.Gold}G 소지 중"
-            .FillEmpty(emptyLen).ToSymbol()).Append("│\n");
-      else if (selectedIndexes.X == 1)
-        sb.Append(
-          $"{(sellableItems.Length == 0 ? 0 : selectedIndexes.Y + scroll + 1)}/{sellableItems.Length} | {player.Inventory.Gold}G 소지 중"
-            .FillEmpty(emptyLen).ToSymbol()).Append("│\n");
+      const int listMaxCount = 10;
+      bool isSellMode = false;
+      int maxCount = 0;
+      int currentIndex = 0;
+      int scroll = 0;
 
-      screen.Print(sb.ToString());
-      sb.Clear().Append('├').Append('─'.While(purchaseTitle.Length + 2)).Append('┴')
-        .Append('─'.While(sellTitle.Length + 2))
-        .Append('┴').Append('─'.While(emptyLen)).Append("┤\n");
-      screen.Print(sb.ToString());
-      screen.Print("│");
-      screen.Print("아이템 이름".FillEmpty(maxIndexes.X - 12).ToSymbol());
-      screen.Print("가격".FillEmpty(12).ToSymbol());
-      screen.Print("│\n");
+      tradeWindow.SetProperSize(500, 5 + listMaxCount);
 
-      for (var i = 0; i < maxIndexes.Y; i++)
+      void While()
       {
-        screen.Print("│");
-        if (selectedIndexes.X == 0)
+        var tradingItems = trader.TradingItems.ToArray();
+        var playerItems = new List<ItemBundle>();
+
+        foreach (var type in player.Inventory.Items.Keys)
         {
-          if (purchasableItems.Length > i)
+          var items = player.Inventory.Items[type];
+          if (items.Count > 0) playerItems.AddRange(items);
+        }
+
+        tradeWindow.Clear();
+        tradeWindow.PrintF(
+          $"&{{!}}[ &{{%#FF909098%}}{trader.TraderType}&{{!}} ] &{{%{trader.Color}%}}{trader.Name}");
+        tradeWindow.Println(2);
+        tradeWindow.Print(" [  구매  ] ", (!isSellMode ? tradeWindow.Colors.ToReversal() : tradeWindow.Colors));
+        tradeWindow.Print(" ");
+        tradeWindow.Print(" [  판매  ] ", (isSellMode ? tradeWindow.Colors.ToReversal() : tradeWindow.Colors));
+        tradeWindow.Println();
+
+        if (isSellMode)
+        {
+          maxCount = playerItems.Count;
+
+          for (int i = 0; i < listMaxCount; i++)
           {
-            var item = purchasableItems[i + scroll].GetItem();
-            screen.Print($"[{item.CheckType()}]{item.Name}".FillEmpty(maxIndexes.X - 12).ToSymbol(),
-              (selectedIndexes.Y == i ? clrOnSelect : clrOnDefault));
-            screen.Print($"{item.PriceOfPurchase} G".FillEmpty(12).ToSymbol(),
-              (selectedIndexes.Y == i ? clrOnSelect : clrOnDefault));
+            tradeWindow.Println();
+            if (maxCount <= i + scroll) continue;
+
+            var item = (ITradable) playerItems[i + scroll].Item.GetGameObject();
+
+            tradeWindow.Print($" - {playerItems[i + scroll]} [ {item.PriceOfSell.GetMoneyString()} Ｇ ] ",
+              (i == currentIndex ? tradeWindow.Colors.ToReversal() : tradeWindow.Colors));
           }
-          else
-            screen.Print("".FillEmpty(maxIndexes.X).ToSymbol());
         }
-        else if (selectedIndexes.X == 1)
+        else
         {
-          if (sellableItems.Length > i)
+          maxCount = tradingItems.Length;
+
+          for (int i = 0; i < listMaxCount; i++)
           {
-            var item = sellableItems[i + scroll].Item.GetItem();
-            var count = sellableItems[i + scroll].Count;
-            screen.Print($"[{item.CheckType()}]{item.Name}{(count > 1 ? $" {count} 개" : "")}"
-                .FillEmpty(maxIndexes.X - 12).ToSymbol(),
-              (selectedIndexes.Y == i ? clrOnSelect : clrOnDefault));
-            screen.Print($"{item.PriceOfSell}G".FillEmpty(12).ToSymbol(),
-              (selectedIndexes.Y == i ? clrOnSelect : clrOnDefault));
+            tradeWindow.Println();
+            if (maxCount <= i + scroll) continue;
+
+            var item = (ITradable) tradingItems[i + scroll].GetGameObject();
+
+            tradeWindow.Print($" - {((Item.Item)item).GetDisplay()} [ {item.PriceOfPurchase.GetMoneyString()} Ｇ ] ",
+              (i == currentIndex ? tradeWindow.Colors.ToReversal() : tradeWindow.Colors));
           }
-          else
-            screen.Print("".FillEmpty(maxIndexes.X).ToSymbol());
         }
 
-        screen.Print("│\n");
-      }
+        tradeWindow.Println(2);
+        tradeWindow.PrintF(
+          $"&{{!}}| 목록: {(maxCount == 0 ? "0" : currentIndex + scroll + 1)} / {maxCount} | 현재 &{{%#FF908718%}}{player.Inventory.Gold.GetMoneyString()} Ｇ&{{!}} 보유 중 |");
 
-      sb.Clear().Append('└').Append('─'.While(maxIndexes.X)).Append('┘');
-      screen.Print(sb.ToString());
-
-      if (selectedIndexes.X == 0)
-        maxSelectIndexes.Y = purchasableItems.Length;
-      else if (selectedIndexes.X == 1)
-        maxSelectIndexes.Y = sellableItems.Length;
-      npcText = defaultText;
-
-      screen.CanTask = true;
-      screen.ReadKey(key =>
-      {
-        if (key == screen.KeySet.Left)
+        void While2()
         {
-          selectedIndexes.X = (selectedIndexes.X - 1 < 0 ? maxSelectIndexes.X : selectedIndexes.X - 1);
-          selectedIndexes.Y = 0;
-          scroll = 0;
-        }
-        else if (key == screen.KeySet.Right)
-        {
-          selectedIndexes.X = (selectedIndexes.X + 1 > maxSelectIndexes.X ? 0 : selectedIndexes.X + 1);
-          selectedIndexes.Y = 0;
-          scroll = 0;
-        }
-        else if (key == screen.KeySet.Up)
-        {
-          if (selectedIndexes.Y == 0 && scroll > 0)
-            scroll -= 1;
-          else if (selectedIndexes.Y > 0)
-            selectedIndexes.Y -= 1;
-        }
-        else if (key == screen.KeySet.Down)
-        {
-          if (selectedIndexes.Y == maxIndexes.Y - 1 && selectedIndexes.Y + scroll < maxSelectIndexes.Y - 1)
-            scroll += 1;
-          else if (selectedIndexes.Y + scroll + 1 < maxSelectIndexes.Y)
-            selectedIndexes.Y += 1;
-        }
-        else if (key == screen.KeySet.Enter)
-        {
-          if (selectedIndexes.Y >= 0 && selectedIndexes.Y + scroll < maxSelectIndexes.Y)
-            if (selectedIndexes.X == 0)
+          tradeWindow.ReadKey(key =>
+          {
+            if (key == tradeWindow.KeySet.Enter)
             {
-              var item = purchasableItems[selectedIndexes.Y + scroll].GetItem();
-              if (player.Inventory.Gold >= item.PriceOfPurchase)
+              string str = (isSellMode ? "판매" : "구매");
+
+              void AskCount(Action<int?> callBack_)
               {
-                player.Inventory.Gold -= item.PriceOfPurchase;
-                player.Inventory.GainItem(purchasableItems[selectedIndexes.Y + scroll]);
-                npcText =
-                  $"<fg='{trader.Color}'>{trader.Name.ToSymbol()}<reset>{":".ToSymbol()}{trader.DialogWhenAfterPurchase.GetRandom().FillEmpty(textLen).ToSymbol()}";
+                var maxCnt = (isSellMode ? playerItems[currentIndex + scroll].Count : byte.MaxValue);
+                tradeWindow.SelectInt($"몇 개를 {str}하시겠습니까?", 1, maxCnt,
+                  count => callBack_.Invoke(count), 1, str);
+              }
+
+              void SellOrPurchase(uint count)
+              {
+                var item = (ITradable) (isSellMode
+                  ? playerItems[currentIndex + scroll].Item.GetGameObject()
+                  : tradingItems[currentIndex + scroll].GetGameObject());
+                var price = ((isSellMode ? item.PriceOfSell : item.PriceOfPurchase) * count).GetMoneyString();
+
+                tradeWindow.Ask(
+                  $"다음 아이템을 {str}하시겠습니까?\n\" {item.Name}{(count == 1 ? "" : $" {count}개")} \" ({price} Ｇ)", result =>
+                  {
+                    void ShowMsg()
+                    {
+                      tradeWindow.ShowMessage(
+                        $"다음 아이템을 {str}하였습니다.\n\" {item.Name}{(count == 1 ? "" : $" {count}개")} \" ({price} Ｇ)",
+                        () =>
+                        {
+                          if (currentIndex + scroll == maxCount - 1 && scroll > 0) scroll--;
+                          else if (currentIndex == maxCount - 1) currentIndex--;
+                          While();
+                        }, str, 2);
+                    }
+
+                    if (result != null && result.Value)
+                    {
+                      if (isSellMode)
+                      {
+                        player.Inventory.LoseItem(item.Code, count);
+                        player.Inventory.GainGold(item.PriceOfSell * count);
+                        ShowMsg();
+                      }
+                      else
+                      {
+                        if (player.Inventory.CheckGold(item.PriceOfPurchase * count))
+                        {
+                          player.Inventory.GainItem(item.Code, count);
+                          player.Inventory.LoseGold(item.PriceOfPurchase * count);
+                          ShowMsg();
+                        }
+                        else
+                          tradeWindow.ShowMessage($"골드가 부족합니다.", () => While(), str);
+                      }
+                    }
+                    else While();
+                  }, str, 2);
+              }
+
+              if (isSellMode)
+              {
+                if (playerItems[currentIndex + scroll].Count == 1)
+                {
+                  SellOrPurchase(1);
+                }
+                else
+                {
+                  AskCount(count =>
+                  {
+                    if (count != null && count != 0)
+                      SellOrPurchase((uint) count);
+                    else While();
+                  });
+                }
               }
               else
               {
-                npcText =
-                  $"<fg='{trader.Color}'>{trader.Name.ToSymbol()}<reset>{":".ToSymbol()}{trader.DialogWhenLackOfGold.GetRandom().FillEmpty(textLen).ToSymbol()}";
+                AskCount(count =>
+                {
+                  if (count != null && count != 0)
+                    SellOrPurchase((uint) count);
+                  else While();
+                });
               }
             }
-            else if (selectedIndexes.X == 1)
+            else if (key == tradeWindow.KeySet.Exit)
             {
-              var item = sellableItems[selectedIndexes.Y + scroll].Item.GetItem();
-              player.Inventory.Gold += item.PriceOfSell;
-              player.Inventory.LoseItem(sellableItems[selectedIndexes.Y + scroll].Item);
-              npcText =
-                $"<fg='{trader.Color}'>{trader.Name.ToSymbol()}<reset>{":".ToSymbol()}{trader.DialogWhenAfterSell.GetRandom().FillEmpty(textLen).ToSymbol()}";
+              tradeWindow.Ask("상점을 종료하시겠습니까?", res =>
+              {
+                if (res.Value) tradeWindow.ExitSub();
+                else While2();
+              });
             }
-        }
-        else if (key == screen.KeySet.Exit)
-        {
-          callBack();
-          return;
+            else if (key == tradeWindow.KeySet.Left || key == tradeWindow.KeySet.Right)
+            {
+              isSellMode = !isSellMode;
+              currentIndex = 0;
+              scroll = 0;
+              While();
+            }
+            else if (key == tradeWindow.KeySet.Up)
+            {
+              if (currentIndex == 0 && scroll == 0)
+              {
+                if (maxCount >= 10)
+                {
+                  currentIndex = 9;
+                  scroll = maxCount - 10;
+                }
+                else
+                {
+                  currentIndex = maxCount - 1;
+                  scroll = 0;
+                }
+              }
+              else
+              {
+                if (currentIndex == 0 && scroll > 0)
+                {
+                  scroll -= 1;
+                }
+                else if (currentIndex > 0)
+                {
+                  currentIndex -= 1;
+                }
+              }
+
+              While();
+            }
+            else if (key == tradeWindow.KeySet.Down)
+            {
+              if ((currentIndex == 9 && scroll == maxCount - 10) || (currentIndex + scroll + 1 == maxCount))
+              {
+                currentIndex = 0;
+                scroll = 0;
+              }
+              else
+              {
+                if (currentIndex == 9 && scroll < maxCount - 10)
+                {
+                  scroll += 1;
+                }
+                else if (currentIndex < 10 && maxCount > currentIndex + scroll + 1)
+                {
+                  currentIndex += 1;
+                }
+              }
+
+              While();
+            }
+            else While2();
+          });
         }
 
-        While();
-      });
-    }
+        While2();
+      }
 
-    While();
+      While();
+    });
   }
 }

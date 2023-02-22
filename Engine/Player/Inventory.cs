@@ -13,7 +13,7 @@ public sealed class Inventory
 {
   public Dictionary<string, List<ItemBundle>> Items { get; private set; }
 
-  public uint Gold { get; set; } = 0;
+  public uint Gold { get; private set; } = 0;
 
   public Inventory(string[] groupNames)
   {
@@ -23,13 +23,13 @@ public sealed class Inventory
       Items.Add(name, new List<ItemBundle>());
   }
 
-  public void Open(Action<Pair<string,int>?> callBack)
+  public void Open(Action<Pair<string, int>?> callBack)
   {
     Dictionary<string, List<string>> dict = new();
     foreach (var group in Items.Keys)
       dict.Add(group, Items[group].Select(x => x.ToString()).ToList());
 
-    Main.screen.Select2d(dict, "닫기", selection =>
+    Main.Screen.Select2d(dict, "닫기", selection =>
     {
       if (selection != null)
         callBack(new Pair<string, int>(Items.Keys.ToList()[selection.Value.X], selection.Value.Y));
@@ -71,7 +71,7 @@ public sealed class Inventory
       }
       else
       {
-        Items[type].Add(new ItemBundle(itemCode, (byte)count));
+        Items[type].Add(new ItemBundle(itemCode, (byte) count));
       }
     }
     else
@@ -131,7 +131,7 @@ public sealed class Inventory
           }
           else if (item.Count > count)
           {
-            item.Remove((byte)count);
+            item.Remove((byte) count);
             break;
           }
           else if (item.Count == count)
@@ -144,17 +144,23 @@ public sealed class Inventory
     }
   }
 
+  public void GainGold(uint amount) => Gold = Math.Min(uint.MaxValue, Gold + amount);
+
+  public void LoseGold(uint amount) => Gold = (uint)Math.Max(0, (decimal)Gold - amount);
+
+  public bool CheckGold(uint amount) => Gold >= amount;
+
   public void Clear()
   {
     foreach (var type in Items.Keys)
       Items[type].Clear();
   }
-  
+
   public void Clear(string type)
   {
     Items[type].Clear();
   }
-  
+
   public void LoseAllItem(string itemCode)
   {
     string type = CheckType(itemCode);
@@ -181,5 +187,6 @@ public sealed class Inventory
     return type;
   }
 
-  public bool CheckItem(string itemCode, uint count = 1) => Items[CheckType(itemCode)].Exists(x => x.Item == itemCode && x.Count >= count);
+  public bool CheckItem(string itemCode, uint count = 1) =>
+    Items[CheckType(itemCode)].Exists(x => x.Item == itemCode && x.Count >= count);
 }

@@ -13,39 +13,65 @@ namespace Goguma
   public partial class MainWindow
   {
     private const bool PrintErrorOnScreen = false;
+    private const bool ShowLogger = false;
 
     public MainWindow()
     {
       InitializeComponent();
-      Main.screen = Screen;
+      Main.Screen = Screen;
       Goguma.Screen.Screen.ParentGrid = mainGrid;
-    }
-
-    private void StartGame()
-    {
-      Start();
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
+      if (ShowLogger)
+      {
+        Main.Logger.OpenLogger();
+        this.Topmost = true;
+        this.Topmost = false;
+      }
+
       Screen.Focus();
 
       if (PrintErrorOnScreen)
       {
         try
         {
-          StartGame();
+          Start();
         }
         catch (Exception ex)
         {
-          Main.screen.Print(
-            $"\nERROR: {ex.Message}\nSOURCE: {ex.Source ?? ""}\nTARGETSITE: {ex.TargetSite}\nSTACKTRACE ---\n{ex.StackTrace ?? ""}",
-            new Pair<Brush>(Brushes.DarkRed, Main.screen.FGColor));
-          Main.screen.Pause(key => { Application.Current.Shutdown(); });
+          Goguma.Screen.Screen.IgnoreKeyPressEvent = true;
+          if (ShowLogger)
+          {
+            Main.Logger.Error($"{ex.Message}\n{ex.StackTrace ?? ""}");
+          }
+          else
+          {
+            Goguma.Screen.Screen.MainScreen.OpenSubScreen("ERROR!", new Size(650, 400), errorWindow =>
+            {
+              errorWindow.Print(
+                $"\nERROR: {ex.Message}\nSOURCE: {ex.Source ?? ""}\nTARGETSITE: {ex.TargetSite}\nSTACKTRACE ---\n{ex.StackTrace ?? ""}",
+                new Pair<Brush>(Brushes.DarkRed, Main.Screen.FGColor));
+              
+              errorWindow.Pause(key => { Application.Current.Shutdown(); });
+            });
+          }
         }
       }
       else
-        StartGame();
+        Start();
+    }
+
+    private void OnClosed(object? sender, EventArgs e)
+    {
+      Application.Current.Shutdown(0);
+    }
+
+    private void MainWindow_OnLocationChanged(object? sender, EventArgs e)
+    {
+      Main.Logger.loggerUI.Top = Top;
+      Main.Logger.loggerUI.Left = Left + Width;
     }
   }
 }

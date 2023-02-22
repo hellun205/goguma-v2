@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Windows;
 using Goguma.Game;
 using Goguma.Screen;
-using static Goguma.Game.Main;
 
 namespace Goguma.Engine.Player;
 
@@ -44,9 +42,9 @@ public sealed partial class Player
   {
     void While()
     {
-      Main.screen.Clear();
-      Main.screen.Print("캐릭터를 선택하세요");
-      Main.screen.SelectV(new Dictionary<string, string>()
+      Main.Screen.Clear();
+      Main.Screen.Print("캐릭터를 선택하세요");
+      Main.Screen.SelectV(new Dictionary<string, object>()
       {
         {"새로 만들기", "new"},
         {"세이브 불러오기", "load"},
@@ -56,25 +54,25 @@ public sealed partial class Player
         switch (selection)
         {
           case "new":
-            Main.screen.Clear();
-            Main.screen.Print("캐릭터의 이름을 정해주세요\n");
-            Main.screen.ReadText(playerName =>
+            Main.Screen.Clear();
+            Main.Screen.Print("캐릭터의 이름을 정해주세요\n");
+            Main.Screen.ReadText(playerName =>
             {
               callBack(new Player(playerName));
               ;
-              Save(player);
+              Save(Main.Player);
             });
             break;
 
           case "load":
             DirectoryInfo dInfo = new DirectoryInfo($"{SavePath}");
             FileInfo[] fInfos = dInfo.GetFiles("*.json");
-            Dictionary<string, string> datas = fInfos.Select(file => PlayerData.Load(file.FullName))
-              .ToDictionary(pData => pData.ToString(), pData => pData.Name);
+            Dictionary<string, object> datas = fInfos.Select(file => PlayerData.Load(file.FullName))
+              .ToDictionary(pData => pData.ToString(), pData => (object)pData.Name);
 
-            Main.screen.Clear();
-            Main.screen.Print("불러올 캐릭터를 선택하세요.");
-            Main.screen.SelectV(datas, "취소", playerName => callBack(Load(playerName)), () => While());
+            Main.Screen.Clear();
+            Main.Screen.Print("불러올 캐릭터를 선택하세요.");
+            Main.Screen.SelectV(datas, "취소", playerName => callBack(Load(playerName.ToString())), () => While());
             break;
 
           case "cancel":

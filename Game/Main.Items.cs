@@ -69,6 +69,83 @@ public static partial class Main
         PriceOfPurchase = 5000,
         PriceOfSell = 2500,
       },
+      new Potion("potion5")
+      {
+        Name = "포션5",
+        Description = "흐음? 이라는 말이 나올 정도로 효과가 없다.",
+        Buff = new BuffStats()
+        {
+          Hp = 1
+        },
+        PriceOfPurchase = 5000,
+        PriceOfSell = 2500,
+      },
+      new Potion("potion6")
+      {
+        Name = "포션6",
+        Description = "흐음? 이라는 말이 나올 정도로 효과가 없다.",
+        Buff = new BuffStats()
+        {
+          Hp = 1
+        },
+        PriceOfPurchase = 5000,
+        PriceOfSell = 2500,
+      },
+      new Potion("potion7")
+      {
+        Name = "포션7",
+        Description = "흐음? 이라는 말이 나올 정도로 효과가 없다.",
+        Buff = new BuffStats()
+        {
+          Hp = 1
+        },
+        PriceOfPurchase = 5000,
+        PriceOfSell = 2500,
+      },
+      new Potion("potion8")
+      {
+        Name = "포션8",
+        Description = "흐음? 이라는 말이 나올 정도로 효과가 없다.",
+        Buff = new BuffStats()
+        {
+          Hp = 1
+        },
+        PriceOfPurchase = 5000,
+        PriceOfSell = 2500,
+      },
+      new Potion("potion9")
+      {
+        Name = "흐음 포션9",
+        Description = "흐음? 이라는 말이 나올 정도로 효과가 없다.",
+        Buff = new BuffStats()
+        {
+          Hp = 1
+        },
+        PriceOfPurchase = 5000,
+        PriceOfSell = 2500,
+      },
+      new Potion("potion10")
+      {
+        Name = "흐음 포션10",
+        Description = "흐음? 이라는 말이 나올 정도로 효과가 없다.",
+        Buff = new BuffStats()
+        {
+          Hp = 1
+        },
+        PriceOfPurchase = 5000,
+        PriceOfSell = 2500,
+      },
+      new Potion("potion11")
+      {
+        Name = "흐음 포션11",
+        Description = "흐음? 이라는 말이 나올 정도로 효과가 없다.",
+        Buff = new BuffStats()
+        {
+          Hp = 1
+        },
+        PriceOfPurchase = 5000,
+        PriceOfSell = 2500,
+      },
       
       // new ...
     });

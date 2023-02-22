@@ -12,6 +12,7 @@ public class Entity : IGameObject
   
   public ushort Level { get; set; }
 
+#pragma warning disable CS8618
   public Entity(string code)
   {
     this.Init(code);

@@ -33,6 +33,8 @@ public struct Pair<T> : IEquatable<Pair<T>>
 
   public static bool operator ==(Pair<T> a, Pair<T> b) => a.Equals(b);
   public static bool operator !=(Pair<T> a, Pair<T> b) => !a.Equals(b);
+
+  public Pair<T> ToReversal() => new Pair<T>(Y, X);
 }
 
 public struct Pair<Tx, Ty> : IEquatable<Pair<Tx, Ty>>

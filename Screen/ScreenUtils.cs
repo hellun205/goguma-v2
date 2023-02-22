@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using Size = System.Windows.Size;
 
 namespace Goguma.Screen;
 
@@ -12,8 +14,12 @@ namespace Goguma.Screen;
 /// </summary>
 public static partial class ScreenUtils
 {
+  public static readonly char BGChr = '*';
+  public static readonly char FGChr = '%';
+  public static readonly char ResetChr = '!';
+
   /// <summary>
-  /// 글자 색 정보를 가진 텍스트를 변환하여 글자를 출력합니다. (배경 색: '*', 글자 색: '#')
+  /// 글자 색 정보를 가진 텍스트를 변환하여 글자를 출력합니다.
   /// </summary>
   /// <param name="screen">글자를 출력할 스크린</param>
   /// <param name="coloredText">글자 색 정보를 가진 텍스트</param>
@@ -51,16 +57,16 @@ public static partial class ScreenUtils
         {
           Pair<Brush> color = new(screen.FGColor, screen.BGColor);
 
-          if (!tagSplit[0].Contains("reset"))
+          if (!tagSplit[0].Contains(ResetChr))
           {
-            if (tagSplit[0].Contains("#"))
+            if (tagSplit[0].Contains(FGChr))
             {
-              color.X = (Brush) (new BrushConverter().ConvertFromString(tagSplit[0].Split('#')[1]) ?? screen.FGColor);
+              color.X = (Brush) (new BrushConverter().ConvertFromString(tagSplit[0].Split(FGChr)[1]) ?? screen.FGColor);
             }
 
-            if (tagSplit[0].Contains("*"))
+            if (tagSplit[0].Contains(BGChr))
             {
-              color.Y = (Brush) (new BrushConverter().ConvertFromString(tagSplit[0].Split('*')[1]) ?? screen.BGColor);
+              color.Y = (Brush) (new BrushConverter().ConvertFromString(tagSplit[0].Split(BGChr)[1]) ?? screen.BGColor);
             }
           }
 
@@ -78,7 +84,6 @@ public static partial class ScreenUtils
       return defaultRes;
   }
 
-
   /// <summary>
   /// 글자 색 정보를 가진 텍스트의 텍스트 부분을 가져옵니다.
   /// </summary>
@@ -95,7 +100,7 @@ public static partial class ScreenUtils
 
     return sb.ToString();
   }
-  
+
 
   public static void Select2d(this Screen screen, Dictionary<string, List<string>> queue,
     string cancelText, Action<Pair<int>?> callBack)
@@ -229,5 +234,93 @@ public static partial class ScreenUtils
       sb.Append('\n');
 
     screen.Print(sb.ToString());
+  }
+
+  public static double GetProperHeight(int line = 1) => Screen.SFHeight * 2 + Screen.FHeight * line + 31;
+
+  public static void Ask(this Screen screen, string question, Action<bool?> callBack, string title = "", int line = 1,
+    string no = "아니오", string yes = "예", string cancel = "")
+  {
+    screen.OpenSubScreen<bool>(title, new Size(300, 0), questionWindow =>
+      {
+        questionWindow.SetProperSize(300, 1 + line);
+        questionWindow.ScrollToEnd = false;
+        questionWindow.TextAlignment = TextAlignment.Center;
+
+        questionWindow.Print(question);
+        questionWindow.Println();
+
+        var dict = new Dictionary<string, Action<int>>();
+        if (!string.IsNullOrEmpty(cancel))
+          dict.Add(cancel, i => questionWindow.ExitSub(null));
+        dict.Add(no, i => questionWindow.ExitSub(false));
+        dict.Add(yes, i => questionWindow.ExitSub(true));
+
+        questionWindow.SelectH(dict);
+      }
+      , result => callBack.Invoke(result));
+  }
+
+  public static void ShowMessage(this Screen screen, string question, Action callBack, string title = "", int line = 1,
+    string confirm = "확인")
+  {
+    screen.OpenSubScreen(title, new Size(300, 0), questionWindow =>
+      {
+        questionWindow.SetProperSize(300, 1 + line);
+        questionWindow.ScrollToEnd = false;
+        questionWindow.TextAlignment = TextAlignment.Center;
+
+        questionWindow.Print(question);
+        questionWindow.Println();
+
+        questionWindow.SelectH(new Dictionary<string, Action<int>>()
+        {
+          {confirm, i => questionWindow.ExitSub()}
+        });
+      }
+      , result => callBack.Invoke());
+  }
+
+  public static void SelectInt(this Screen screen, string question, int min, int max, Action<int?> callBack,
+    int start = 0, string title = "", int line = 1)
+  {
+    screen.OpenSubScreen<int>(title, new Size(200, 0), selectWindow =>
+    {
+      selectWindow.SetProperSize(300, 1 + line);
+      selectWindow.ScrollToEnd = false;
+      selectWindow.TextAlignment = TextAlignment.Center;
+      int index = start;
+
+      void While()
+      {
+        selectWindow.Clear();
+        selectWindow.Print(question);
+        selectWindow.Println(2);
+        selectWindow.Print($" [ {index} ↕ ] ", selectWindow.Colors.ToReversal());
+        selectWindow.Println();
+
+        selectWindow.ReadKey(key =>
+        {
+          if (key == selectWindow.KeySet.Enter)
+            selectWindow.ExitSub(index);
+          else if (key == selectWindow.KeySet.Exit)
+            selectWindow.ExitSub();
+          else if (key == selectWindow.KeySet.Up)
+          {
+            if (index == max) index = min;
+            else index++;
+            While();
+          }
+          else if (key == selectWindow.KeySet.Down)
+          {
+            if (index == min) index = max;
+            else index--;
+            While();
+          } else While();
+        });
+      }
+
+      While();
+    }, result => callBack.Invoke(result));
   }
 }
